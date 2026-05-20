@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 縮放完整復原版</title>
+    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 座標精準版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for mobile screenshots -->
@@ -30,7 +30,6 @@
             box-sizing: border-box;
             height: 48px; 
         }
-        /* 月份訪談區與簽名欄位解鎖，高度自動撐開 */
         .print-table tbody td {
             border: 1.5px solid #000000;
             color: #000000;
@@ -124,7 +123,10 @@
             <div>
                 <h3 class="text-sm font-bold text-gray-700 mb-2 flex items-center justify-between">
                     <span>👥 雲端員工資料庫</span>
-                    <button onclick="toggleEmpModal(true)" class="text-xs text-blue-600 hover:underline">+ 編輯員工</button>
+                    <div class="flex gap-2">
+                        <button onclick="toggleRosterModal(true)" class="text-xs text-indigo-600 font-bold hover:underline">📋 名單比對表</button>
+                        <button onclick="toggleEmpModal(true)" class="text-xs text-blue-600 hover:underline">+ 編輯員工</button>
+                    </div>
                 </h3>
                 <div id="empListBrief" class="text-xs text-gray-500 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                     <span class="text-gray-400">正在加載員工...</span>
@@ -163,9 +165,8 @@
 
     <!-- 縮放與滾動容器 -->
     <div class="w-full overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl shadow-inner min-h-[60vh] p-2" id="scrollContainer">
-        <!-- 縮放核心引擎 -->
         <div id="zoomArea" class="mx-auto" style="width: 850px;">
-            <!-- 要被截圖的實體表格容器 (鎖定寬高比與佈局) -->
+            <!-- 要被截圖的實體表格容器 -->
             <div id="captureContainer" class="w-[850px] bg-white p-8 shadow-sm border border-gray-200 relative">
                 <div class="flex justify-between items-end mb-4 w-full">
                     <div class="w-1/4"></div>
@@ -219,7 +220,8 @@
                                     <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="4/23" style="margin-top: -2px;">
+                                        <!-- 套用 translateY(-3px) 修復截圖日期遮擋問題 -->
+                                        <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="4/23" style="transform: translateY(-3px);">
                                     </div>
                                 </div>
                                 <div class="p-3 bg-white min-h-[120px] space-y-3">
@@ -232,7 +234,6 @@
                                         <textarea id="feedback1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
                                     </div>
                                 </div>
-                                <!-- 右下角精緻簽名區 -->
                                 <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
                                     <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
                                     <div class="flex flex-col items-end gap-1.5">
@@ -261,7 +262,7 @@
                                     <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
+                                        <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="填寫日期" style="transform: translateY(-3px);">
                                     </div>
                                 </div>
                                 <div class="p-3 bg-white min-h-[120px] space-y-3">
@@ -302,7 +303,7 @@
                                     <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
+                                        <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="填寫日期" style="transform: translateY(-3px);">
                                     </div>
                                 </div>
                                 <div class="p-3 bg-white min-h-[120px] space-y-3">
@@ -341,13 +342,43 @@
         </div>
     </div>
 
-    <!-- 所有彈窗 Modals (維持 V1-Archived 完整功能) -->
+    <!-- 所有彈窗 Modals -->
+
+    <!-- 【新增】名單比對表 Modal -->
+    <div id="rosterModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
+            <h3 class="text-lg font-bold text-indigo-800 mb-3 flex justify-between items-center border-b pb-2">
+                <span>📋 當前行館名單比對表</span>
+                <button onclick="toggleRosterModal(false)" class="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
+            </h3>
+            
+            <div class="overflow-y-auto flex-1 border rounded-lg">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-indigo-50 uppercase text-xs text-indigo-700 sticky top-0">
+                        <tr>
+                            <th class="p-3 border-b">編號</th>
+                            <th class="p-3 border-b">姓名</th>
+                            <th class="p-3 border-b">職稱</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rosterTableBody">
+                        <!-- 動態產生比對名單 -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 flex justify-end">
+                <button onclick="toggleRosterModal(false)" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 text-sm shadow">關閉比對表</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 員工管理 Modal -->
     <div id="empModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
                 <span>👥 編輯員工編號對照表</span>
-                <button onclick="toggleEmpModal(false)" class="text-gray-400 hover:text-gray-600">✕</button>
+                <button onclick="toggleEmpModal(false)" class="text-gray-400 hover:text-gray-600 font-bold">✕</button>
             </h3>
             <form id="newEmpForm" onsubmit="addEmployee(event)" class="bg-gray-50 p-3 rounded-lg border mb-4 grid grid-cols-3 gap-2">
                 <div><input type="text" id="newId" placeholder="編號" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500" required></div>
@@ -359,8 +390,8 @@
             </form>
             <div class="overflow-y-auto flex-1 border rounded-lg">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-gray-100 uppercase">
-                        <tr><th class="p-2">編號</th><th class="p-2">姓名</th><th class="p-2">職稱</th><th class="p-2 text-center">操作</th></tr>
+                    <thead class="bg-gray-100 uppercase sticky top-0">
+                        <tr><th class="p-2 border-b">編號</th><th class="p-2 border-b">姓名</th><th class="p-2 border-b">職稱</th><th class="p-2 border-b text-center">操作</th></tr>
                     </thead>
                     <tbody id="empTableBody"></tbody>
                 </table>
@@ -368,36 +399,6 @@
             <div class="mt-4 flex justify-end">
                 <button onclick="toggleEmpModal(false)" class="bg-gray-800 text-white px-4 py-2 rounded font-bold hover:bg-gray-900 text-xs">完成關閉</button>
             </div>
-        </div>
-    </div>
-
-    <!-- 簽名檔管理艙 Modal -->
-    <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
-        <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
-            <span>🔄 偵測到手機為直向，強烈建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
-        </div>
-        <div class="bg-slate-100 px-4 py-3 border-b flex flex-wrap items-center justify-between gap-2">
-            <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                <span>✍️ 雲端電子簽名管理艙</span><span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-normal">手機橫向優化</span>
-            </h3>
-            <div class="flex items-center gap-2">
-                <input type="text" id="newSigName" placeholder="主管姓名" class="border rounded px-2.5 py-1 text-xs focus:ring-1 focus:ring-blue-500 w-28 md:w-40 font-semibold text-gray-800">
-                <button onclick="uploadNewSignature()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-bold transition">儲存簽名</button>
-                <button onclick="clearManagerSigCanvas()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs px-3 py-1.5 rounded font-semibold transition">重畫</button>
-                <button onclick="toggleSigManagerModal(false)" class="bg-slate-800 hover:bg-slate-950 text-white text-xs px-3 py-1.5 rounded font-semibold transition">關閉</button>
-            </div>
-        </div>
-        <div class="flex-1 bg-slate-50 relative w-full overflow-hidden">
-            <canvas id="managerSigCanvas" class="w-full h-full cursor-crosshair touch-none absolute inset-0"></canvas>
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-10">
-                <div class="text-center"><span class="text-4xl md:text-6xl font-bold tracking-widest block mb-2">請在此區域親筆簽名</span></div>
-            </div>
-        </div>
-        <div class="border-t bg-white h-24 md:h-32 flex flex-col">
-            <div class="bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-gray-500 border-b flex justify-between items-center">
-                <span>📁 已錄入固定簽名檔清單</span>
-            </div>
-            <div class="flex-1 overflow-x-auto overflow-y-hidden p-2 flex items-center gap-3" id="sigManagerListHorizontal"></div>
         </div>
     </div>
 
@@ -411,7 +412,7 @@
             <div class="mb-3 flex gap-2"><input type="text" id="historySearch" oninput="filterHistoryList()" placeholder="輸入姓名或編號快速過濾..." class="w-full border rounded p-2 text-sm focus:ring-1 focus:ring-indigo-500"></div>
             <div class="overflow-y-auto flex-1 border rounded-lg">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 uppercase text-xs text-slate-700 font-bold border-b">
+                    <thead class="bg-slate-50 uppercase text-xs text-slate-700 font-bold border-b sticky top-0">
                         <tr><th class="p-3">季度/年度</th><th class="p-3">姓名(編號)</th><th class="p-3">區域/店別</th><th class="p-3 text-center">操作</th></tr>
                     </thead>
                     <tbody id="historyTableBody"></tbody>
@@ -428,7 +429,7 @@
         <div class="bg-white rounded-xl shadow-2xl p-4 max-w-full md:max-w-2xl w-full flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="font-bold text-gray-800 text-base">🎉 訪談紀錄截圖已完成！</h3>
-                <button onclick="toggleScreenshotModal(false)" class="text-gray-500 hover:text-gray-800 font-bold p-1">✕</button>
+                <button onclick="toggleScreenshotModal(false)" class="text-gray-500 hover:text-gray-800 font-bold text-xl p-1">✕</button>
             </div>
             <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs p-2.5 rounded mb-3 flex items-center gap-2">
                 <span>📱 <strong>手機存圖秘訣：</strong>請在下方圖片上<strong>「長按 2-3 秒」</strong>儲存圖片。</span>
@@ -443,7 +444,7 @@
         </div>
     </div>
 
-    <!-- 成功與錯誤 Modal -->
+    <!-- 成功 Modal -->
     <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-bounce">
@@ -481,13 +482,13 @@
     <!-- 訊息提示盒 -->
     <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium"></div>
 
-    <!-- ==================== 核心 JavaScript 邏輯 (包含縮放控制與 Firebase) ==================== -->
+    <!-- ==================== 核心 JavaScript 邏輯 ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { initializeFirestore, getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 1. 全域變數定義
+        // 全域變數定義
         let user = null;
         let employees = [];
         let loadedRecords = []; 
@@ -495,45 +496,31 @@
         let currentStoreId = "store_zhongqing";
         let isManagerMode = false;
         let currentConfirmResolve = null;
-
-        // 【新增】縮放控制變數
         window.currentZoom = 1.0;
 
         const STORES_LIST = [
-            { id: "store_zhonggang", name: "中港行館", area: "台中區" },
-            { id: "store_yuanlin", name: "員林行館", area: "彰化區" },
-            { id: "store_zhongqing", name: "中清行館", area: "台中區" },
-            { id: "store_dali", name: "大里行館", area: "台中區" },
-            { id: "store_zhongke", name: "中科行館", area: "台中區" },
-            { id: "store_shalu", name: "沙鹿行館", area: "台中區" },
-            { id: "store_aihe", name: "愛河行館", area: "高雄區" },
-            { id: "store_fengshan", name: "鳳山行館", area: "高雄區" },
-            { id: "store_zuoying", name: "左營行館", area: "高雄區" },
-            { id: "store_sanduo", name: "三多行館", area: "高雄區" },
-            { id: "store_meishuguan", name: "美術館行館", area: "高雄區" },
-            { id: "store_fuqian", name: "府前行館", area: "台南區" },
-            { id: "store_anping", name: "安平行館", area: "台南區" },
-            { id: "store_xinsheng", name: "新生行館", area: "台北區" },
-            { id: "store_xinyi", name: "信義行館", area: "台北區" },
-            { id: "store_zhongli", name: "中壢行館", area: "桃園區" },
-            { id: "store_zhubei", name: "竹北行館", area: "新竹區" },
-            { id: "store_taiping", name: "太平店", area: "台中區" },
-            { id: "store_fengyuan", name: "豐原行館", area: "台中區" },
-            { id: "store_dongxing", name: "東興店", area: "台中區" },
-            { id: "store_wuquan", name: "五權店", area: "台中區" },
-            { id: "store_pasha", name: "帕夏健髮-公益店", area: "台中區" },
-            { id: "store_jing", name: "婧仕女微旅", area: "旅宿區" },
-            { id: "store_headquarters", name: "集團總管理", area: "總部" }
+            { id: "store_zhonggang", name: "中港行館", area: "台中區" }, { id: "store_yuanlin", name: "員林行館", area: "彰化區" },
+            { id: "store_zhongqing", name: "中清行館", area: "台中區" }, { id: "store_dali", name: "大里行館", area: "台中區" },
+            { id: "store_zhongke", name: "中科行館", area: "台中區" }, { id: "store_shalu", name: "沙鹿行館", area: "台中區" },
+            { id: "store_aihe", name: "愛河行館", area: "高雄區" }, { id: "store_fengshan", name: "鳳山行館", area: "高雄區" },
+            { id: "store_zuoying", name: "左營行館", area: "高雄區" }, { id: "store_sanduo", name: "三多行館", area: "高雄區" },
+            { id: "store_meishuguan", name: "美術館行館", area: "高雄區" }, { id: "store_fuqian", name: "府前行館", area: "台南區" },
+            { id: "store_anping", name: "安平行館", area: "台南區" }, { id: "store_xinsheng", name: "新生行館", area: "台北區" },
+            { id: "store_xinyi", name: "信義行館", area: "台北區" }, { id: "store_zhongli", name: "中壢行館", area: "桃園區" },
+            { id: "store_zhubei", name: "竹北行館", area: "新竹區" }, { id: "store_taiping", name: "太平店", area: "台中區" },
+            { id: "store_fengyuan", name: "豐原行館", area: "台中區" }, { id: "store_dongxing", name: "東興店", area: "台中區" },
+            { id: "store_wuquan", name: "五權店", area: "台中區" }, { id: "store_pasha", name: "帕夏健髮-公益店", area: "台中區" },
+            { id: "store_jing", name: "婧仕女微旅", area: "旅宿區" }, { id: "store_headquarters", name: "集團總管理", area: "總部" }
         ];
 
-        // 2. ★ 絕對優先：綁定所有 UI 事件至 window (防按鈕沒反應) ★
+        // 綁定全域 UI 事件
         window.showMsg = (text) => {
             const box = document.getElementById('msgBox');
             box.innerText = text; box.style.opacity = '1';
             setTimeout(() => box.style.opacity = '0', 2500);
         };
         
-        // 【新增】縮放控制函數
+        // 縮放控制函數
         window.changeZoom = (delta) => {
             window.currentZoom = Math.max(0.4, Math.min(2.0, window.currentZoom + delta));
             document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
@@ -576,8 +563,25 @@
             document.getElementById('storeInput').value = store.name;
             document.getElementById('labelArea').innerText = store.area;
             document.getElementById('labelStore').innerText = store.name;
-            renderEmployeeBrief(); renderHistoryTable(); updateEmpSelectInlineDropdown();
+            renderEmployeeBrief(); renderHistoryTable(); updateEmpSelectInlineDropdown(); renderRosterTable();
         };
+
+        // 名單比對表操作
+        window.toggleRosterModal = (show) => {
+            document.getElementById('rosterModal').classList[show ? 'remove' : 'add']('hidden');
+            if(show) renderRosterTable();
+        };
+        function renderRosterTable() {
+            const tbody = document.getElementById('rosterTableBody'); tbody.innerHTML = "";
+            const currentEmps = employees.filter(e => e.storeId === currentStoreId);
+            if(currentEmps.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">當前行館無任何名單紀錄</td></tr>`; return;
+            }
+            currentEmps.forEach(e => {
+                tbody.innerHTML += `<tr class="border-b hover:bg-indigo-50/30 transition"><td class="p-3 font-bold text-gray-700">${e.id}</td><td class="p-3 font-semibold text-indigo-700">${e.name}</td><td class="p-3 text-gray-500">${e.title||'無'}</td></tr>`;
+            });
+        }
+
         window.toggleEmpModal = (show) => {
             document.getElementById('empModal').classList[show ? 'remove' : 'add']('hidden');
             if(show) renderEmployeeTable(); else window.saveAllEmployeesToCloud();
@@ -587,14 +591,8 @@
             if(show) renderHistoryTable();
         };
         window.toggleScreenshotModal = (show) => document.getElementById('screenshotModal').classList[show ? 'remove' : 'add']('hidden');
-        window.toggleSigManagerModal = (show) => {
-            const m = document.getElementById('sigManagerModal');
-            if(show) { m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => initManagerSignaturePad(), 200); }
-            else { m.classList.add('hidden'); m.classList.remove('flex'); }
-        };
         window.showCustomConfirm = (title, msg) => {
-            document.getElementById('confirmTitleField').innerText = title;
-            document.getElementById('confirmMsgField').innerText = msg;
+            document.getElementById('confirmTitleField').innerText = title; document.getElementById('confirmMsgField').innerText = msg;
             document.getElementById('customConfirmModal').classList.remove('hidden');
             return new Promise(resolve => { currentConfirmResolve = resolve; });
         };
@@ -606,9 +604,7 @@
         window.handleEmpSelect = (id) => {
             const match = employees.find(e => e.id === id && e.storeId === currentStoreId);
             if(match) {
-                document.getElementById('empName').value = match.name;
-                document.getElementById('empId').value = match.id;
-                document.getElementById('empTitle').value = match.title || "";
+                document.getElementById('empName').value = match.name; document.getElementById('empId').value = match.id; document.getElementById('empTitle').value = match.title || "";
             } else {
                 document.getElementById('empName').value = ""; document.getElementById('empId').value = ""; document.getElementById('empTitle').value = "";
             }
@@ -617,12 +613,11 @@
             const id = document.getElementById('empId').value.trim();
             const match = employees.find(e => e.id === id && e.storeId === currentStoreId);
             if(match) {
-                document.getElementById('empName').value = match.name; document.getElementById('empTitle').value = match.title || "";
-                document.getElementById('empSelectInline').value = match.id;
+                document.getElementById('empName').value = match.name; document.getElementById('empTitle').value = match.title || ""; document.getElementById('empSelectInline').value = match.id;
             } else { document.getElementById('empName').value = ""; document.getElementById('empTitle').value = ""; document.getElementById('empSelectInline').value = ""; }
         };
 
-        // 3. Firebase 設定與初始化 (含防呆降級)
+        // Firebase 初始化
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyBC6xpSN5ITJL0Jfhj6qAHWxaosTXKB5QA", authDomain: "monthly-interview.firebaseapp.com",
             projectId: "monthly-interview", storageBucket: "monthly-interview.firebasestorage.app",
@@ -635,13 +630,12 @@
         try { db = initializeFirestore(app, { experimentalForceLongPolling: true, useFetchStreams: false }); } 
         catch (e) { db = getFirestore(app); }
 
-        // 4. 核心邏輯
         window.addEventListener('load', async () => {
             
             // 自動計算最適縮放比例 (Auto-Fit Width)
             const screenWidth = window.innerWidth;
-            if(screenWidth < 900) { // 如果手機螢幕小於表格寬度
-                window.currentZoom = (screenWidth - 20) / 850;
+            if(screenWidth < 900) { 
+                window.currentZoom = (screenWidth - 16) / 850;
                 document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
                 document.getElementById('zoomLabel').innerText = Math.round(window.currentZoom * 100) + '%';
             }
@@ -669,14 +663,10 @@
 
         function initCloudListeners() {
             onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'employees'), s => {
-                employees = s.docs.map(d => d.data()); renderEmployeeBrief(); updateEmpSelectInlineDropdown();
+                employees = s.docs.map(d => d.data()); renderEmployeeBrief(); updateEmpSelectInlineDropdown(); renderRosterTable();
             });
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'records'), s => {
-                loadedRecords = s.docs.map(d => d.data());
-            });
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'signatures'), s => {
-                savedSignatures = s.docs.map(d => d.data()); updateMonthlySigSelectors();
-            });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'records'), s => { loadedRecords = s.docs.map(d => d.data()); });
+            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'signatures'), s => { savedSignatures = s.docs.map(d => d.data()); });
         }
 
         // --- 核心寫入與備份 ---
@@ -701,14 +691,11 @@
                 })), updatedAt: new Date().toLocaleString()
             };
 
-            // 1. 本地備份 (100% 成功)
             localStorage.setItem(`offline_record_${recordId}`, JSON.stringify(payload));
-            
             if(!user) {
                 document.getElementById('successModalTitle').innerText = "本機暫存成功";
                 document.getElementById('successModalMsg').innerText = "雲端未連線，資料已安全暫存於本機！";
-                document.getElementById('successModal').classList.remove('hidden');
-                return;
+                document.getElementById('successModal').classList.remove('hidden'); return;
             }
 
             window.showMsg("💾 傳輸至 Firebase...");
@@ -718,11 +705,11 @@
                 document.getElementById('successModalMsg').innerText = "訪談紀錄已同步至 Firebase！";
                 document.getElementById('successModal').classList.remove('hidden');
             } catch (err) {
-                window.showMsg("❌ 寫入遭拒！請確保已在 Firebase Console > Firestore Rules 貼上 allow read, write: if true;");
+                window.showMsg("❌ 寫入遭拒！請檢查 Rules");
             }
         };
 
-        // --- html2canvas 高解析無損截圖 (修復縮放導致裁切的問題) ---
+        // --- html2canvas 高解析無損截圖 ---
         window.generateScreenshot = () => {
             window.showMsg("📸 正在為您擷取高解析相片...");
             const container = document.getElementById('captureContainer');
@@ -733,14 +720,9 @@
             const originalZoom = window.currentZoom;
             document.getElementById('zoomArea').style.transform = 'scale(1)';
 
-            html2canvas(container, { 
-                scale: 2.2, 
-                useCORS: true, 
-                backgroundColor: "#ffffff",
-                allowTaint: false
-            }).then(canvas => {
+            html2canvas(container, { scale: 2.2, useCORS: true, backgroundColor: "#ffffff", allowTaint: false }).then(canvas => {
                 noCaptures.forEach(el => el.style.visibility = 'visible');
-                document.getElementById('zoomArea').style.transform = `scale(${originalZoom})`; // 截圖後恢復原本縮放
+                document.getElementById('zoomArea').style.transform = `scale(${originalZoom})`; 
 
                 document.getElementById('screenshotPreview').src = canvas.toDataURL('image/png');
                 document.getElementById('downloadBtn').href = canvas.toDataURL('image/png');
@@ -829,7 +811,7 @@
         };
 
         // ----------------------------------------------------
-        // 【核心右下角簽名板】+ 縮放引擎座標換算 (Scale mapping)
+        // 【動態精準座標矩陣】 - 右下角簽名板 & 縮放換算
         // ----------------------------------------------------
         function initSignaturePads() {
             sigPads = [];
@@ -837,43 +819,32 @@
                 const canvas = document.getElementById(`sigCanvas${i}`);
                 if (!canvas) return;
                 
-                // 固定右下角精緻比例：寬 160px (w-40), 高 64px (h-16)
                 const width = canvas.parentElement.offsetWidth || 160;
                 const height = canvas.parentElement.offsetHeight || 64;
                 
-                canvas.style.width = width + "px"; 
-                canvas.style.height = height + "px"; 
-                canvas.width = width * 2; 
-                canvas.height = height * 2;
+                canvas.style.width = width + "px"; canvas.style.height = height + "px"; 
+                canvas.width = width * 2; canvas.height = height * 2;
                 
-                const newC = canvas.cloneNode(true); 
-                canvas.parentNode.replaceChild(newC, canvas);
+                const newC = canvas.cloneNode(true); canvas.parentNode.replaceChild(newC, canvas);
                 const ctx = newC.getContext('2d');
                 
-                ctx.scale(2,2);
-                ctx.strokeStyle = "#000000"; 
-                ctx.lineWidth = 2.5; 
-                ctx.lineCap = "round"; 
-                ctx.lineJoin = "round";
+                ctx.scale(2,2); ctx.strokeStyle = "#000000"; ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.lineJoin = "round";
 
                 let drawing = false, lastX = 0, lastY = 0;
                 
-                // ★ 關鍵修復：針對 CSS Transform Scale 進行觸控座標反推換算 ★
+                // ★ 關鍵：自適應縮放的座標系換算 ★
                 const getPos = (e) => { 
                     const r = newC.getBoundingClientRect(); 
                     const evt = e.touches ? e.touches[0] : e; 
-                    return { 
-                        x: (evt.clientX - r.left) / window.currentZoom, 
-                        y: (evt.clientY - r.top) / window.currentZoom 
-                    }; 
+                    const scaleX = newC.offsetWidth / r.width;
+                    const scaleY = newC.offsetHeight / r.height;
+                    return { x: (evt.clientX - r.left) * scaleX, y: (evt.clientY - r.top) * scaleY }; 
                 };
 
                 newC.onmousedown = newC.ontouchstart = (e) => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; };
                 newC.onmousemove = newC.ontouchmove = (e) => { 
-                    if(!drawing) return; 
-                    e.preventDefault(); 
-                    const p=getPos(e); 
-                    ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); 
+                    if(!drawing) return; e.preventDefault(); 
+                    const p=getPos(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); 
                     lastX=p.x; lastY=p.y; 
                 };
                 newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
@@ -881,54 +852,7 @@
                 sigPads.push({canvas: newC, ctx, width, height});
             });
         }
-        window.clearSig = (i) => { 
-            const pad = sigPads[i-1];
-            pad.ctx.clearRect(0,0, pad.width*2, pad.height*2); 
-            document.getElementById(`sigSelect${i}`).value=""; 
-        };
-        
-        // 全螢幕主管簽名管理
-        let managerSigPad = null;
-        function initManagerSignaturePad() {
-            const canvas = document.getElementById('managerSigCanvas'); const ctx = canvas.getContext('2d');
-            const w = canvas.parentElement.getBoundingClientRect().width || 800, h = canvas.parentElement.getBoundingClientRect().height || 400;
-            canvas.style.width=w+"px"; canvas.style.height=h+"px"; canvas.width=w*2; canvas.height=h*2; ctx.scale(2,2);
-            ctx.strokeStyle="#000"; ctx.lineWidth=3.5; ctx.lineCap="round"; ctx.lineJoin="round";
-            let drawing=false, lastX=0, lastY=0;
-            const newC = canvas.cloneNode(true); canvas.parentNode.replaceChild(newC, canvas);
-            const getPos = (e) => { const r = newC.getBoundingClientRect(); const evt = e.touches ? e.touches[0] : e; return { x: evt.clientX - r.left, y: evt.clientY - r.top }; };
-            newC.onmousedown = newC.ontouchstart = (e) => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; };
-            newC.onmousemove = newC.ontouchmove = (e) => { if(!drawing) return; e.preventDefault(); const p=getPos(e); newC.getContext('2d').beginPath(); newC.getContext('2d').moveTo(lastX, lastY); newC.getContext('2d').lineTo(p.x, p.y); newC.getContext('2d').stroke(); lastX=p.x; lastY=p.y; };
-            newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
-            managerSigPad = { canvas: newC, ctx: newC.getContext('2d') };
-        }
-        window.uploadNewSignature = async () => {
-            const name = document.getElementById('newSigName').value; if(!name) return;
-            const url = managerSigPad.canvas.toDataURL(); if(url.length<1000) return window.showMsg("❌ 請在下方空白處簽名");
-            const id = 'sig_'+Date.now();
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id), { id, name, imageData: url });
-            document.getElementById('newSigName').value = ""; window.clearManagerSigCanvas(); window.showMsg("🎉 主管簽名已錄入");
-        };
-        window.clearManagerSigCanvas = () => managerSigPad.ctx.clearRect(0,0,managerSigPad.canvas.width, managerSigPad.canvas.height);
-        window.deleteSignature = async (id) => { const ok = await window.showCustomConfirm("刪除?", "將移除該主管簽名"); if(ok) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id)); };
-        function updateMonthlySigSelectors() {
-            [1,2,3].forEach(i => { const sel=document.getElementById(`sigSelect${i}`); const v=sel.value; sel.innerHTML='<option value="">-- 選擇 --</option>'; savedSignatures.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.name}</option>`); sel.value=v; });
-        }
-        window.applySavedSignatureToCanvas = (i, id) => {
-            const canvas = document.getElementById(`sigCanvas${i}`); const match = savedSignatures.find(s=>s.id===id);
-            if(match) { 
-                const img = new Image(); 
-                img.crossOrigin = "anonymous";
-                img.onload=()=>{ 
-                    canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height); 
-                    canvas.getContext('2d').save(); canvas.getContext('2d').setTransform(1,0,0,1,0,0); 
-                    canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height); 
-                    canvas.getContext('2d').restore(); 
-                }; 
-                img.src=match.imageData; 
-            }
-            else window.clearSig(i);
-        };
+        window.clearSig = (i) => { const pad = sigPads[i-1]; pad.ctx.clearRect(0,0, pad.width*2, pad.height*2); document.getElementById(`sigSelect${i}`).value=""; };
     </script>
 </body>
 </html>
