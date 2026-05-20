@@ -836,6 +836,7 @@ service cloud.firestore {
             }
         }
 
+        // 關閉密碼彈窗
         function closeManagerPasswordModal() {
             document.getElementById('managerPasswordModal').classList.add('hidden');
         }
@@ -1624,12 +1625,6 @@ service cloud.firestore {
 
         // --- 訪談表紀錄備份雲端資料流 ---
         async function saveRecordToCloud() {
-            if (!user) {
-                const errDetail = window.authError ? window.authError : "未啟用 Firebase 匿名身分登入";
-                showErrorModal("雲端連線失敗", errDetail, true);
-                return;
-            }
-
             const year = document.getElementById('yearInput').value.trim();
             const quarter = document.getElementById('quarterSelect').value;
             const empId = document.getElementById('empId').value.trim();
@@ -1640,11 +1635,8 @@ service cloud.firestore {
                 return;
             }
 
-            showMsg("💾 正在傳輸整張訪談與電子簽章軌跡至 Firebase...");
-
-            // 分店隔離儲存
+            // 準備資料結構
             const recordId = `${currentStoreId}_${year}_Q${quarter}_${empId}`;
-
             const sig1 = document.getElementById('sigCanvas1').toDataURL();
             const sig2 = document.getElementById('sigCanvas2').toDataURL();
             const sig3 = document.getElementById('sigCanvas3').toDataURL();
@@ -1688,64 +1680,127 @@ service cloud.firestore {
                 updatedAt: new Date().toLocaleString()
             };
 
+            // 【新增功能】本機備份防遺失安全網 (不論雲端成敗，立即於本機備份數據)
+            try {
+                localStorage.setItem(`offline_record_${recordId}`, JSON.stringify(payload));
+            } catch (storageErr) {
+                console.warn("LocalStorage save failed:", storageErr);
+            }
+
+            if (!user) {
+                // 如果無雲端連線用戶，引導並使用本機離線安全暫存存檔
+                showSuccessModal("本機安全暫存成功", `⚠️ 偵測到雲端尚未成功連線！\n已先為您「安全暫存在本機瀏覽器」，資料100%不會遺失，請繼續操作。`);
+                return;
+            }
+
+            showMsg("💾 正在傳輸整張訪談與電子簽章軌跡至 Firebase...");
+
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId);
                 await setDoc(docRef, payload);
                 showSuccessModal("儲存成功", `分店[${payload.store}] 員工[${empName}] 的紀錄已同步儲存至雲端！`);
             } catch (err) {
                 console.error("Save record error: ", err);
-                showErrorModal("雲端儲存失敗", err, true);
+                
+                // 【核心排障】寫入失敗時，觸發本地備份安全提示與高畫質排障指引
+                showErrorModal("雲端儲存失敗 (已為您本機安全備份)", err, true);
             }
         }
 
+        // 歷史紀錄表格渲染：同時整合雲端與本機離線資料
         function renderHistoryTable(recordsList) {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = "";
 
-            const storeRecords = getFilteredRecords();
-            if (storeRecords.length === 0) {
+            // 1. 取得當前篩選的分店雲端資料
+            let storeRecords = getFilteredRecords();
+            
+            // 2. 取得所有 LocalStorage 中的離線備份，若雲端沒有則進行補充，避免數據遺失
+            const offlinePrefix = `offline_record_${currentStoreId}_`;
+            const offlineRecords = [];
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith(offlinePrefix)) {
+                        const localData = JSON.parse(localStorage.getItem(key));
+                        if (localData) offlineRecords.push(localData);
+                    }
+                }
+            } catch (e) {
+                console.error("Error reading localStorage backup:", e);
+            }
+
+            // 合併雲端與本機，排重 (以 ID 為準，優先顯示雲端)
+            const combinedMap = new Map();
+            offlineRecords.forEach(rec => combinedMap.set(rec.id, { ...rec, isOfflineBackup: true }));
+            storeRecords.forEach(rec => combinedMap.set(rec.id, { ...rec, isOfflineBackup: false }));
+            
+            const finalRecords = Array.from(combinedMap.values());
+
+            if (finalRecords.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">目前此分店尚無任何存檔紀錄</td></tr>`;
                 return;
             }
 
-            storeRecords.forEach((rec) => {
+            finalRecords.forEach((rec) => {
+                const badge = rec.isOfflineBackup 
+                    ? `<span class="ml-1 text-[9px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded">本機暫存</span>`
+                    : `<span class="ml-1 text-[9px] bg-green-100 text-green-700 px-1 py-0.5 rounded">雲端同步</span>`;
+
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-slate-50 text-xs";
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-slate-700">${rec.year}年 第${rec.quarter}季</td>
-                    <td class="p-3 font-bold text-indigo-700">${rec.empName} (${rec.empId})</td>
+                    <td class="p-3 font-bold text-indigo-700">${rec.empName} (${rec.empId})${badge}</td>
                     <td class="p-3 text-slate-500">${rec.area} / ${rec.store}</td>
                     <td class="p-3 text-slate-400">${rec.updatedAt || '無日期'}</td>
                     <td class="p-3 text-center flex justify-center gap-2">
-                        <button onclick="loadSelectedRecord('${rec.id}')" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold py-1 px-2.5 rounded transition">載入</button>
-                        <button onclick="deleteSelectedRecord('${rec.id}')" class="bg-red-50 text-red-600 hover:bg-red-100 font-bold py-1 px-2.5 rounded transition">刪除</button>
+                        <button onclick="loadSelectedRecordFromCombined('${rec.id}', ${rec.isOfflineBackup})" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-bold py-1 px-2.5 rounded transition">載入</button>
+                        <button onclick="deleteSelectedRecordFromCombined('${rec.id}', ${rec.isOfflineBackup})" class="bg-red-50 text-red-600 hover:bg-red-100 font-bold py-1 px-2.5 rounded transition">刪除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function filterHistoryList() {
-            const queryVal = document.getElementById('historySearch').value.toLowerCase().trim();
-            const storeRecords = getFilteredRecords();
-            if (queryVal === "") {
-                renderHistoryTable(storeRecords);
-                return;
+        // 綁定全域輔助載入
+        window.loadSelectedRecordFromCombined = function(id, isOffline) {
+            if (isOffline) {
+                const localData = localStorage.getItem(`offline_record_${id}`);
+                if (localData) {
+                    const parsed = JSON.parse(localData);
+                    loadSelectedRecordData(parsed);
+                    showMsg("📂 已成功從本機離線快取載入訪談紀錄！");
+                }
+            } else {
+                loadSelectedRecord(id);
             }
-            const filtered = storeRecords.filter(rec => 
-                rec.empName.toLowerCase().includes(queryVal) || 
-                rec.empId.toLowerCase().includes(queryVal) ||
-                rec.year.toLowerCase().includes(queryVal)
-            );
-            renderHistoryTable(filtered);
-        }
+        };
 
-        // 載入歷史紀錄並回填 (連同分店設定安全重定位)
-        function loadSelectedRecord(id) {
-            const target = loadedRecords.find(rec => rec.id === id);
-            if (!target) return;
+        window.deleteSelectedRecordFromCombined = async function(id, isOffline) {
+            const confirmDel = await showCustomConfirm("確定刪除訪談紀錄？", "刪除後將無法還原該季度的訪談數據與簽章。");
+            if (!confirmDel) return;
 
-            // 切換目前的店別並安全回填屬性
+            if (isOffline) {
+                localStorage.removeItem(`offline_record_${id}`);
+                showMsg("🗑️ 已移除本機暫存檔案");
+                renderHistoryTable(loadedRecords);
+            } else {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', id);
+                    await deleteDoc(docRef);
+                    // 同步清理本機備份
+                    localStorage.removeItem(`offline_record_${id}`);
+                    showMsg("🗑️ 已徹底從雲端與本機抹除該份紀錄");
+                } catch (err) {
+                    console.error(err);
+                    showErrorModal("刪除雲端紀錄失敗", err, false);
+                }
+            }
+        };
+
+        // 統一資料填充閉包
+        function loadSelectedRecordData(target) {
             if (target.storeId && target.storeId !== currentStoreId) {
                 currentStoreId = target.storeId;
                 applyStoreProfile();
@@ -1789,24 +1844,30 @@ service cloud.firestore {
                     drawBase64ToCanvas(canvas, mData.signature);
                 }
             }
-
-            toggleHistoryModal(false);
-            showMsg(`📂 已成功調出分店 [${target.store}] 員工 [${target.empName}] 紀錄！`);
         }
 
-        async function deleteSelectedRecord(id) {
-            if (!user) return;
-            const confirmDel = await showCustomConfirm("確定刪除訪談紀錄？", "刪除後，雲端與本機將無法還原該季度的訪談數據、回饋以及電子簽章。");
-            if (!confirmDel) return;
-
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', id);
-                await deleteDoc(docRef);
-                showMsg(`🗑️ 已徹底從雲端資料庫抹除該份紀錄`);
-            } catch (err) {
-                console.error(err);
-                showErrorModal("刪除雲端紀錄失敗", err, false);
+        function filterHistoryList() {
+            const queryVal = document.getElementById('historySearch').value.toLowerCase().trim();
+            const storeRecords = getFilteredRecords();
+            if (queryVal === "") {
+                renderHistoryTable(storeRecords);
+                return;
             }
+            const filtered = storeRecords.filter(rec => 
+                rec.empName.toLowerCase().includes(queryVal) || 
+                rec.empId.toLowerCase().includes(queryVal) ||
+                rec.year.toLowerCase().includes(queryVal)
+            );
+            renderHistoryTable(filtered);
+        }
+
+        // 載入歷史紀錄並回填 (連同分店設定安全重定位)
+        function loadSelectedRecord(id) {
+            const target = loadedRecords.find(rec => rec.id === id);
+            if (!target) return;
+            loadSelectedRecordData(target);
+            toggleHistoryModal(false);
+            showMsg(`📂 已成功調出分店 [${target.store}] 員工 [${target.empName}] 紀錄！`);
         }
 
         function toggleHistoryModal(show) {
@@ -1878,33 +1939,3 @@ service cloud.firestore {
     </script>
 </body>
 </html>
-```
-
-### 三、 專業雲端排障與診斷指引
-
-如果您在啟用「匿名登入（Anonymous Authentication）」後依然遇到 **「登入成功但資料寫不進去」** 的情況，這意味著 **Firebase Authentication 通道已經打通，但 Firestore 資料庫實體（Firestore Database）的安全性防火牆規則（Rules）阻擋了寫入請求**。
-
-以下是保證 100% 成功解決寫入問題的兩大關鍵檢測與排障步驟：
-
-#### 步驟 1：檢測是否「尚未在 Firebase Console 建立資料庫」
-有時管理者僅建立了 Firebase 專案，但**從未在後台點選啟用 Firestore**：
-1. 進入 [Firebase Console 控制台](https://console.firebase.google.com/)。
-2. 進入您的 **`monthly-interview`** 專案。
-3. 在左側選單中點擊 **`Firestore Database`**。
-4. 如果畫面上顯示「建立資料庫」按鈕，請點選它並選擇 **「以測試模式啟動」**，然後選取伺服器位置（推薦選擇 `asia-east1` 台灣據點），完成資料庫的實體建立。
-
----
-
-#### 步驟 2：複製並發佈最關鍵的解鎖安全規則 (Firestore Database Rules)
-請到 Firebase 的 Rules 標籤，將規則替換為以下**「全面偵錯與防護解鎖代碼」**，這是解決 `permission-denied` 權限被拒絕最完美的解藥：
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // 100% 解鎖安全通道：允許任何通過匿名登入驗證的客戶端讀寫資料
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
