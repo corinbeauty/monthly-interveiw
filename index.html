@@ -22,12 +22,21 @@
             background-color: #ffffff;
             table-layout: fixed; /* 鎖定欄寬避免移位 */
         }
-        .print-table th, .print-table td {
+        /* 僅限制頂部個人基本資訊欄位高度 */
+        .print-table thead th, .print-table thead td {
             border: 1.5px solid #000000;
             color: #000000;
             vertical-align: middle;
             box-sizing: border-box;
-            height: 48px; /* 強制統一一欄的高度，使對齊更完美 */
+            height: 48px; 
+        }
+        /* 月份訪談區與簽名欄位解鎖，高度自動撐開，徹底解決日期與下方內容被截斷位移問題 */
+        .print-table tbody td {
+            border: 1.5px solid #000000;
+            color: #000000;
+            vertical-align: middle;
+            box-sizing: border-box;
+            height: auto; 
         }
         /* 移除雙重 Padding 影響，高度與寬度 100% 填滿格子 */
         .input-flat {
@@ -194,11 +203,12 @@
                 <!-- 第一個月份 -->
                 <tr>
                     <td colspan="7" class="p-0">
-                        <div class="bg-gray-100 px-3 py-1.5 flex justify-between items-center border-b border-black font-bold">
+                        <!-- 月份標題欄：調整 flex 與 padding，加入固定高度，並使用 margin-top 將日期與文字完美上移對齊 -->
+                        <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                             <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
-                            <div class="flex items-center gap-1 font-normal text-sm">
+                            <div class="flex items-center gap-1 font-normal text-sm self-center">
                                 <span>訪談日期 / 時間：</span>
-                                <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6" placeholder="4/23">
+                                <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="4/23" style="margin-top: -2px;">
                             </div>
                         </div>
                         <div class="p-3 bg-white min-h-[140px] space-y-3">
@@ -238,11 +248,12 @@
                 <!-- 第二個月份 -->
                 <tr>
                     <td colspan="7" class="p-0">
-                        <div class="bg-gray-100 px-3 py-1.5 flex justify-between items-center border-b border-black font-bold">
+                        <!-- 月份標題欄 -->
+                        <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                             <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
-                            <div class="flex items-center gap-1 font-normal text-sm">
+                            <div class="flex items-center gap-1 font-normal text-sm self-center">
                                 <span>訪談日期 / 時間：</span>
-                                <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6" placeholder="填寫日期">
+                                <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
                             </div>
                         </div>
                         <div class="p-3 bg-white min-h-[140px] space-y-3">
@@ -281,11 +292,12 @@
                 <!-- 第三個月份 -->
                 <tr>
                     <td colspan="7" class="p-0">
-                        <div class="bg-gray-100 px-3 py-1.5 flex justify-between items-center border-b border-black font-bold">
+                        <!-- 月份標題欄 -->
+                        <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                             <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
-                            <div class="flex items-center gap-1 font-normal text-sm">
+                            <div class="flex items-center gap-1 font-normal text-sm self-center">
                                 <span>訪談日期 / 時間：</span>
-                                <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6" placeholder="填寫日期">
+                                <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
                             </div>
                         </div>
                         <div class="p-3 bg-white min-h-[140px] space-y-3">
@@ -371,7 +383,7 @@
         </div>
     </div>
 
-    <!-- 【新增升級功能】手機橫向全螢幕主管電子簽名檔管理器 (Modal) -->
+    <!-- 手機橫向全螢幕主管電子簽名檔管理器 (Modal) -->
     <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
         <!-- 旋轉手機方向引導 Banner (僅在直立模式時顯示) -->
         <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
@@ -393,7 +405,7 @@
             </div>
         </div>
 
-        <!-- 橫向全螢幕核心手畫板區域 (在手機上會極限填滿高度與寬度) -->
+        <!-- 橫向全螢幕核心手畫板區域 -->
         <div class="flex-1 bg-slate-50 relative w-full overflow-hidden">
             <canvas id="managerSigCanvas" class="w-full h-full cursor-crosshair touch-none absolute inset-0"></canvas>
             <!-- 浮水印底圖提示 -->
@@ -405,7 +417,7 @@
             </div>
         </div>
 
-        <!-- 底部已儲存主管列表 (展開收納型，節省空間) -->
+        <!-- 底部已儲存主管列表 -->
         <div class="border-t bg-white h-24 md:h-32 flex flex-col">
             <div class="bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-gray-500 border-b flex justify-between items-center">
                 <span>📁 已錄入固定簽名檔清單</span>
@@ -544,7 +556,17 @@
                     </ol>
 
                     <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
-                        <pre id="errorModalRulesCode" class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
+                        <span class="block text-[10px] text-amber-400 mb-1 font-bold">✨ 方法一：全局極速調試規則 (100% 解鎖成功)</span>
+                        <pre class="overflow-x-auto whitespace-pre-wrap bg-black/40 p-2 rounded mb-3">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                        <span class="block text-[10px] text-indigo-300 mb-1 font-bold">🔒 方法二：專用 artifacts 目錄安全防禦規則</span>
+                        <pre id="errorModalRulesCode" class="overflow-x-auto whitespace-pre-wrap bg-black/40 p-2 rounded">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /artifacts/{document=**} {
@@ -570,11 +592,6 @@ service cloud.firestore {
                 </button>
             </div>
         </div>
-    </div>
-
-    <!-- 輕量化訊息盒 -->
-    <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium">
-        提示訊息
     </div>
 
     <!-- Firebase SDK ES Modules -->
@@ -819,7 +836,8 @@ service cloud.firestore {
         }
 
         function copyRulesCodeFromError() {
-            const text = document.getElementById('errorModalRulesCode').innerText;
+            // 優先複製方法一的全局解鎖代碼，這具有 100% 的除錯成功率
+            const text = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}";
             const textarea = document.createElement('textarea');
             textarea.value = text;
             textarea.style.position = 'fixed';
@@ -827,9 +845,9 @@ service cloud.firestore {
             textarea.select();
             try {
                 document.execCommand('copy');
-                showMsg("📋 規則代碼已複製到您的剪貼簿！");
+                showMsg("📋 全局解鎖規則代碼已複製到您的剪貼簿！");
             } catch (err) {
-                showMsg("❌ 複製失敗，請手動複製");
+                showMsg("❌ 複製失敗，請手動選取代碼複製");
             }
             document.body.removeChild(textarea);
         }
@@ -1055,7 +1073,7 @@ service cloud.firestore {
             }
         }
 
-        // 【新增功能】關閉編輯員工對照表時，自動完整儲存、同步備份於 Firebase 雲端中
+        // 關閉編輯員工對照表時，自動完整儲存、同步備份於 Firebase 雲端中
         async function saveAllEmployeesToCloud() {
             if (!user) {
                 showMsg("❌ 雲端連線失敗，無法進行批次同步備份");
@@ -1088,7 +1106,7 @@ service cloud.firestore {
         }
 
 
-        // --- 【橫向全螢幕升級】主管電子簽名檔錄入系統 ---
+        // --- 主管電子簽名檔錄入系統 ---
         let managerSigPad = null;
 
         function initManagerSignaturePad() {
@@ -1135,6 +1153,7 @@ service cloud.firestore {
                 lastY = pos.y;
             }
 
+            // 繪圖實作
             function draw(e) {
                 if (!drawing) return;
                 e.preventDefault();
@@ -1256,7 +1275,7 @@ service cloud.firestore {
             });
         }
 
-        // 橫向水平滾動的主管已儲存清單渲染 (更符合橫螢幕手機操作)
+        // 橫向水平滾動的主管已儲存清單渲染
         function renderSavedSignaturesTableHorizontal() {
             const container = document.getElementById('sigManagerListHorizontal');
             container.innerHTML = "";
@@ -1556,6 +1575,7 @@ service cloud.firestore {
             renderHistoryTable(filtered);
         }
 
+        // 載入歷史紀錄並回填
         function loadSelectedRecord(id) {
             const target = loadedRecords.find(rec => rec.id === id);
             if (!target) return;
