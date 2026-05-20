@@ -2,9 +2,8 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <!-- 確保行動裝置不被任意縮放，提升簽名準確度 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 滿版擴張版</title>
+    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 縮放完整復原版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for mobile screenshots -->
@@ -15,15 +14,15 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #f0f4f8;
+            overflow-x: hidden;
         }
         /* 嚴格還原紙張表格樣式 */
         .print-table {
             border-collapse: collapse;
             width: 100%;
             background-color: #ffffff;
-            table-layout: fixed; /* 鎖定欄寬避免移位 */
+            table-layout: fixed;
         }
-        /* 僅限制頂部個人基本資訊欄位高度 */
         .print-table thead th, .print-table thead td {
             border: 1.5px solid #000000;
             color: #000000;
@@ -51,23 +50,26 @@
             box-sizing: border-box;
             display: block;
         }
-        .input-flat:focus {
-            background-color: #f0f7ff;
+        .input-flat:focus { background-color: #f0f7ff; }
+        
+        /* 縮放容器設定 */
+        #zoomArea { 
+            transform-origin: top left; 
+            transition: transform 0.25s ease-out; 
         }
-        /* 滿邊放大的簽名畫布基礎樣式 */
+        
+        /* 簽名畫布 */
         .sig-canvas {
-            width: 100%;
-            height: 100%;
             background-color: #ffffff;
             cursor: crosshair;
-            touch-action: none; /* 絕對防止行動裝置滑動干擾畫圖 */
+            touch-action: none;
         }
     </style>
 </head>
-<body class="p-2 md:p-6 pb-20 overflow-x-hidden">
+<body class="p-2 md:p-6 pb-24">
 
     <!-- 主操作控制面板 -->
-    <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md w-full">
+    <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md w-full no-capture">
         <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex flex-wrap items-center justify-between gap-2">
             <span class="flex items-center gap-2">
                 ⚙️ 訪談系統-<span id="headerStoreName" class="text-blue-600 font-bold">中清行館</span>
@@ -85,7 +87,7 @@
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">選擇季度 (自動更換月份)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">選擇季度</label>
                 <select id="quarterSelect" onchange="updateQuarterLayout()" class="w-full border rounded p-2 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500">
                     <option value="1">第一季 (1 - 3 月)</option>
                     <option value="2" selected>第二季 (4 - 6 月)</option>
@@ -152,186 +154,194 @@
         </div>
     </div>
 
-    <!-- 【核心佈局擴張】增加 w-full 與 overflow-x-auto，提供手機舒適水平滑動，截圖不裁切 -->
-    <div class="w-full overflow-x-auto pb-4">
-        <!-- 強制最低寬度 900px，確保文字不擠壓、滿邊擴張完美顯示 -->
-        <div id="captureContainer" class="min-w-[900px] max-w-5xl mx-auto bg-white p-6 rounded shadow-sm border border-gray-200">
-            <div class="flex justify-between items-end mb-4 w-full">
-                <div class="w-1/4"></div>
-                <div class="text-center w-2/4">
-                    <h1 class="text-xl md:text-2xl font-bold tracking-wider">
-                        休閒部門店師傅/員工 <span id="titleYear" class="border-b border-black px-4">115</span> 年度訪談紀錄
-                    </h1>
+    <!-- 浮動縮放控制器 -->
+    <div class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 shadow-2xl bg-white p-2 rounded-full border border-gray-200 no-capture">
+        <button onclick="changeZoom(-0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">−</button>
+        <span id="zoomLabel" class="w-12 text-center text-xs font-bold text-slate-600">100%</span>
+        <button onclick="changeZoom(0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">+</button>
+    </div>
+
+    <!-- 縮放與滾動容器 -->
+    <div class="w-full overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl shadow-inner min-h-[60vh] p-2" id="scrollContainer">
+        <!-- 縮放核心引擎 -->
+        <div id="zoomArea" class="mx-auto" style="width: 850px;">
+            <!-- 要被截圖的實體表格容器 (鎖定寬高比與佈局) -->
+            <div id="captureContainer" class="w-[850px] bg-white p-8 shadow-sm border border-gray-200 relative">
+                <div class="flex justify-between items-end mb-4 w-full">
+                    <div class="w-1/4"></div>
+                    <div class="text-center w-2/4">
+                        <h1 class="text-xl md:text-2xl font-bold tracking-wider">
+                            休閒部門店師傅/員工 <span id="titleYear" class="border-b border-black px-4">115</span> 年度訪談紀錄
+                        </h1>
+                    </div>
+                    <div class="text-right w-1/4 text-lg font-bold">
+                        (表 2)
+                    </div>
                 </div>
-                <div class="text-right w-1/4 text-lg font-bold">
-                    (表 2)
+
+                <div class="flex justify-between mb-2 text-base font-semibold px-2">
+                    <div>區域：<span id="labelArea" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中二區</span></div>
+                    <div>店別：<span id="labelStore" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中清行館</span></div>
                 </div>
+
+                <table class="print-table text-sm">
+                    <thead>
+                        <tr>
+                            <th class="w-[12%] text-center bg-gray-50 font-bold p-2">
+                                <div>姓名</div>
+                                <div class="no-capture mt-1 px-1" data-html2canvas-ignore="true">
+                                    <select id="empSelectInline" onchange="handleEmpSelect(this.value)" class="w-full text-[10px] border border-gray-300 rounded px-1 py-0.5 bg-white font-normal text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                        <option value="">快速選擇...</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <td class="w-[20%] p-0">
+                                <input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="姓名或選取">
+                            </td>
+                            <th class="w-[14%] text-center bg-gray-50 font-bold p-2">編號</th>
+                            <td class="w-[18%] p-0">
+                                <input type="text" id="empId" oninput="handleIdInput()" class="input-flat text-center font-bold text-lg" placeholder="輸入編號">
+                            </td>
+                            <td class="w-[11%] p-0">
+                                <input type="text" id="extraCol" class="input-flat text-center" placeholder="備註">
+                            </td>
+                            <th class="w-[11%] text-center bg-gray-50 font-bold p-2">職稱</th>
+                            <td class="w-[14%] p-0">
+                                <input type="text" id="empTitle" class="input-flat text-center" placeholder="櫃台">
+                            </td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 第 1 個月 -->
+                        <tr>
+                            <td colspan="7" class="p-0">
+                                <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
+                                    <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
+                                    <div class="flex items-center gap-1 font-normal text-sm self-center">
+                                        <span>訪談日期 / 時間：</span>
+                                        <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="4/23" style="margin-top: -2px;">
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white min-h-[120px] space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                        <textarea id="visit1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                        <textarea id="feedback1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <!-- 右下角精緻簽名區 -->
+                                <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
+                                    <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
+                                    <div class="flex flex-col items-end gap-1.5">
+                                        <div class="flex items-center gap-1 no-capture" data-html2canvas-ignore="true">
+                                            <span class="text-[10px] text-gray-500 font-normal">套用簽名檔:</span>
+                                            <select id="sigSelect1" onchange="applySavedSignatureToCanvas(1, this.value)" class="text-[10px] border rounded p-1 bg-white w-[100px] focus:outline-none">
+                                                <option value="">-- 選擇 --</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-xs">訪談主管簽名：</span>
+                                            <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm">
+                                                <canvas id="sigCanvas1" class="sig-canvas w-full h-full absolute inset-0"></canvas>
+                                                <button onclick="clearSig(1)" class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-bl shadow no-capture" data-html2canvas-ignore="true">清除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 第 2 個月 -->
+                        <tr>
+                            <td colspan="7" class="p-0">
+                                <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
+                                    <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
+                                    <div class="flex items-center gap-1 font-normal text-sm self-center">
+                                        <span>訪談日期 / 時間：</span>
+                                        <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white min-h-[120px] space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                        <textarea id="visit2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                        <textarea id="feedback2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
+                                    <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
+                                    <div class="flex flex-col items-end gap-1.5">
+                                        <div class="flex items-center gap-1 no-capture" data-html2canvas-ignore="true">
+                                            <span class="text-[10px] text-gray-500 font-normal">套用簽名檔:</span>
+                                            <select id="sigSelect2" onchange="applySavedSignatureToCanvas(2, this.value)" class="text-[10px] border rounded p-1 bg-white w-[100px] focus:outline-none">
+                                                <option value="">-- 選擇 --</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-xs">訪談主管簽名：</span>
+                                            <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm">
+                                                <canvas id="sigCanvas2" class="sig-canvas w-full h-full absolute inset-0"></canvas>
+                                                <button onclick="clearSig(2)" class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-bl shadow no-capture" data-html2canvas-ignore="true">清除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- 第 3 個月 -->
+                        <tr>
+                            <td colspan="7" class="p-0">
+                                <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
+                                    <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
+                                    <div class="flex items-center gap-1 font-normal text-sm self-center">
+                                        <span>訪談日期 / 時間：</span>
+                                        <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-white min-h-[120px] space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                        <textarea id="visit3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                        <textarea id="feedback3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
+                                    <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
+                                    <div class="flex flex-col items-end gap-1.5">
+                                        <div class="flex items-center gap-1 no-capture" data-html2canvas-ignore="true">
+                                            <span class="text-[10px] text-gray-500 font-normal">套用簽名檔:</span>
+                                            <select id="sigSelect3" onchange="applySavedSignatureToCanvas(3, this.value)" class="text-[10px] border rounded p-1 bg-white w-[100px] focus:outline-none">
+                                                <option value="">-- 選擇 --</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-xs">訪談主管簽名：</span>
+                                            <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm">
+                                                <canvas id="sigCanvas3" class="sig-canvas w-full h-full absolute inset-0"></canvas>
+                                                <button onclick="clearSig(3)" class="absolute top-0 right-0 bg-red-500 hover:bg-red-600 text-white text-[9px] px-1.5 py-0.5 rounded-bl shadow no-capture" data-html2canvas-ignore="true">清除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-
-            <div class="flex justify-between mb-2 text-base font-semibold px-2">
-                <div>區域：<span id="labelArea" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中二區</span></div>
-                <div>店別：<span id="labelStore" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中清行館</span></div>
-            </div>
-
-            <table class="print-table text-sm">
-                <thead>
-                    <tr>
-                        <th class="w-[12%] text-center bg-gray-50 font-bold p-2">
-                            <div>姓名</div>
-                            <div class="no-capture mt-1 px-1" data-html2canvas-ignore="true">
-                                <select id="empSelectInline" onchange="handleEmpSelect(this.value)" class="w-full text-[10px] border border-gray-300 rounded px-1 py-0.5 bg-white font-normal text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                                    <option value="">快速選擇...</option>
-                                </select>
-                            </div>
-                        </th>
-                        <td class="w-[20%] p-0">
-                            <input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="姓名或選取">
-                        </td>
-                        <th class="w-[14%] text-center bg-gray-50 font-bold p-2">編號</th>
-                        <td class="w-[18%] p-0">
-                            <input type="text" id="empId" oninput="handleIdInput()" class="input-flat text-center font-bold text-lg" placeholder="輸入編號">
-                        </td>
-                        <td class="w-[11%] p-0">
-                            <input type="text" id="extraCol" class="input-flat text-center" placeholder="備註">
-                        </td>
-                        <th class="w-[11%] text-center bg-gray-50 font-bold p-2">職稱</th>
-                        <td class="w-[14%] p-0">
-                            <input type="text" id="empTitle" class="input-flat text-center" placeholder="櫃台">
-                        </td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- 第 1 個月 -->
-                    <tr>
-                        <td colspan="7" class="p-0">
-                            <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
-                                <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
-                                <div class="flex items-center gap-1 font-normal text-sm self-center">
-                                    <span>訪談日期 / 時間：</span>
-                                    <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="4/23" style="margin-top: -2px;">
-                                </div>
-                            </div>
-                            <div class="p-3 bg-white min-h-[140px] space-y-3">
-                                <div class="flex items-start">
-                                    <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
-                                    <textarea id="visit1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3" placeholder="請輸入訪談內容..."></textarea>
-                                </div>
-                                <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
-                                    <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
-                                    <textarea id="feedback1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2" placeholder="請輸入員工回饋..."></textarea>
-                                </div>
-                            </div>
-                            <!-- 【核心簽名板放大滿邊】將排列改為垂直滿版擴張 -->
-                            <div class="border-t border-black px-4 py-3 flex flex-col bg-gray-50 gap-3 w-full">
-                                <div class="flex justify-between items-center w-full">
-                                    <div class="text-xs text-gray-500 font-bold">訪談原因 / 回饋重點 / 建議與改善</div>
-                                    <!-- 簽名選擇器 -->
-                                    <div class="flex items-center gap-2 no-capture" data-html2canvas-ignore="true">
-                                        <span class="text-[11px] text-gray-500 font-normal">套用簽名檔:</span>
-                                        <select id="sigSelect1" onchange="applySavedSignatureToCanvas(1, this.value)" class="text-xs border rounded p-1.5 bg-white min-w-[140px] font-normal focus:ring-1 focus:ring-blue-400">
-                                            <option value="">-- 手寫或選擇 --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="w-full">
-                                    <span class="font-bold text-sm mb-1.5 block">訪談主管簽名：</span>
-                                    <!-- 滿邊放大容器 h-24 (96px) w-full -->
-                                    <div class="relative w-full h-24 border border-gray-300 rounded shadow-inner bg-white overflow-hidden">
-                                        <canvas id="sigCanvas1" class="sig-canvas"></canvas>
-                                        <button onclick="clearSig(1)" class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1 rounded shadow no-capture" data-html2canvas-ignore="true">清除</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- 第 2 個月 -->
-                    <tr>
-                        <td colspan="7" class="p-0">
-                            <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
-                                <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
-                                <div class="flex items-center gap-1 font-normal text-sm self-center">
-                                    <span>訪談日期 / 時間：</span>
-                                    <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
-                                </div>
-                            </div>
-                            <div class="p-3 bg-white min-h-[140px] space-y-3">
-                                <div class="flex items-start">
-                                    <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
-                                    <textarea id="visit2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3" placeholder="請輸入訪談內容..."></textarea>
-                                </div>
-                                <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
-                                    <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
-                                    <textarea id="feedback2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2" placeholder="請輸入員工回饋..."></textarea>
-                                </div>
-                            </div>
-                            <div class="border-t border-black px-4 py-3 flex flex-col bg-gray-50 gap-3 w-full">
-                                <div class="flex justify-between items-center w-full">
-                                    <div class="text-xs text-gray-500 font-bold">訪談原因 / 回饋重點 / 建議與改善</div>
-                                    <div class="flex items-center gap-2 no-capture" data-html2canvas-ignore="true">
-                                        <span class="text-[11px] text-gray-500 font-normal">套用簽名檔:</span>
-                                        <select id="sigSelect2" onchange="applySavedSignatureToCanvas(2, this.value)" class="text-xs border rounded p-1.5 bg-white min-w-[140px] font-normal focus:ring-1 focus:ring-blue-400">
-                                            <option value="">-- 手寫或選擇 --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="w-full">
-                                    <span class="font-bold text-sm mb-1.5 block">訪談主管簽名：</span>
-                                    <div class="relative w-full h-24 border border-gray-300 rounded shadow-inner bg-white overflow-hidden">
-                                        <canvas id="sigCanvas2" class="sig-canvas"></canvas>
-                                        <button onclick="clearSig(2)" class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1 rounded shadow no-capture" data-html2canvas-ignore="true">清除</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-
-                    <!-- 第 3 個月 -->
-                    <tr>
-                        <td colspan="7" class="p-0">
-                            <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
-                                <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
-                                <div class="flex items-center gap-1 font-normal text-sm self-center">
-                                    <span>訪談日期 / 時間：</span>
-                                    <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 pb-0.5 h-6 text-sm" placeholder="填寫日期" style="margin-top: -2px;">
-                                </div>
-                            </div>
-                            <div class="p-3 bg-white min-h-[140px] space-y-3">
-                                <div class="flex items-start">
-                                    <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
-                                    <textarea id="visit3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3" placeholder="請輸入訪談內容..."></textarea>
-                                </div>
-                                <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
-                                    <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
-                                    <textarea id="feedback3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2" placeholder="請輸入員工回饋..."></textarea>
-                                </div>
-                            </div>
-                            <div class="border-t border-black px-4 py-3 flex flex-col bg-gray-50 gap-3 w-full">
-                                <div class="flex justify-between items-center w-full">
-                                    <div class="text-xs text-gray-500 font-bold">訪談原因 / 回饋重點 / 建議與改善</div>
-                                    <div class="flex items-center gap-2 no-capture" data-html2canvas-ignore="true">
-                                        <span class="text-[11px] text-gray-500 font-normal">套用簽名檔:</span>
-                                        <select id="sigSelect3" onchange="applySavedSignatureToCanvas(3, this.value)" class="text-xs border rounded p-1.5 bg-white min-w-[140px] font-normal focus:ring-1 focus:ring-blue-400">
-                                            <option value="">-- 手寫或選擇 --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="w-full">
-                                    <span class="font-bold text-sm mb-1.5 block">訪談主管簽名：</span>
-                                    <div class="relative w-full h-24 border border-gray-300 rounded shadow-inner bg-white overflow-hidden">
-                                        <canvas id="sigCanvas3" class="sig-canvas"></canvas>
-                                        <button onclick="clearSig(3)" class="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1 rounded shadow no-capture" data-html2canvas-ignore="true">清除</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
 
-    <!-- 所有彈窗 Modals -->
+    <!-- 所有彈窗 Modals (維持 V1-Archived 完整功能) -->
     <!-- 員工管理 Modal -->
     <div id="empModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
@@ -471,7 +481,7 @@
     <!-- 訊息提示盒 -->
     <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium"></div>
 
-    <!-- ==================== 核心 JavaScript 邏輯 (極速綁定防死機) ==================== -->
+    <!-- ==================== 核心 JavaScript 邏輯 (包含縮放控制與 Firebase) ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -485,6 +495,9 @@
         let currentStoreId = "store_zhongqing";
         let isManagerMode = false;
         let currentConfirmResolve = null;
+
+        // 【新增】縮放控制變數
+        window.currentZoom = 1.0;
 
         const STORES_LIST = [
             { id: "store_zhonggang", name: "中港行館", area: "台中區" },
@@ -519,6 +532,14 @@
             box.innerText = text; box.style.opacity = '1';
             setTimeout(() => box.style.opacity = '0', 2500);
         };
+        
+        // 【新增】縮放控制函數
+        window.changeZoom = (delta) => {
+            window.currentZoom = Math.max(0.4, Math.min(2.0, window.currentZoom + delta));
+            document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
+            document.getElementById('zoomLabel').innerText = Math.round(window.currentZoom * 100) + '%';
+        };
+
         window.updateQuarterLayout = () => {
             const q = parseInt(document.getElementById('quarterSelect').value);
             const text = ["第一季", "第二季", "第三季", "第四季"][q-1];
@@ -616,11 +637,19 @@
 
         // 4. 核心邏輯
         window.addEventListener('load', async () => {
+            
+            // 自動計算最適縮放比例 (Auto-Fit Width)
+            const screenWidth = window.innerWidth;
+            if(screenWidth < 900) { // 如果手機螢幕小於表格寬度
+                window.currentZoom = (screenWidth - 20) / 850;
+                document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
+                document.getElementById('zoomLabel').innerText = Math.round(window.currentZoom * 100) + '%';
+            }
+
             const sel = document.getElementById('managerStoreSelect');
             STORES_LIST.forEach(s => sel.innerHTML += `<option value="${s.id}">🏢 ${s.area} - ${s.name}</option>`);
             window.changeActiveStore("store_zhongqing");
             
-            // 延遲一點初始化避免寬度為 0
             setTimeout(() => { initSignaturePads(); }, 100);
 
             try {
@@ -693,27 +722,33 @@
             }
         };
 
-        // --- html2canvas 滿邊擴張截圖 (修正被截斷問題) ---
+        // --- html2canvas 高解析無損截圖 (修復縮放導致裁切的問題) ---
         window.generateScreenshot = () => {
-            window.showMsg("📸 正在為您擷取橫向滿版實體相片，請稍候...");
+            window.showMsg("📸 正在為您擷取高解析相片...");
             const container = document.getElementById('captureContainer');
-            
-            // 隱藏清除與下拉按鈕
             const noCaptures = document.querySelectorAll('.no-capture');
             noCaptures.forEach(el => el.style.visibility = 'hidden'); 
+
+            // 暫時將縮放還原，確保截圖尺寸正確不裁切
+            const originalZoom = window.currentZoom;
+            document.getElementById('zoomArea').style.transform = 'scale(1)';
 
             html2canvas(container, { 
                 scale: 2.2, 
                 useCORS: true, 
-                backgroundColor: "#ffffff" 
+                backgroundColor: "#ffffff",
+                allowTaint: false
             }).then(canvas => {
                 noCaptures.forEach(el => el.style.visibility = 'visible');
+                document.getElementById('zoomArea').style.transform = `scale(${originalZoom})`; // 截圖後恢復原本縮放
+
                 document.getElementById('screenshotPreview').src = canvas.toDataURL('image/png');
                 document.getElementById('downloadBtn').href = canvas.toDataURL('image/png');
                 document.getElementById('downloadBtn').download = `${document.getElementById('yearInput').value}年_Q${document.getElementById('quarterSelect').value}_${document.getElementById('empName').value || '未命名'}.png`;
                 window.toggleScreenshotModal(true);
             }).catch(e => {
                 noCaptures.forEach(el => el.style.visibility = 'visible');
+                document.getElementById('zoomArea').style.transform = `scale(${originalZoom})`;
                 window.showMsg("❌ 轉譯失敗");
             });
         };
@@ -794,7 +829,7 @@
         };
 
         // ----------------------------------------------------
-        // 【核心滿邊觸控引擎】 - 簽名板初始化 (滿邊 100% 寬度適應)
+        // 【核心右下角簽名板】+ 縮放引擎座標換算 (Scale mapping)
         // ----------------------------------------------------
         function initSignaturePads() {
             sigPads = [];
@@ -802,10 +837,9 @@
                 const canvas = document.getElementById(`sigCanvas${i}`);
                 if (!canvas) return;
                 
-                // 動態獲取父層實際賦予的物理寬高，取代死板的 176px
-                const rect = canvas.parentElement.getBoundingClientRect();
-                const width = rect.width || 300; 
-                const height = rect.height || 96;
+                // 固定右下角精緻比例：寬 160px (w-40), 高 64px (h-16)
+                const width = canvas.parentElement.offsetWidth || 160;
+                const height = canvas.parentElement.offsetHeight || 64;
                 
                 canvas.style.width = width + "px"; 
                 canvas.style.height = height + "px"; 
@@ -818,23 +852,26 @@
                 
                 ctx.scale(2,2);
                 ctx.strokeStyle = "#000000"; 
-                ctx.lineWidth = 3; 
+                ctx.lineWidth = 2.5; 
                 ctx.lineCap = "round"; 
                 ctx.lineJoin = "round";
 
                 let drawing = false, lastX = 0, lastY = 0;
                 
-                // 1:1 精準座標捕捉
+                // ★ 關鍵修復：針對 CSS Transform Scale 進行觸控座標反推換算 ★
                 const getPos = (e) => { 
                     const r = newC.getBoundingClientRect(); 
                     const evt = e.touches ? e.touches[0] : e; 
-                    return { x: evt.clientX - r.left, y: evt.clientY - r.top }; 
+                    return { 
+                        x: (evt.clientX - r.left) / window.currentZoom, 
+                        y: (evt.clientY - r.top) / window.currentZoom 
+                    }; 
                 };
 
                 newC.onmousedown = newC.ontouchstart = (e) => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; };
                 newC.onmousemove = newC.ontouchmove = (e) => { 
                     if(!drawing) return; 
-                    e.preventDefault(); // 防止手機滾動
+                    e.preventDefault(); 
                     const p=getPos(e); 
                     ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); 
                     lastX=p.x; lastY=p.y; 
@@ -875,7 +912,7 @@
         window.clearManagerSigCanvas = () => managerSigPad.ctx.clearRect(0,0,managerSigPad.canvas.width, managerSigPad.canvas.height);
         window.deleteSignature = async (id) => { const ok = await window.showCustomConfirm("刪除?", "將移除該主管簽名"); if(ok) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id)); };
         function updateMonthlySigSelectors() {
-            [1,2,3].forEach(i => { const sel=document.getElementById(`sigSelect${i}`); const v=sel.value; sel.innerHTML='<option value="">-- 手寫或選擇 --</option>'; savedSignatures.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.name}</option>`); sel.value=v; });
+            [1,2,3].forEach(i => { const sel=document.getElementById(`sigSelect${i}`); const v=sel.value; sel.innerHTML='<option value="">-- 選擇 --</option>'; savedSignatures.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.name}</option>`); sel.value=v; });
         }
         window.applySavedSignatureToCanvas = (i, id) => {
             const canvas = document.getElementById(`sigCanvas${i}`); const match = savedSignatures.find(s=>s.id===id);
