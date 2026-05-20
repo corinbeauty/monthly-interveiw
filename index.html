@@ -68,9 +68,9 @@
     <!-- 主操作控制面板 -->
     <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md">
         <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex flex-wrap items-center justify-between gap-2">
-            <!-- 【新功能】支援 23 家店動態標題與藍色店別 -->
+            <!-- 支援 24 家店動態標題與藍色店別 -->
             <span class="flex items-center gap-2">
-                ⚙️ 訪談系統-<span id="headerStoreName" class="text-blue-600 font-bold">中清店</span>
+                ⚙️ 訪談系統-<span id="headerStoreName" class="text-blue-600 font-bold">中清行館</span>
             </span>
             <div class="flex items-center gap-3">
                 <!-- 管理者模式解鎖狀態指示器 -->
@@ -110,16 +110,16 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">店別</label>
-                    <input type="text" id="storeInput" value="中清店" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
+                    <input type="text" id="storeInput" value="中清行館" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
                 </div>
             </div>
         </div>
 
-        <!-- 【新功能】管理者模式專用：連鎖23家分店即時切換器 -->
+        <!-- 管理者模式專用：連鎖24家分店即時切換器 -->
         <div id="managerStoreSwitcherContainer" class="hidden mb-4 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 animate-fadeIn">
-            <label class="block text-xs font-bold text-indigo-800 mb-1.5">🏢 管理者分店切換（解鎖成功，數據隔離同步）</label>
+            <label class="block text-xs font-bold text-indigo-800 mb-1.5">🏢 管理者分店切換（數據隔離同步）</label>
             <select id="managerStoreSelect" onchange="changeActiveStore(this.value)" class="w-full border border-indigo-200 rounded p-2 bg-white text-indigo-900 font-bold focus:ring-2 focus:ring-indigo-500 text-sm">
-                <!-- JS 動態生成 23 家店選單 -->
+                <!-- JS 動態生成 24 家店選單 -->
             </select>
         </div>
 
@@ -147,7 +147,7 @@
             </div>
         </div>
 
-        <!-- 操作按鈕 (已移除清除手寫簽名按鈕，保持介面專業性) -->
+        <!-- 操作按鈕 -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button onclick="saveRecordToCloud()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center gap-1.5">
                 💾 儲存至雲端
@@ -179,7 +179,7 @@
         <!-- 區域與店別顯示 -->
         <div class="flex justify-between mb-2 text-base font-semibold px-2">
             <div>區域：<span id="labelArea" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中二區</span></div>
-            <div>店別：<span id="labelStore" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中清店</span></div>
+            <div>店別：<span id="labelStore" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中清行館</span></div>
         </div>
 
         <!-- 實體黑白格線表格 -->
@@ -577,7 +577,7 @@ service cloud.firestore {
     }
   }
 }</pre>
-                        <span class="block text-[10px] text-indigo-300 mb-1 font-bold">🔒 方法二：專用 artifacts 目錄安全防禦規則</span>
+                        <span class="block text-[10px] text-indigo-300 mb-1 font-bold">🔒 方法二：專用 artifacts 目累安全防禦規則</span>
                         <pre id="errorModalRulesCode" class="overflow-x-auto whitespace-pre-wrap bg-black/40 p-2 rounded">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -669,34 +669,35 @@ service cloud.firestore {
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
-        // 連鎖 23 家分店名冊定義
+        // 連鎖最新分店名冊定義（依照最新上傳圖片 24 家據點重新對應）
         const STORES_LIST = [
-            { id: "store_zhongqing", name: "中清店", area: "中二區" },
-            { id: "store_chongde", name: "崇德店", area: "中二區" },
-            { id: "store_gongyi", name: "公益店", area: "中一區" },
-            { id: "store_fengjia", name: "逢甲店", area: "中一區" },
-            { id: "store_xitun", name: "西屯店", area: "中一區" },
-            { id: "store_fuxing", name: "復興店", area: "中三區" },
-            { id: "store_xiangshang", name: "向上店", area: "中一區" },
-            { id: "store_beitun", name: "北屯店", area: "中二區" },
-            { id: "store_fengyuan", name: "豐原店", area: "中四區" },
-            { id: "store_dali", name: "大里店", area: "中三區" },
-            { id: "store_taiping", name: "太平店", area: "中三區" },
-            { id: "store_shalu", name: "沙鹿店", area: "中五區" },
-            { id: "store_wuqi", name: "梧棲店", area: "中五區" },
-            { id: "store_wuri", name: "烏日店", area: "中三區" },
-            { id: "store_dajia", name: "大甲店", area: "中五區" },
-            { id: "store_donghai", name: "東海店", area: "中五區" },
-            { id: "store_changhua", name: "彰化店", area: "彰化區" },
-            { id: "store_yuanlin", name: "員林店", area: "彰化區" },
-            { id: "store_caotun", name: "草屯店", area: "南投區" },
-            { id: "store_nantou", name: "南投店", area: "南投區" },
-            { id: "store_douliu", name: "斗六店", area: "雲林區" },
-            { id: "store_huwei", name: "虎尾店", area: "雲林區" },
-            { id: "store_chiayi", name: "嘉義店", area: "嘉義區" }
+            { id: "store_zhonggang", name: "中港行館", area: "台中區" },
+            { id: "store_yuanlin", name: "員林行館", area: "彰化區" },
+            { id: "store_zhongqing", name: "中清行館", area: "台中區" },
+            { id: "store_dali", name: "大里行館", area: "台中區" },
+            { id: "store_zhongke", name: "中科行館", area: "台中區" },
+            { id: "store_shalu", name: "沙鹿行館", area: "台中區" },
+            { id: "store_aihe", name: "愛河行館", area: "高雄區" },
+            { id: "store_fengshan", name: "鳳山行館", area: "高雄區" },
+            { id: "store_zuoying", name: "左營行館", area: "高雄區" },
+            { id: "store_sanduo", name: "三多行館", area: "高雄區" },
+            { id: "store_meishuguan", name: "美術館行館", area: "高雄區" },
+            { id: "store_fuqian", name: "府前行館", area: "台南區" },
+            { id: "store_anping", name: "安平行館", area: "台南區" },
+            { id: "store_xinsheng", name: "新生行館", area: "台北區" },
+            { id: "store_xinyi", name: "信義行館", area: "台北區" },
+            { id: "store_zhongli", name: "中壢行館", area: "桃園區" },
+            { id: "store_zhubei", name: "竹北行館", area: "新竹區" },
+            { id: "store_taiping", name: "太平店", area: "台中區" },
+            { id: "store_fengyuan", name: "豐原行館", area: "台中區" },
+            { id: "store_dongxing", name: "東興店", area: "台中區" },
+            { id: "store_wuquan", name: "五權店", area: "台中區" },
+            { id: "store_pasha", name: "帕夏健髮-公益店", area: "台中區" },
+            { id: "store_jing", name: "婧仕女微旅", area: "旅宿區" },
+            { id: "store_headquarters", name: "集團總管理", area: "總部" }
         ];
 
-        let currentStoreId = "store_zhongqing"; // 預設鎖定中清店
+        let currentStoreId = "store_zhongqing"; // 預設鎖定中清行館
         let isManagerMode = false; // 管理者模式預設鎖定
 
         let user = null;
@@ -748,7 +749,7 @@ service cloud.firestore {
         window.addEventListener('DOMContentLoaded', async () => {
             setSyncStatus(false, "正在與專屬 Firebase 連線中...");
             
-            // 建立 23 家店選單選項
+            // 建立 24 家店選單選項
             populateStoreSelector();
             applyStoreProfile();
 
@@ -784,7 +785,7 @@ service cloud.firestore {
             window.addEventListener('orientationchange', handleCanvasResizeEvent);
         });
 
-        // 23家分店資訊配置與回填
+        // 24家分店資訊配置與回填
         function populateStoreSelector() {
             const select = document.getElementById('managerStoreSelect');
             select.innerHTML = "";
@@ -826,7 +827,7 @@ service cloud.firestore {
                 document.getElementById('managerModeBtn').innerText = "🔒 解鎖管理者模式";
                 document.getElementById('managerModeBtn').className = "text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full transition flex items-center gap-1";
                 document.getElementById('managerStoreSwitcherContainer').classList.add('hidden');
-                showMsg("🔒 已登出管理者模式，重置鎖定中清店。");
+                showMsg("🔒 已登出管理者模式，重置鎖定中清行館。");
             } else {
                 // 開啟自訂密碼彈窗 (8888)
                 document.getElementById('managerPasscodeField').value = "";
@@ -1064,7 +1065,6 @@ service cloud.firestore {
 
         // 篩選與渲染當前分店固定簽名檔
         function getFilteredSignatures() {
-            // 簽名檔一般為各店主管，可共享也可依分店篩選。此處設計為通用，若需隔離亦可使用 storeId 進行
             return savedSignatures;
         }
 
@@ -1878,3 +1878,33 @@ service cloud.firestore {
     </script>
 </body>
 </html>
+```
+
+### 三、 專業雲端排障與診斷指引
+
+如果您在啟用「匿名登入（Anonymous Authentication）」後依然遇到 **「登入成功但資料寫不進去」** 的情況，這意味著 **Firebase Authentication 通道已經打通，但 Firestore 資料庫實體（Firestore Database）的安全性防火牆規則（Rules）阻擋了寫入請求**。
+
+以下是保證 100% 成功解決寫入問題的兩大關鍵檢測與排障步驟：
+
+#### 步驟 1：檢測是否「尚未在 Firebase Console 建立資料庫」
+有時管理者僅建立了 Firebase 專案，但**從未在後台點選啟用 Firestore**：
+1. 進入 [Firebase Console 控制台](https://console.firebase.google.com/)。
+2. 進入您的 **`monthly-interview`** 專案。
+3. 在左側選單中點擊 **`Firestore Database`**。
+4. 如果畫面上顯示「建立資料庫」按鈕，請點選它並選擇 **「以測試模式啟動」**，然後選取伺服器位置（推薦選擇 `asia-east1` 台灣據點），完成資料庫的實體建立。
+
+---
+
+#### 步驟 2：複製並發佈最關鍵的解鎖安全規則 (Firestore Database Rules)
+請到 Firebase 的 Rules 標籤，將規則替換為以下**「全面偵錯與防護解鎖代碼」**，這是解決 `permission-denied` 權限被拒絕最完美的解藥：
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 100% 解鎖安全通道：允許任何通過匿名登入驗證的客戶端讀寫資料
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
