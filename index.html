@@ -27,17 +27,20 @@
             color: #000000;
             vertical-align: middle;
             box-sizing: border-box;
+            height: 48px; /* 強制統一一欄的高度，使對齊更完美 */
         }
         /* 移除雙重 Padding 影響，高度與寬度 100% 填滿格子 */
         .input-flat {
             width: 100%;
-            height: 100%;
+            height: 48px;
             border: none;
             outline: none;
             background: transparent;
             color: #000000;
-            padding: 8px;
+            padding: 4px 8px;
+            text-align: center;
             box-sizing: border-box;
+            display: block;
         }
         .input-flat:focus {
             background-color: #f0f7ff;
@@ -56,7 +59,7 @@
     <!-- 主操作控制面板 -->
     <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md">
         <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex items-center justify-between">
-            <span class="flex items-center gap-2">⚙️ 訪談系統控制面板</span>
+            <span class="flex items-center gap-2">⚙️ 訪談系統-中清店</span>
             <div class="flex items-center gap-1.5 text-xs text-slate-500">
                 <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
                 <span id="syncStatusText">正在連接雲端...</span>
@@ -161,7 +164,7 @@
             <thead>
                 <tr>
                     <th class="w-[12%] text-center bg-gray-50 font-bold p-2">
-                        <div>姓 名</div>
+                        <div>姓名</div>
                         <!-- 快速選擇下拉選單 (截圖時自動隱藏) -->
                         <div class="no-capture mt-1 px-1">
                             <select id="empSelectInline" onchange="handleEmpSelect(this.value)" class="w-full text-[10px] border border-gray-300 rounded px-1 py-0.5 bg-white font-normal text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
@@ -172,14 +175,14 @@
                     <td class="w-[20%] p-0">
                         <input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="姓名或選取">
                     </td>
-                    <th class="w-[14%] text-center bg-gray-50 font-bold p-2">編號 (師傅)</th>
+                    <th class="w-[14%] text-center bg-gray-50 font-bold p-2">編號</th>
                     <td class="w-[18%] p-0">
                         <input type="text" id="empId" oninput="handleIdInput()" class="input-flat text-center font-bold text-lg" placeholder="輸入編號">
                     </td>
                     <td class="w-[11%] p-0">
                         <input type="text" id="extraCol" class="input-flat text-center" placeholder="備註">
                     </td>
-                    <th class="w-[11%] text-center bg-gray-50 font-bold p-2">職稱 (員工)</th>
+                    <th class="w-[11%] text-center bg-gray-50 font-bold p-2">職稱</th>
                     <td class="w-[14%] p-0">
                         <input type="text" id="empTitle" class="input-flat text-center" placeholder="櫃台">
                     </td>
@@ -325,20 +328,20 @@
     <div id="empModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
-                <span>👥 編輯員工編號對照表 (雲端同步)</span>
+                <span>👥 編輯員工編號對照表</span>
                 <button onclick="toggleEmpModal(false)" class="text-gray-400 hover:text-gray-600">✕</button>
             </h3>
             
             <!-- 新增員工表格 -->
             <form id="newEmpForm" onsubmit="addEmployee(event)" class="bg-gray-50 p-3 rounded-lg border mb-4 grid grid-cols-3 gap-2">
                 <div>
-                    <input type="text" id="newId" placeholder="編號 (如: 115)" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500" required>
+                    <input type="text" id="newId" placeholder="編號" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500" required>
                 </div>
                 <div>
-                    <input type="text" id="newName" placeholder="姓名 (如: 黃靖雯)" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500" required>
+                    <input type="text" id="newName" placeholder="姓名" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500" required>
                 </div>
                 <div class="flex gap-1">
-                    <input type="text" id="newTitle" placeholder="職稱 (如: 櫃台)" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500">
+                    <input type="text" id="newTitle" placeholder="職稱" class="w-full border rounded p-1.5 text-xs focus:ring-1 focus:ring-blue-500">
                     <button type="submit" class="bg-blue-600 text-white px-3 rounded text-xs font-bold hover:bg-blue-700">＋</button>
                 </div>
             </form>
@@ -350,7 +353,7 @@
                         <tr>
                             <th class="p-2">編號</th>
                             <th class="p-2">姓名</th>
-                            <th class="p-2">預設職稱</th>
+                            <th class="p-2">職稱</th>
                             <th class="p-2 text-center">操作</th>
                         </tr>
                     </thead>
@@ -368,53 +371,49 @@
         </div>
     </div>
 
-    <!-- 雲端固定電子簽名檔管理器 (Modal) -->
-    <div id="sigManagerModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[85vh] flex flex-col">
-            <h3 class="text-lg font-bold text-gray-800 mb-2 flex justify-between items-center">
-                <span>✍️ 雲端電子簽名管理庫</span>
-                <button onclick="toggleSigManagerModal(false)" class="text-gray-400 hover:text-gray-600">✕</button>
+    <!-- 【新增升級功能】手機橫向全螢幕主管電子簽名檔管理器 (Modal) -->
+    <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
+        <!-- 旋轉手機方向引導 Banner (僅在直立模式時顯示) -->
+        <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
+            <span>🔄 偵測到手機為直向，強烈建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
+        </div>
+
+        <!-- 頂部操作列 -->
+        <div class="bg-slate-100 px-4 py-3 border-b flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                <span>✍️ 雲端電子簽名管理艙</span>
+                <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded font-normal">手機橫向優化</span>
             </h3>
             
-            <!-- 新增電子簽名檔區塊 -->
-            <div class="bg-slate-50 p-3 rounded-lg border mb-4">
-                <h4 class="text-xs font-bold text-slate-700 mb-1.5">新建電子簽名檔</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
-                    <div class="sm:col-span-2">
-                        <input type="text" id="newSigName" placeholder="主管姓名 (如: 顏信吉)" class="w-full border rounded p-2 text-xs focus:ring-1 focus:ring-blue-500">
-                    </div>
-                    <div class="flex gap-1">
-                        <button onclick="clearManagerSigCanvas()" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs py-2 rounded font-semibold transition">重畫</button>
-                        <button onclick="uploadNewSignature()" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-xs py-2 rounded font-bold transition">儲存</button>
-                    </div>
-                </div>
-                <!-- 簽名畫板 -->
-                <div class="relative w-full h-24 bg-white rounded border border-dashed border-slate-300">
-                    <canvas id="managerSigCanvas" class="w-full h-full cursor-crosshair touch-none"></canvas>
-                    <div class="absolute bottom-1 right-1 pointer-events-none text-[9px] text-slate-300">請在此區域手寫簽名</div>
+            <div class="flex items-center gap-2">
+                <input type="text" id="newSigName" placeholder="主管姓名" class="border rounded px-2.5 py-1 text-xs focus:ring-1 focus:ring-blue-500 w-28 md:w-40 font-semibold text-gray-800">
+                <button onclick="uploadNewSignature()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-bold transition">儲存簽名</button>
+                <button onclick="clearManagerSigCanvas()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs px-3 py-1.5 rounded font-semibold transition">重畫</button>
+                <button onclick="toggleSigManagerModal(false)" class="bg-slate-800 hover:bg-slate-950 text-white text-xs px-3 py-1.5 rounded font-semibold transition">關閉</button>
+            </div>
+        </div>
+
+        <!-- 橫向全螢幕核心手畫板區域 (在手機上會極限填滿高度與寬度) -->
+        <div class="flex-1 bg-slate-50 relative w-full overflow-hidden">
+            <canvas id="managerSigCanvas" class="w-full h-full cursor-crosshair touch-none absolute inset-0"></canvas>
+            <!-- 浮水印底圖提示 -->
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-10">
+                <div class="text-center">
+                    <span class="text-4xl md:text-6xl font-bold tracking-widest block mb-2">請在此區域親筆簽名</span>
+                    <span class="text-xs md:text-sm">橫放手機書寫更流暢</span>
                 </div>
             </div>
+        </div>
 
-            <!-- 簽名檔列表 -->
-            <div class="overflow-y-auto flex-1 border rounded-lg">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100 uppercase">
-                        <tr>
-                            <th class="p-2">主管姓名</th>
-                            <th class="p-2">簽名檔預覽</th>
-                            <th class="p-2 text-center">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sigTableBody">
-                        <!-- 動態載入 -->
-                    </tbody>
-                </table>
+        <!-- 底部已儲存主管列表 (展開收納型，節省空間) -->
+        <div class="border-t bg-white h-24 md:h-32 flex flex-col">
+            <div class="bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-gray-500 border-b flex justify-between items-center">
+                <span>📁 已錄入固定簽名檔清單</span>
+                <span class="text-[9px] text-gray-400">滑動查看更多</span>
             </div>
-
-            <div class="mt-4 flex justify-end">
-                <button onclick="toggleSigManagerModal(false)" class="bg-gray-800 text-white px-4 py-2 rounded font-bold hover:bg-gray-900 text-xs">
-                    完成關閉
-                </button>
+            <div class="flex-1 overflow-x-auto overflow-y-hidden p-2 flex items-center gap-3" id="sigManagerListHorizontal">
+                <!-- 由 JS 動態產生水平滑動清單 -->
+                <div class="text-xs text-gray-400">尚無儲存的主管簽名檔</div>
             </div>
         </div>
     </div>
@@ -429,7 +428,7 @@
 
             <!-- 歷史紀錄篩選 -->
             <div class="mb-3 flex gap-2">
-                <input type="text" id="historySearch" oninput="filterHistoryList()" placeholder="🔍 輸入姓名或編號快速過濾..." class="w-full border rounded p-2 text-sm focus:ring-1 focus:ring-indigo-500">
+                <input type="text" id="historySearch" oninput="filterHistoryList()" placeholder="輸入姓名或編號快速過濾..." class="w-full border rounded p-2 text-sm focus:ring-1 focus:ring-indigo-500">
             </div>
 
             <div class="overflow-y-auto flex-1 border rounded-lg">
@@ -504,7 +503,7 @@
         </div>
     </div>
 
-    <!-- 【美化版核心功能】寫入失敗診斷與規則指引整合 Modal -->
+    <!-- 【美化版核心功能】寫入失敗診斷與規則/驗證指引整合 Modal -->
     <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
             <div class="text-center pb-3">
@@ -519,19 +518,33 @@
                 </div>
             </div>
             
-            <div class="overflow-y-auto my-4 space-y-3 text-sm text-gray-700 border-t border-b border-gray-100 py-4 flex-1">
-                <p class="font-bold text-gray-800 flex items-center gap-1.5">💡 如何解決雲端讀寫權限阻擋？</p>
-                <p class="text-xs text-gray-500 leading-relaxed">此問題通常是由於您的 <strong>Firestore Database 安全規則 (Rules)</strong> 仍處於受保護的關閉狀態，阻止了寫入請求。請依照以下步驟快速排除阻擋：</p>
-                
-                <ol class="list-decimal pl-5 space-y-2 text-xs text-gray-600">
-                    <li>開啟並登入您的 <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline hover:text-blue-800">Firebase Console</a></li>
-                    <li>進入專案 <strong>monthly-interview</strong></li>
-                    <li>點選左側選單的 <strong>Firestore Database</strong> -> 切換到頂部的 <strong>Rules (規則)</strong> 標籤頁</li>
-                    <li>將裡面的安全規則修改為以下「解鎖安全通道」代碼（覆蓋原有規則）：</li>
-                </ol>
+            <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 border-t border-b border-gray-100 py-4 flex-1">
+                <!-- 診斷方案 A：匿名登入未啟用 -->
+                <div id="diagnoseAuthContainer" class="hidden">
+                    <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔑 診斷結果：Firebase 匿名驗證未啟用</p>
+                    <p class="text-xs text-gray-500 leading-relaxed mt-1">此問題是因為您的 Firebase 專案未啟用匿名帳號登入，導致安全通道無法連線。請依照以下步驟啟用：</p>
+                    <ol class="list-decimal pl-5 space-y-1 text-xs text-gray-600 mt-2">
+                        <li>開啟並登入您的 <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline hover:text-blue-800">Firebase Console</a></li>
+                        <li>進入專案 <strong>monthly-interview</strong></li>
+                        <li>點擊左側選單的 <strong>Authentication (身分驗證)</strong></li>
+                        <li>切換到 <strong>Sign-in method (登入方法)</strong> 標籤頁，點選 <strong>Add new provider (新增提供者)</strong></li>
+                        <li>選擇 <strong>Anonymous (匿名)</strong> 並將其切換為 <strong>啟用 (Enable)</strong> 後點擊儲存。</li>
+                    </ol>
+                </div>
 
-                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px]">
-                    <pre id="errorModalRulesCode" class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
+                <!-- 診斷方案 B：Firestore Rules 安全規則未解鎖 -->
+                <div id="diagnoseRulesContainer" class="hidden">
+                    <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷結果：Firestore 讀寫規則阻擋</p>
+                    <p class="text-xs text-gray-500 leading-relaxed mt-1">此問題是由於您的 Firestore 安全規則仍處於預設的關閉狀態。請依照以下步驟快速修改：</p>
+                    
+                    <ol class="list-decimal pl-5 space-y-1.5 text-xs text-gray-600 mt-2">
+                        <li>開啟並登入您的 <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline hover:text-blue-800">Firebase Console</a></li>
+                        <li>點選進入左側 <strong>Firestore Database</strong> -> 頂部 <strong>Rules (規則)</strong> 標籤</li>
+                        <li>將其修改為以下「解鎖安全通道」代碼（覆蓋原有規則）：</li>
+                    </ol>
+
+                    <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
+                        <pre id="errorModalRulesCode" class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /artifacts/{document=**} {
@@ -539,23 +552,29 @@ service cloud.firestore {
     }
   }
 }</pre>
-                    <button onclick="copyRulesCodeFromError()" class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-[10px] font-bold active:scale-95 transition-all">一鍵複製</button>
+                        <button onclick="copyRulesCodeFromError()" class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-[10px] font-bold active:scale-95 transition-all">一鍵複製</button>
+                    </div>
                 </div>
 
                 <p class="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-100 leading-relaxed">
-                    💡 貼上後點擊右上角的 <strong>Publish (發佈)</strong>。發佈後需要約 30 秒使安全規則生效。生效後即可順暢儲存！
+                    💡 設定發佈後，大約需要 30 秒使安全變更在雲端生效。重新整理網頁後，即可正常讀寫！
                 </p>
             </div>
 
             <div class="flex gap-2 pt-2">
-                <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-200">
+                <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-200 text-xs">
                     關閉
                 </button>
-                <button onclick="retrySaveRecord()" id="errorModalRetryBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-98">
+                <button onclick="retrySaveRecord()" id="errorModalRetryBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-98 text-xs">
                     再次嘗試儲存
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- 輕量化訊息盒 -->
+    <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium">
+        提示訊息
     </div>
 
     <!-- Firebase SDK ES Modules -->
@@ -564,7 +583,7 @@ service cloud.firestore {
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { initializeFirestore, doc, setDoc, getDoc, collection, onSnapshot, addDoc, updateDoc, deleteDoc, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase 雙模式配置 (優先使用 preview 環境變數，若無則完美套用使用者提供之專屬 production 金鑰)
+        // Firebase 雙模式配置
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyBC6xpSN5ITJL0Jfhj6qAHWxaosTXKB5QA",
             authDomain: "monthly-interview.firebaseapp.com",
@@ -579,7 +598,7 @@ service cloud.firestore {
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // 使用 initializeFirestore 代替 getFirestore，並強制啟用長輪詢 (Force Long Polling)，確保穿透 Iframe / 沙盒網域限制
+        // 啟用長輪詢 (Force Long Polling)，確保穿透 Iframe / 沙盒網域限制
         const db = initializeFirestore(app, {
             experimentalForceLongPolling: true
         });
@@ -591,6 +610,9 @@ service cloud.firestore {
         let loadedRecords = []; 
         let savedSignatures = []; // 快取雲端固定電子簽名檔
         let lastRetryAction = null; // 快取重試閉包行為
+
+        // 儲存初始化時發生的登入錯誤 (以便精準引導用戶開啟 Anonymous Auth)
+        window.authError = null;
 
         // 綁定全域函數至 window 作用域
         window.toggleEmpModal = toggleEmpModal;
@@ -627,7 +649,6 @@ service cloud.firestore {
         window.addEventListener('DOMContentLoaded', async () => {
             setSyncStatus(false, "正在與專屬 Firebase 連線中...");
             try {
-                // 優先使用自訂 Token 登入，否則執行匿名安全驗證
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
@@ -635,12 +656,14 @@ service cloud.firestore {
                 }
             } catch (error) {
                 console.error("Firebase Auth initialization failed:", error);
-                setSyncStatus(false, "金鑰連結異常，正以離線模式暫存");
+                window.authError = error; // 緩存驗證失敗物件
+                setSyncStatus(false, "離線模式 (請點儲存進行連線排除)");
             }
 
             onAuthStateChanged(auth, (firebaseUser) => {
                 user = firebaseUser;
                 if (user) {
+                    window.authError = null; // 清除錯誤
                     setSyncStatus(true, "雲端連線成功");
                     initCloudListeners();
                 } else {
@@ -651,7 +674,10 @@ service cloud.firestore {
             setupControlPanelListeners();
             updateQuarterLayout();
             initSignaturePads();
-            initManagerSignaturePad();
+            
+            // 監聽螢幕旋轉事件，動態更新手畫簽名艙 Canvas 的寬高與引導 banner
+            window.addEventListener('resize', handleCanvasResizeEvent);
+            window.addEventListener('orientationchange', handleCanvasResizeEvent);
         });
 
         // 實時雲端資料雙向監聽器
@@ -694,7 +720,7 @@ service cloud.firestore {
                     savedSignatures.push(doc.data());
                 });
                 renderSavedSignaturesBrief();
-                renderSavedSignaturesTable();
+                renderSavedSignaturesTableHorizontal(); // 橫向全螢幕滑動渲染
                 updateMonthlySigSelectors();
             }, (error) => {
                 console.error("Signatures Firestore connection failed:", error);
@@ -702,7 +728,7 @@ service cloud.firestore {
             });
         }
 
-        // Firestore 錯誤集中診斷模組 (當發生權限問題，自動彈出精美警告診斷框)
+        // Firestore 錯誤集中診斷模組
         function handleFirestoreError(err) {
             if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
                 showErrorModal("雲端資料庫讀寫權限不足", err, true);
@@ -734,16 +760,35 @@ service cloud.firestore {
         function showErrorModal(title, error, isRetryable = false) {
             document.getElementById('errorModalTitle').innerText = title;
             
-            // 提煉出乾淨的錯誤字串
-            let errStr = error ? (error.message || String(error)) : "未知錯誤 (可能為安全規則鎖定)";
+            let errStr = error ? (error.message || String(error)) : "未知連線障礙 (驗證或規則受阻)";
             document.getElementById('errorModalCode').innerText = errStr;
+
+            const diagnoseAuth = document.getElementById('diagnoseAuthContainer');
+            const diagnoseRules = document.getElementById('diagnoseRulesContainer');
+
+            if (window.authError || errStr.includes("auth") || errStr.includes("operation-not-allowed")) {
+                diagnoseAuth.classList.remove('hidden');
+                diagnoseRules.classList.add('hidden');
+            } else {
+                diagnoseAuth.classList.add('hidden');
+                diagnoseRules.classList.remove('hidden');
+            }
 
             const retryBtn = document.getElementById('errorModalRetryBtn');
             if (isRetryable) {
                 retryBtn.classList.remove('hidden');
                 lastRetryAction = () => {
                     closeErrorModal();
-                    saveRecordToCloud();
+                    if (!user) {
+                        setSyncStatus(false, "正在嘗試重新建立安全通道...");
+                        signInAnonymously(auth).then(() => {
+                            saveRecordToCloud();
+                        }).catch((e) => {
+                            showErrorModal("重新建立連線失敗", e, true);
+                        });
+                    } else {
+                        saveRecordToCloud();
+                    }
                 };
             } else {
                 retryBtn.classList.add('hidden');
@@ -881,8 +926,7 @@ service cloud.firestore {
             if (match) {
                 nameField.value = match.name;
                 titleField.value = match.title || "";
-                showMsg(`✅ 已從雲端帶出師傅：${match.name}`);
-                // 同步將姓名下拉選單對準此員工
+                showMsg(`✅ 已從雲端帶出員工：${match.name}`);
                 document.getElementById('empSelectInline').value = match.id;
             } else {
                 nameField.value = "";
@@ -944,7 +988,6 @@ service cloud.firestore {
                 span.className = "bg-white border rounded px-2 py-1 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition text-slate-800 font-medium text-xs";
                 span.innerText = `${emp.id}: ${emp.name}`;
                 span.onclick = function() {
-                    // 點選快捷列直接帶入整組員工資料
                     handleEmpSelect(emp.id);
                     document.getElementById('empSelectInline').value = emp.id;
                 };
@@ -1012,6 +1055,26 @@ service cloud.firestore {
             }
         }
 
+        // 【新增功能】關閉編輯員工對照表時，自動完整儲存、同步備份於 Firebase 雲端中
+        async function saveAllEmployeesToCloud() {
+            if (!user) {
+                showMsg("❌ 雲端連線失敗，無法進行批次同步備份");
+                return;
+            }
+            showMsg("💾 正在進行雲端員工數據批次同步儲存...");
+            try {
+                // 批次寫入所有員工
+                for (const emp of employees) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', emp.id);
+                    await setDoc(docRef, emp);
+                }
+                showMsg("🎉 員工名冊已順暢同步備份至雲端！");
+            } catch (err) {
+                console.error("Batch save employees failed:", err);
+                showErrorModal("雲端批次同步失敗", err, false);
+            }
+        }
+
         function toggleEmpModal(show) {
             const modal = document.getElementById('empModal');
             if (show) {
@@ -1019,11 +1082,13 @@ service cloud.firestore {
                 modal.classList.remove('hidden');
             } else {
                 modal.classList.add('hidden');
+                // 編輯員工編號對照表完成關閉後存在雲端
+                saveAllEmployeesToCloud();
             }
         }
 
 
-        // --- 主管電子簽名檔錄入系統 ---
+        // --- 【橫向全螢幕升級】主管電子簽名檔錄入系統 ---
         let managerSigPad = null;
 
         function initManagerSignaturePad() {
@@ -1031,13 +1096,15 @@ service cloud.firestore {
             if (!canvas) return;
 
             const ctx = canvas.getContext('2d');
-            const rect = canvas.getBoundingClientRect();
+            
+            // 安全全螢幕寬高自適應
+            const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width * 2;
             canvas.height = rect.height * 2;
             ctx.scale(2, 2);
 
             ctx.strokeStyle = "#000000"; 
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 3.5; // 加粗筆觸便於手機手寫
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
 
@@ -1061,7 +1128,6 @@ service cloud.firestore {
                 };
             }
 
-            // 開始畫圖
             function startDraw(e) {
                 drawing = true;
                 const pos = getPos(e);
@@ -1069,7 +1135,6 @@ service cloud.firestore {
                 lastY = pos.y;
             }
 
-            // 畫圖中
             function draw(e) {
                 if (!drawing) return;
                 e.preventDefault();
@@ -1082,20 +1147,42 @@ service cloud.firestore {
                 lastY = pos.y;
             }
 
-            // 停止畫圖
             function stopDraw() {
                 drawing = false;
             }
 
-            canvas.addEventListener('mousedown', startDraw);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', stopDraw);
-            
-            canvas.addEventListener('touchstart', startDraw, { passive: false });
-            canvas.addEventListener('touchmove', draw, { passive: false });
-            canvas.addEventListener('touchend', stopDraw);
+            // 移除舊的 event listeners 避免重複綁定
+            const newCanvas = canvas.cloneNode(true);
+            canvas.parentNode.replaceChild(newCanvas, canvas);
 
-            managerSigPad = { canvas, ctx };
+            newCanvas.addEventListener('mousedown', startDraw);
+            newCanvas.addEventListener('mousemove', draw);
+            newCanvas.addEventListener('mouseup', stopDraw);
+            
+            newCanvas.addEventListener('touchstart', startDraw, { passive: false });
+            newCanvas.addEventListener('touchmove', draw, { passive: false });
+            newCanvas.addEventListener('touchend', stopDraw);
+
+            managerSigPad = { canvas: newCanvas, ctx };
+        }
+
+        // 重新適配 Canvas 畫布尺寸與偵測方向
+        function handleCanvasResizeEvent() {
+            const modal = document.getElementById('sigManagerModal');
+            if (modal.classList.contains('hidden')) return;
+
+            // 1. 動態重設簽名艙 Canvas 寬高以填滿橫向全螢幕
+            initManagerSignaturePad();
+
+            // 2. 智慧偵測手機是否轉為橫螢幕 (Landscape)
+            const banner = document.getElementById('rotationBanner');
+            if (window.innerHeight > window.innerWidth) {
+                // 直向模式：顯示強烈引導 Banner
+                banner.classList.remove('hidden');
+            } else {
+                // 橫向模式：自動隱藏以提供全螢幕開闊畫板
+                banner.classList.add('hidden');
+            }
         }
 
         function clearManagerSigCanvas() {
@@ -1113,12 +1200,12 @@ service cloud.firestore {
             }
 
             const dataUrl = managerSigPad.canvas.toDataURL();
-            if (dataUrl.length < 1000) {
-                showMsg("❌ 請在下方空白畫布內進行手寫親筆簽名！");
+            if (dataUrl.length < 1500) { // 稍微提高空畫布判斷閥值
+                showMsg("❌ 請在下方橫向全螢幕區域手寫您的親筆簽名！");
                 return;
             }
 
-            showMsg("💾 正在上傳主管簽名軌跡至雲端資料庫...");
+            showMsg("💾 正在上傳全螢幕主管簽名至雲端資料庫...");
             const sigId = 'sig_' + Date.now();
 
             try {
@@ -1132,7 +1219,7 @@ service cloud.firestore {
 
                 document.getElementById('newSigName').value = "";
                 clearManagerSigCanvas();
-                showSuccessModal("簽名檔上傳成功", `主管「${name}」的固定主管電子簽名已成功新增至雲端！`);
+                showSuccessModal("簽名檔錄入成功", `主管「${name}」的橫向全螢幕電子簽名已成功同步新增至雲端！`);
             } catch (err) {
                 console.error("Signature save error:", err);
                 showErrorModal("錄入簽名檔失敗", err, false);
@@ -1169,26 +1256,25 @@ service cloud.firestore {
             });
         }
 
-        function renderSavedSignaturesTable() {
-            const tbody = document.getElementById('sigTableBody');
-            tbody.innerHTML = "";
+        // 橫向水平滾動的主管已儲存清單渲染 (更符合橫螢幕手機操作)
+        function renderSavedSignaturesTableHorizontal() {
+            const container = document.getElementById('sigManagerListHorizontal');
+            container.innerHTML = "";
+
             if (savedSignatures.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">請在上方畫布錄製首個手寫電子簽名</td></tr>`;
+                container.innerHTML = '<span class="text-xs text-gray-400">尚無儲存的主管簽名檔</span>';
                 return;
             }
+
             savedSignatures.forEach(sig => {
-                const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-slate-50";
-                tr.innerHTML = `
-                    <td class="p-2 font-bold text-slate-700">${sig.name}</td>
-                    <td class="p-2">
-                        <img src="${sig.imageData}" class="h-10 border bg-white rounded" alt="預覽">
-                    </td>
-                    <td class="p-2 text-center">
-                        <button onclick="deleteSignature('${sig.id}', '${sig.name}')" class="text-red-500 hover:text-red-700 font-bold">刪除</button>
-                    </td>
+                const div = document.createElement('div');
+                div.className = "flex-shrink-0 bg-white border border-slate-200 rounded-lg p-2 flex items-center gap-2 h-14 md:h-16 shadow-sm";
+                div.innerHTML = `
+                    <div class="text-xs font-bold text-slate-700">${sig.name}</div>
+                    <img src="${sig.imageData}" class="h-8 md:h-10 border bg-slate-50 rounded" alt="簽名">
+                    <button onclick="deleteSignature('${sig.id}', '${sig.name}')" class="text-red-500 hover:text-red-700 font-bold text-xs px-1">✕</button>
                 `;
-                tbody.appendChild(tr);
+                container.appendChild(div);
             });
         }
 
@@ -1231,12 +1317,16 @@ service cloud.firestore {
             const modal = document.getElementById('sigManagerModal');
             if (show) {
                 modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                // 延遲重置，確保 Canvas 能正常獲取寬高，引導橫向提示
                 setTimeout(() => {
-                    initManagerSignaturePad();
-                    renderSavedSignaturesTable();
-                }, 200);
+                    handleCanvasResizeEvent();
+                    renderSavedSignaturesTableHorizontal();
+                }, 250);
             } else {
                 modal.classList.add('hidden');
+                modal.classList.remove('flex');
             }
         }
 
@@ -1251,9 +1341,14 @@ service cloud.firestore {
                 if (!canvas) continue;
 
                 const ctx = canvas.getContext('2d');
-                const rect = canvas.getBoundingClientRect();
-                canvas.width = rect.width * 2;
-                canvas.height = rect.height * 2;
+                
+                // 【安全維度固定】設定為絕對穩定的寬高物理像素 (Tailwind w-44 = 176px, h-16 = 64px)
+                const width = 176;
+                const height = 64;
+                canvas.style.width = width + "px";
+                canvas.style.height = height + "px";
+                canvas.width = width * 2;
+                canvas.height = height * 2;
                 ctx.scale(2, 2);
                 
                 ctx.strokeStyle = "#000000"; 
@@ -1350,7 +1445,8 @@ service cloud.firestore {
         // --- 訪談表紀錄備份雲端資料流 ---
         async function saveRecordToCloud() {
             if (!user) {
-                showMsg("❌ 雲端未完成通訊認證，無法存取");
+                const errDetail = window.authError ? window.authError : "未啟用 Firebase 匿名身分登入";
+                showErrorModal("雲端連線失敗", errDetail, true);
                 return;
             }
 
@@ -1413,11 +1509,9 @@ service cloud.firestore {
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId);
                 await setDoc(docRef, payload);
-                // 雲端儲存成功：調用精美成功 Modal
                 showSuccessModal("儲存成功", `員工「${empName}」的 ${year}年第${quarter}季 訪談紀錄表已成功同步儲存至專屬 Firestore 雲端資料庫！`);
             } catch (err) {
                 console.error("Save record error: ", err);
-                // 雲端儲存失敗：調用精美診斷 Modal
                 showErrorModal("雲端儲存失敗", err, true);
             }
         }
@@ -1481,7 +1575,6 @@ service cloud.firestore {
             document.getElementById('empTitle').value = target.empTitle || "";
             document.getElementById('extraCol').value = target.extraCol || "";
 
-            // 同步表單內部的姓名快速下拉選單
             document.getElementById('empSelectInline').value = target.empId || "";
 
             if (target.selectedSigIds && target.selectedSigIds.length === 3) {
@@ -1537,19 +1630,21 @@ service cloud.firestore {
 
 
         // --- html2canvas 高畫質渲染與行動端「長按儲存」技術 ---
-        // 【優化】採用 visibility 佔位保留機制，徹底解決轉譯時欄高、清除按鈕、套用選單隱藏造成格線位移的問題！
         function generateScreenshot() {
+            if (typeof html2canvas === 'undefined') {
+                showErrorModal("圖片生成套件加載異常", "請確認網際網路連線狀態正常，或重新載入此網頁。");
+                return;
+            }
+
             showMsg("📸 正在為您轉譯高解析實體相片(300dpi)，請稍候...");
 
             const container = document.getElementById('captureContainer');
 
-            // 轉譯前，將所有無須顯示在圖檔上的選單與按鈕設定為 visibility: hidden
-            // 這能確保它們保留原本的高寬與邊距佔位（Placeholder），使格線佈局在渲染期間完全不發生任何塌陷或挪動。
             const noCaptures = document.querySelectorAll('.no-capture');
             noCaptures.forEach(el => el.style.visibility = 'hidden');
 
             const options = {
-                scale: 3, 
+                scale: 2.5, 
                 useCORS: true,
                 backgroundColor: "#ffffff",
                 logging: false
@@ -1557,7 +1652,6 @@ service cloud.firestore {
 
             setTimeout(() => {
                 html2canvas(container, options).then(canvas => {
-                    // 轉譯完成後恢復這些控制元件的顯示
                     noCaptures.forEach(el => el.style.visibility = 'visible');
 
                     const imgData = canvas.toDataURL('image/png');
@@ -1574,10 +1668,9 @@ service cloud.firestore {
 
                     toggleScreenshotModal(true);
                 }).catch(err => {
-                    // 發生異常也需恢復顯示
                     noCaptures.forEach(el => el.style.visibility = 'visible');
                     console.error("Capture failure:", err);
-                    showMsg("❌ 轉譯影像異常");
+                    showErrorModal("轉譯影像發生異常", err, false);
                 });
             }, 500);
         }
