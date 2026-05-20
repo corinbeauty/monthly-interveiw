@@ -30,7 +30,7 @@
             box-sizing: border-box;
             height: 48px; 
         }
-        /* 月份訪談區與簽名欄位解鎖，高度自動撐開，徹底解決日期與下方內容被截斷位移問題 */
+        /* 月份訪談區與簽名欄位解鎖，高度自動撐開，解決日期被截斷位移問題 */
         .print-table tbody td {
             border: 1.5px solid #000000;
             color: #000000;
@@ -67,11 +67,20 @@
 
     <!-- 主操作控制面板 -->
     <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md">
-        <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex items-center justify-between">
-            <span class="flex items-center gap-2">⚙️ 訪談系統-中清店</span>
-            <div class="flex items-center gap-1.5 text-xs text-slate-500">
-                <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                <span id="syncStatusText">正在連接雲端...</span>
+        <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex flex-wrap items-center justify-between gap-2">
+            <!-- 【新功能】支援 23 家店動態標題與藍色店別 -->
+            <span class="flex items-center gap-2">
+                ⚙️ 訪談系統-<span id="headerStoreName" class="text-blue-600 font-bold">中清店</span>
+            </span>
+            <div class="flex items-center gap-3">
+                <!-- 管理者模式解鎖狀態指示器 -->
+                <button onclick="handleManagerModeToggle()" id="managerModeBtn" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full transition flex items-center gap-1">
+                    🔒 解鎖管理者模式
+                </button>
+                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                    <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span id="syncStatusText">正在連接雲端...</span>
+                </div>
             </div>
         </h2>
         
@@ -93,17 +102,25 @@
                 <input type="number" id="yearInput" value="115" class="w-full border rounded p-2 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <!-- 區域與店別 -->
-            <div class="grid grid-cols-2 gap-2">
+            <!-- 區域與店別 (管理者模式解鎖後，會自動在頂部釋放多店切換器) -->
+            <div class="grid grid-cols-2 gap-2 relative">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">區域</label>
-                    <input type="text" id="areaInput" value="中二區" class="w-full border rounded p-2 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="areaInput" value="中二區" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">店別</label>
-                    <input type="text" id="storeInput" value="中清店" class="w-full border rounded p-2 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="storeInput" value="中清店" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
                 </div>
             </div>
+        </div>
+
+        <!-- 【新功能】管理者模式專用：連鎖23家分店即時切換器 -->
+        <div id="managerStoreSwitcherContainer" class="hidden mb-4 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 animate-fadeIn">
+            <label class="block text-xs font-bold text-indigo-800 mb-1.5">🏢 管理者分店切換（解鎖成功，數據隔離同步）</label>
+            <select id="managerStoreSelect" onchange="changeActiveStore(this.value)" class="w-full border border-indigo-200 rounded p-2 bg-white text-indigo-900 font-bold focus:ring-2 focus:ring-indigo-500 text-sm">
+                <!-- JS 動態生成 23 家店選單 -->
+            </select>
         </div>
 
         <!-- 員工資料庫與電子簽名快速設定 -->
@@ -130,8 +147,8 @@
             </div>
         </div>
 
-        <!-- 操作按鈕 -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <!-- 操作按鈕 (已移除清除手寫簽名按鈕，保持介面專業性) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <button onclick="saveRecordToCloud()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center gap-1.5">
                 💾 儲存至雲端
             </button>
@@ -140,9 +157,6 @@
             </button>
             <button onclick="generateScreenshot()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow transition flex items-center justify-center gap-1.5">
                 📸 生成手機截圖
-            </button>
-            <button onclick="resetSignatures()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition">
-                🧹 清除手寫簽名
             </button>
         </div>
     </div>
@@ -203,7 +217,7 @@
                 <!-- 第一個月份 -->
                 <tr>
                     <td colspan="7" class="p-0">
-                        <!-- 月份標題欄：調整 flex 與 padding，加入固定高度，並使用 margin-top 將日期與文字完美上移對齊 -->
+                        <!-- 月份標題欄 -->
                         <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                             <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
                             <div class="flex items-center gap-1 font-normal text-sm self-center">
@@ -385,7 +399,7 @@
 
     <!-- 手機橫向全螢幕主管電子簽名檔管理器 (Modal) -->
     <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
-        <!-- 旋轉手機方向引導 Banner (僅在直立模式時顯示) -->
+        <!-- 旋轉手機方向引導 Banner -->
         <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
             <span>🔄 偵測到手機為直向，強烈建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
         </div>
@@ -408,7 +422,6 @@
         <!-- 橫向全螢幕核心手畫板區域 -->
         <div class="flex-1 bg-slate-50 relative w-full overflow-hidden">
             <canvas id="managerSigCanvas" class="w-full h-full cursor-crosshair touch-none absolute inset-0"></canvas>
-            <!-- 浮水印底圖提示 -->
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-10">
                 <div class="text-center">
                     <span class="text-4xl md:text-6xl font-bold tracking-widest block mb-2">請在此區域親筆簽名</span>
@@ -424,7 +437,6 @@
                 <span class="text-[9px] text-gray-400">滑動查看更多</span>
             </div>
             <div class="flex-1 overflow-x-auto overflow-y-hidden p-2 flex items-center gap-3" id="sigManagerListHorizontal">
-                <!-- 由 JS 動態產生水平滑動清單 -->
                 <div class="text-xs text-gray-400">尚無儲存的主管簽名檔</div>
             </div>
         </div>
@@ -594,6 +606,41 @@ service cloud.firestore {
         </div>
     </div>
 
+    <!-- 【新功能】自製的高質感管理端密碼確認彈窗 (取代危險的 window.prompt) -->
+    <div id="managerPasswordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-3">
+                <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1">解鎖管理者權限</h3>
+            <p class="text-xs text-gray-500 mb-4">請輸入 4 位數授權密碼以切換分店名冊</p>
+            <input type="password" id="managerPasscodeField" maxlength="8" placeholder="請輸入密碼 (預設: 8888)" class="w-full text-center text-lg tracking-widest border rounded-xl py-2 px-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4 font-bold">
+            <div class="flex gap-2">
+                <button onclick="closeManagerPasswordModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-xl text-xs transition">取消</button>
+                <button onclick="submitManagerPasscode()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-md">驗證</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 【新功能】自製的極致美化自訂確認對話盒 (完全取代 Iframe 中被禁止的 native confirm) -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-3" id="confirmIconContainer">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-1" id="confirmTitleField">確定要執行此操作？</h3>
+            <p class="text-xs text-gray-500 mb-5 leading-relaxed" id="confirmMsgField">刪除後將無法還原，請確認數據安全。</p>
+            <div class="flex gap-2">
+                <button onclick="closeCustomConfirm(false)" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-xl text-xs transition">取消</button>
+                <button onclick="closeCustomConfirm(true)" id="confirmExecuteBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-md">確定</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase SDK ES Modules -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -622,10 +669,40 @@ service cloud.firestore {
         
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
+        // 連鎖 23 家分店名冊定義
+        const STORES_LIST = [
+            { id: "store_zhongqing", name: "中清店", area: "中二區" },
+            { id: "store_chongde", name: "崇德店", area: "中二區" },
+            { id: "store_gongyi", name: "公益店", area: "中一區" },
+            { id: "store_fengjia", name: "逢甲店", area: "中一區" },
+            { id: "store_xitun", name: "西屯店", area: "中一區" },
+            { id: "store_fuxing", name: "復興店", area: "中三區" },
+            { id: "store_xiangshang", name: "向上店", area: "中一區" },
+            { id: "store_beitun", name: "北屯店", area: "中二區" },
+            { id: "store_fengyuan", name: "豐原店", area: "中四區" },
+            { id: "store_dali", name: "大里店", area: "中三區" },
+            { id: "store_taiping", name: "太平店", area: "中三區" },
+            { id: "store_shalu", name: "沙鹿店", area: "中五區" },
+            { id: "store_wuqi", name: "梧棲店", area: "中五區" },
+            { id: "store_wuri", name: "烏日店", area: "中三區" },
+            { id: "store_dajia", name: "大甲店", area: "中五區" },
+            { id: "store_donghai", name: "東海店", area: "中五區" },
+            { id: "store_changhua", name: "彰化店", area: "彰化區" },
+            { id: "store_yuanlin", name: "員林店", area: "彰化區" },
+            { id: "store_caotun", name: "草屯店", area: "南投區" },
+            { id: "store_nantou", name: "南投店", area: "南投區" },
+            { id: "store_douliu", name: "斗六店", area: "雲林區" },
+            { id: "store_huwei", name: "虎尾店", area: "雲林區" },
+            { id: "store_chiayi", name: "嘉義店", area: "嘉義區" }
+        ];
+
+        let currentStoreId = "store_zhongqing"; // 預設鎖定中清店
+        let isManagerMode = false; // 管理者模式預設鎖定
+
         let user = null;
         let employees = [];
         let loadedRecords = []; 
-        let savedSignatures = []; // 快取雲端固定電子簽名檔
+        let savedSignatures = []; // 快取雲端主管固定簽名檔
         let lastRetryAction = null; // 快取重試閉包行為
 
         // 儲存初始化時發生的登入錯誤 (以便精準引導用戶開啟 Anonymous Auth)
@@ -653,7 +730,7 @@ service cloud.firestore {
         window.deleteSignature = deleteSignature;
         window.applySavedSignatureToCanvas = applySavedSignatureToCanvas;
 
-        // 雲端診斷與快速套用全域函數
+        // 雲端診斷與多店支援全域函數
         window.handleEmpSelect = handleEmpSelect;
         window.showSuccessModal = showSuccessModal;
         window.closeSuccessModal = closeSuccessModal;
@@ -661,10 +738,20 @@ service cloud.firestore {
         window.closeErrorModal = closeErrorModal;
         window.copyRulesCodeFromError = copyRulesCodeFromError;
         window.retrySaveRecord = retrySaveRecord;
+        window.handleManagerModeToggle = handleManagerModeToggle;
+        window.closeManagerPasswordModal = closeManagerPasswordModal;
+        window.submitManagerPasscode = submitManagerPasscode;
+        window.changeActiveStore = changeActiveStore;
+        window.closeCustomConfirm = closeCustomConfirm;
 
         // 啟動身份驗證與實時監聽
         window.addEventListener('DOMContentLoaded', async () => {
             setSyncStatus(false, "正在與專屬 Firebase 連線中...");
+            
+            // 建立 23 家店選單選項
+            populateStoreSelector();
+            applyStoreProfile();
+
             try {
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
@@ -697,11 +784,122 @@ service cloud.firestore {
             window.addEventListener('orientationchange', handleCanvasResizeEvent);
         });
 
+        // 23家分店資訊配置與回填
+        function populateStoreSelector() {
+            const select = document.getElementById('managerStoreSelect');
+            select.innerHTML = "";
+            STORES_LIST.forEach(store => {
+                const opt = document.createElement('option');
+                opt.value = store.id;
+                opt.innerText = `🏢 ${store.area} - ${store.name}`;
+                select.appendChild(opt);
+            });
+        }
+
+        function applyStoreProfile() {
+            const currentStore = STORES_LIST.find(s => s.id === currentStoreId) || STORES_LIST[0];
+            
+            // 1. 更新大標題 (將店別顯示為藍色)
+            document.getElementById('headerStoreName').innerText = currentStore.name;
+            
+            // 2. 更新表格內的店別與區域屬性
+            document.getElementById('areaInput').value = currentStore.area;
+            document.getElementById('storeInput').value = currentStore.name;
+            document.getElementById('labelArea').innerText = currentStore.area;
+            document.getElementById('labelStore').innerText = currentStore.name;
+
+            // 3. 內存數據過濾重新渲染
+            renderEmployeeBrief();
+            renderHistoryTable(loadedRecords);
+            updateEmpSelectInlineDropdown();
+        }
+
+        // 管理者密碼確認系統
+        function handleManagerModeToggle() {
+            if (isManagerMode) {
+                // 若已處於管理者模式，點擊可直接登出鎖定
+                isManagerMode = false;
+                document.getElementById('managerStoreSelect').value = "store_zhongqing";
+                currentStoreId = "store_zhongqing";
+                applyStoreProfile();
+
+                document.getElementById('managerModeBtn').innerText = "🔒 解鎖管理者模式";
+                document.getElementById('managerModeBtn').className = "text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full transition flex items-center gap-1";
+                document.getElementById('managerStoreSwitcherContainer').classList.add('hidden');
+                showMsg("🔒 已登出管理者模式，重置鎖定中清店。");
+            } else {
+                // 開啟自訂密碼彈窗 (8888)
+                document.getElementById('managerPasscodeField').value = "";
+                document.getElementById('managerPasswordModal').classList.remove('hidden');
+                document.getElementById('managerPasscodeField').focus();
+            }
+        }
+
+        function closeManagerPasswordModal() {
+            document.getElementById('managerPasswordModal').classList.add('hidden');
+        }
+
+        function submitManagerPasscode() {
+            const code = document.getElementById('managerPasscodeField').value;
+            if (code === "8888") {
+                isManagerMode = true;
+                closeManagerPasswordModal();
+                showMsg("🔓 管理者授權成功！");
+                
+                document.getElementById('managerModeBtn').innerText = "🔓 已啟用管理者模式";
+                document.getElementById('managerModeBtn').className = "text-xs bg-green-100 hover:bg-green-200 text-green-700 px-2.5 py-1 rounded-full transition flex items-center gap-1 font-bold";
+                document.getElementById('managerStoreSwitcherContainer').classList.remove('hidden');
+                document.getElementById('managerStoreSelect').value = currentStoreId;
+            } else {
+                showMsg("❌ 授權密碼錯誤，請重新確認！");
+            }
+        }
+
+        function changeActiveStore(storeId) {
+            currentStoreId = storeId;
+            applyStoreProfile();
+            showMsg(`🏢 已切換至分店：${STORES_LIST.find(s => s.id === storeId).name}`);
+        }
+
+        // --- 自製高質感確認對話盒 (完全替代 Native Confirm) ---
+        let currentConfirmResolve = null;
+
+        function showCustomConfirm(title, message, isDangerous = true) {
+            document.getElementById('confirmTitleField').innerText = title;
+            document.getElementById('confirmMsgField').innerText = message;
+            
+            const iconContainer = document.getElementById('confirmIconContainer');
+            const execBtn = document.getElementById('confirmExecuteBtn');
+
+            if (isDangerous) {
+                iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-3 text-red-600";
+                execBtn.className = "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-md";
+            } else {
+                iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-indigo-100 mb-3 text-indigo-600";
+                execBtn.className = "flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-md";
+            }
+
+            document.getElementById('customConfirmModal').classList.remove('hidden');
+            
+            return new Promise((resolve) => {
+                currentConfirmResolve = resolve;
+            });
+        }
+
+        function closeCustomConfirm(isConfirmed) {
+            document.getElementById('customConfirmModal').classList.add('hidden');
+            if (currentConfirmResolve) {
+                currentConfirmResolve(isConfirmed);
+                currentConfirmResolve = null;
+            }
+        }
+
+
         // 實時雲端資料雙向監聽器
         function initCloudListeners() {
             if (!user) return;
 
-            // 1. 實時同步雲端員工資料
+            // 1. 實時同步雲端員工資料 (Rule 2 filter compliance)
             const empColRef = collection(db, 'artifacts', appId, 'public', 'data', 'employees');
             onSnapshot(empColRef, (snapshot) => {
                 employees = [];
@@ -716,7 +914,7 @@ service cloud.firestore {
                 handleFirestoreError(error);
             });
 
-            // 2. 實時同步季度訪談紀錄
+            // 2. 實時同步季度訪談紀錄 (Rule 2 filter compliance)
             const recordColRef = collection(db, 'artifacts', appId, 'public', 'data', 'records');
             onSnapshot(recordColRef, (snapshot) => {
                 loadedRecords = [];
@@ -743,13 +941,6 @@ service cloud.firestore {
                 console.error("Signatures Firestore connection failed:", error);
                 handleFirestoreError(error);
             });
-        }
-
-        // Firestore 錯誤集中診斷模組
-        function handleFirestoreError(err) {
-            if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
-                showErrorModal("雲端資料庫讀寫權限不足", err, true);
-            }
         }
 
         // --- 美化版 Modal 系統控制 ---
@@ -836,7 +1027,6 @@ service cloud.firestore {
         }
 
         function copyRulesCodeFromError() {
-            // 優先複製方法一的全局解鎖代碼，這具有 100% 的除錯成功率
             const text = "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}";
             const textarea = document.createElement('textarea');
             textarea.value = text;
@@ -847,22 +1037,9 @@ service cloud.firestore {
                 document.execCommand('copy');
                 showMsg("📋 全局解鎖規則代碼已複製到您的剪貼簿！");
             } catch (err) {
-                showMsg("❌ 複製失敗，請手動選取代碼複製");
+                showMsg("❌ 複製失敗，請手動複製");
             }
             document.body.removeChild(textarea);
-        }
-
-        // 修改連線狀態 UI 標籤
-        function setSyncStatus(isOK, text) {
-            const indicator = document.getElementById('syncStatusIndicator');
-            const statusText = document.getElementById('syncStatusText');
-            if (isOK) {
-                indicator.className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
-                statusText.innerText = text;
-            } else {
-                indicator.className = "inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse";
-                statusText.innerText = text;
-            }
         }
 
         // 自訂輕量彈窗訊息
@@ -875,60 +1052,23 @@ service cloud.firestore {
             }, 2500);
         }
 
-        // 操作面板連動
-        function setupControlPanelListeners() {
-            const qSelect = document.getElementById('quarterSelect');
-            const yInput = document.getElementById('yearInput');
-            const aInput = document.getElementById('areaInput');
-            const sInput = document.getElementById('storeInput');
-
-            qSelect.addEventListener('change', updateQuarterLayout);
-            yInput.addEventListener('input', function() {
-                document.getElementById('titleYear').innerText = yInput.value || '   ';
-            });
-            aInput.addEventListener('input', function() {
-                document.getElementById('labelArea').innerText = aInput.value || '      ';
-            });
-            sInput.addEventListener('input', function() {
-                document.getElementById('labelStore').innerText = sInput.value || '      ';
-            });
-
-            document.getElementById('titleYear').innerText = yInput.value;
-            document.getElementById('labelArea').innerText = aInput.value;
-            document.getElementById('labelStore').innerText = sInput.value;
+        // 篩選與渲染當前分店員工名單
+        function getFilteredEmployees() {
+            return employees.filter(emp => emp.storeId === currentStoreId || (!emp.storeId && currentStoreId === "store_zhongqing"));
         }
 
-        // 自動更換月份抬頭
-        function updateQuarterLayout() {
-            const q = parseInt(document.getElementById('quarterSelect').value);
-            let months = [];
-            let qText = "";
-
-            switch(q) {
-                case 1:
-                    qText = "第一季";
-                    months = [1, 2, 3];
-                    break;
-                case 2:
-                    qText = "第二季";
-                    months = [4, 5, 6];
-                    break;
-                case 3:
-                    qText = "第三季";
-                    months = [7, 8, 9];
-                    break;
-                case 4:
-                    qText = "第四季";
-                    months = [10, 11, 12];
-                    break;
-            }
-
-            document.getElementById('monthTitle1').innerText = `${qText} ${months[0]}月`;
-            document.getElementById('monthTitle2').innerText = `${qText} ${months[1]}月`;
-            document.getElementById('monthTitle3').innerText = `${qText} ${months[2]}月`;
+        // 篩選與渲染當前分店訪談紀錄
+        function getFilteredRecords() {
+            return loadedRecords.filter(rec => rec.storeId === currentStoreId || (!rec.storeId && currentStoreId === "store_zhongqing"));
         }
 
-        // 師傅端：輸入代號自動帶出對應資料
+        // 篩選與渲染當前分店固定簽名檔
+        function getFilteredSignatures() {
+            // 簽名檔一般為各店主管，可共享也可依分店篩選。此處設計為通用，若需隔離亦可使用 storeId 進行
+            return savedSignatures;
+        }
+
+        // 師傅端：輸入代號自動帶出對應資料 (分店過濾防越區)
         function handleIdInput() {
             const typedId = document.getElementById('empId').value.trim();
             const nameField = document.getElementById('empName');
@@ -940,11 +1080,12 @@ service cloud.firestore {
                 return;
             }
 
-            const match = employees.find(emp => emp.id === typedId);
+            const storeEmps = getFilteredEmployees();
+            const match = storeEmps.find(emp => emp.id === typedId);
             if (match) {
                 nameField.value = match.name;
                 titleField.value = match.title || "";
-                showMsg(`✅ 已從雲端帶出員工：${match.name}`);
+                showMsg(`✅ 已從分店雲端帶出員工：${match.name}`);
                 document.getElementById('empSelectInline').value = match.id;
             } else {
                 nameField.value = "";
@@ -966,12 +1107,13 @@ service cloud.firestore {
                 return;
             }
 
-            const match = employees.find(emp => emp.id === selectedId);
+            const storeEmps = getFilteredEmployees();
+            const match = storeEmps.find(emp => emp.id === selectedId);
             if (match) {
                 nameField.value = match.name;
                 idField.value = match.id;
                 titleField.value = match.title || "";
-                showMsg(`👥 已帶入員工資訊：${match.name} (${match.title || '櫃台'})`);
+                showMsg(`👥 已帶入員工：${match.name} (${match.title || '一般'})`);
             }
         }
 
@@ -983,10 +1125,11 @@ service cloud.firestore {
             const currentVal = select.value;
             select.innerHTML = '<option value="">快速選擇...</option>';
             
-            employees.forEach(emp => {
+            const storeEmps = getFilteredEmployees();
+            storeEmps.forEach(emp => {
                 const opt = document.createElement('option');
                 opt.value = emp.id;
-                opt.innerText = `${emp.name} (${emp.title || '員工'})`;
+                opt.innerText = `${emp.name} (${emp.title || '一般'})`;
                 select.appendChild(opt);
             });
 
@@ -997,11 +1140,13 @@ service cloud.firestore {
         function renderEmployeeBrief() {
             const briefDiv = document.getElementById('empListBrief');
             briefDiv.innerHTML = "";
-            if (employees.length === 0) {
-                briefDiv.innerHTML = '<span class="text-gray-400">目前專案內無設定員工。</span>';
+            
+            const storeEmps = getFilteredEmployees();
+            if (storeEmps.length === 0) {
+                briefDiv.innerHTML = '<span class="text-gray-400">目前此分店名冊無設定員工。</span>';
                 return;
             }
-            employees.forEach(emp => {
+            storeEmps.forEach(emp => {
                 const span = document.createElement('span');
                 span.className = "bg-white border rounded px-2 py-1 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition text-slate-800 font-medium text-xs";
                 span.innerText = `${emp.id}: ${emp.name}`;
@@ -1017,7 +1162,8 @@ service cloud.firestore {
         function renderEmployeeTable() {
             const tbody = document.getElementById('empTableBody');
             tbody.innerHTML = "";
-            employees.forEach((emp) => {
+            const storeEmps = getFilteredEmployees();
+            storeEmps.forEach((emp) => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
                 tr.innerHTML = `
@@ -1042,14 +1188,17 @@ service cloud.firestore {
             const name = document.getElementById('newName').value.trim();
             const title = document.getElementById('newTitle').value.trim();
 
-            if (employees.some(emp => emp.id === id)) {
+            const storeEmps = getFilteredEmployees();
+            if (storeEmps.some(emp => emp.id === id)) {
                 showMsg("❌ 員工編號已被使用！");
                 return;
             }
 
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', id);
-                await setDoc(docRef, { id, name, title });
+                // 分店隔離儲存識別碼
+                const cloudDocId = `${currentStoreId}_${id}`;
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', cloudDocId);
+                await setDoc(docRef, { id, storeId: currentStoreId, name, title });
                 
                 document.getElementById('newId').value = "";
                 document.getElementById('newName').value = "";
@@ -1063,8 +1212,13 @@ service cloud.firestore {
 
         async function deleteEmployee(id) {
             if (!user) return;
+            // 使用自訂對話盒防堵 iframe 崩潰
+            const confirmDel = await showCustomConfirm("確定刪除員工？", `此操作將會移除本機與雲端員工編號為 ${id} 的名冊對照關係。`);
+            if (!confirmDel) return;
+
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', id);
+                const cloudDocId = `${currentStoreId}_${id}`;
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', cloudDocId);
                 await deleteDoc(docRef);
                 showMsg("🗑️ 已從雲端刪除員工資料");
             } catch (err) {
@@ -1081,10 +1235,11 @@ service cloud.firestore {
             }
             showMsg("💾 正在進行雲端員工數據批次同步儲存...");
             try {
-                // 批次寫入所有員工
-                for (const emp of employees) {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', emp.id);
-                    await setDoc(docRef, emp);
+                const storeEmps = getFilteredEmployees();
+                for (const emp of storeEmps) {
+                    const cloudDocId = `${currentStoreId}_${emp.id}`;
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'employees', cloudDocId);
+                    await setDoc(docRef, { ...emp, storeId: currentStoreId });
                 }
                 showMsg("🎉 員工名冊已順暢同步備份至雲端！");
             } catch (err) {
@@ -1115,10 +1270,15 @@ service cloud.firestore {
 
             const ctx = canvas.getContext('2d');
             
-            // 安全全螢幕寬高自適應
+            // 安全防崩潰：若 modal 隱藏，則使用預設高寬安全降級適配
             const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width * 2;
-            canvas.height = rect.height * 2;
+            const width = rect.width || window.innerWidth || 800;
+            const height = rect.height || window.innerHeight || 400;
+
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+            canvas.width = width * 2;
+            canvas.height = height * 2;
             ctx.scale(2, 2);
 
             ctx.strokeStyle = "#000000"; 
@@ -1153,7 +1313,6 @@ service cloud.firestore {
                 lastY = pos.y;
             }
 
-            // 繪圖實作
             function draw(e) {
                 if (!drawing) return;
                 e.preventDefault();
@@ -1196,10 +1355,8 @@ service cloud.firestore {
             // 2. 智慧偵測手機是否轉為橫螢幕 (Landscape)
             const banner = document.getElementById('rotationBanner');
             if (window.innerHeight > window.innerWidth) {
-                // 直向模式：顯示強烈引導 Banner
                 banner.classList.remove('hidden');
             } else {
-                // 橫向模式：自動隱藏以提供全螢幕開闊畫板
                 banner.classList.add('hidden');
             }
         }
@@ -1219,7 +1376,7 @@ service cloud.firestore {
             }
 
             const dataUrl = managerSigPad.canvas.toDataURL();
-            if (dataUrl.length < 1500) { // 稍微提高空畫布判斷閥值
+            if (dataUrl.length < 1500) { 
                 showMsg("❌ 請在下方橫向全螢幕區域手寫您的親筆簽名！");
                 return;
             }
@@ -1238,7 +1395,7 @@ service cloud.firestore {
 
                 document.getElementById('newSigName').value = "";
                 clearManagerSigCanvas();
-                showSuccessModal("簽名檔錄入成功", `主管「${name}」的橫向全螢幕電子簽名已成功同步新增至雲端！`);
+                showSuccessModal("簽名檔上傳成功", `主管「${name}」的橫向全螢幕電子簽名已成功同步新增至雲端！`);
             } catch (err) {
                 console.error("Signature save error:", err);
                 showErrorModal("錄入簽名檔失敗", err, false);
@@ -1247,7 +1404,7 @@ service cloud.firestore {
 
         async function deleteSignature(id, name) {
             if (!user) return;
-            const confirmDel = confirm(`確定要徹底刪除「${name}」的固定雲端電子簽名檔嗎？`);
+            const confirmDel = await showCustomConfirm("確定刪除電子簽名檔？", `此操作將會移除主管「${name}」在系統中的預存固定電子簽名。`);
             if (!confirmDel) return;
 
             try {
@@ -1263,11 +1420,12 @@ service cloud.firestore {
         function renderSavedSignaturesBrief() {
             const container = document.getElementById('sigListBrief');
             container.innerHTML = "";
-            if (savedSignatures.length === 0) {
+            const storeSigs = getFilteredSignatures();
+            if (storeSigs.length === 0) {
                 container.innerHTML = '<span class="text-gray-400">目前雲端無固定電子簽名檔。</span>';
                 return;
             }
-            savedSignatures.forEach(sig => {
+            storeSigs.forEach(sig => {
                 const span = document.createElement('span');
                 span.className = "bg-white border rounded px-2 py-1 flex items-center gap-1 cursor-default text-slate-800 font-medium text-xs";
                 span.innerHTML = `✍️ ${sig.name}`;
@@ -1280,12 +1438,13 @@ service cloud.firestore {
             const container = document.getElementById('sigManagerListHorizontal');
             container.innerHTML = "";
 
-            if (savedSignatures.length === 0) {
+            const storeSigs = getFilteredSignatures();
+            if (storeSigs.length === 0) {
                 container.innerHTML = '<span class="text-xs text-gray-400">尚無儲存的主管簽名檔</span>';
                 return;
             }
 
-            savedSignatures.forEach(sig => {
+            storeSigs.forEach(sig => {
                 const div = document.createElement('div');
                 div.className = "flex-shrink-0 bg-white border border-slate-200 rounded-lg p-2 flex items-center gap-2 h-14 md:h-16 shadow-sm";
                 div.innerHTML = `
@@ -1305,7 +1464,8 @@ service cloud.firestore {
                 const currentVal = select.value;
 
                 select.innerHTML = '<option value="">-- 手寫或選擇 --</option>';
-                savedSignatures.forEach(sig => {
+                const storeSigs = getFilteredSignatures();
+                storeSigs.forEach(sig => {
                     const opt = document.createElement('option');
                     opt.value = sig.id;
                     opt.innerText = sig.name;
@@ -1325,7 +1485,8 @@ service cloud.firestore {
                 return;
             }
 
-            const match = savedSignatures.find(sig => sig.id === sigId);
+            const storeSigs = getFilteredSignatures();
+            const match = storeSigs.find(sig => sig.id === sigId);
             if (match) {
                 drawBase64ToCanvas(canvas, match.imageData);
                 showMsg(`✍️ 已為 ${monthIdx} 月載入「${match.name}」主管電子簽名`);
@@ -1481,7 +1642,8 @@ service cloud.firestore {
 
             showMsg("💾 正在傳輸整張訪談與電子簽章軌跡至 Firebase...");
 
-            const recordId = `${year}_Q${quarter}_${empId}`;
+            // 分店隔離儲存
+            const recordId = `${currentStoreId}_${year}_Q${quarter}_${empId}`;
 
             const sig1 = document.getElementById('sigCanvas1').toDataURL();
             const sig2 = document.getElementById('sigCanvas2').toDataURL();
@@ -1489,6 +1651,7 @@ service cloud.firestore {
 
             const payload = {
                 id: recordId,
+                storeId: currentStoreId, // 記錄分店 ID
                 year: year,
                 quarter: quarter,
                 area: document.getElementById('areaInput').value,
@@ -1528,7 +1691,7 @@ service cloud.firestore {
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId);
                 await setDoc(docRef, payload);
-                showSuccessModal("儲存成功", `員工「${empName}」的 ${year}年第${quarter}季 訪談紀錄表已成功同步儲存至專屬 Firestore 雲端資料庫！`);
+                showSuccessModal("儲存成功", `分店[${payload.store}] 員工[${empName}] 的紀錄已同步儲存至雲端！`);
             } catch (err) {
                 console.error("Save record error: ", err);
                 showErrorModal("雲端儲存失敗", err, true);
@@ -1539,12 +1702,13 @@ service cloud.firestore {
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = "";
 
-            if (recordsList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">專案內尚無任何存檔紀錄</td></tr>`;
+            const storeRecords = getFilteredRecords();
+            if (storeRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">目前此分店尚無任何存檔紀錄</td></tr>`;
                 return;
             }
 
-            recordsList.forEach((rec) => {
+            storeRecords.forEach((rec) => {
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-slate-50 text-xs";
                 tr.innerHTML = `
@@ -1563,11 +1727,12 @@ service cloud.firestore {
 
         function filterHistoryList() {
             const queryVal = document.getElementById('historySearch').value.toLowerCase().trim();
+            const storeRecords = getFilteredRecords();
             if (queryVal === "") {
-                renderHistoryTable(loadedRecords);
+                renderHistoryTable(storeRecords);
                 return;
             }
-            const filtered = loadedRecords.filter(rec => 
+            const filtered = storeRecords.filter(rec => 
                 rec.empName.toLowerCase().includes(queryVal) || 
                 rec.empId.toLowerCase().includes(queryVal) ||
                 rec.year.toLowerCase().includes(queryVal)
@@ -1575,10 +1740,16 @@ service cloud.firestore {
             renderHistoryTable(filtered);
         }
 
-        // 載入歷史紀錄並回填
+        // 載入歷史紀錄並回填 (連同分店設定安全重定位)
         function loadSelectedRecord(id) {
             const target = loadedRecords.find(rec => rec.id === id);
             if (!target) return;
+
+            // 切換目前的店別並安全回填屬性
+            if (target.storeId && target.storeId !== currentStoreId) {
+                currentStoreId = target.storeId;
+                applyStoreProfile();
+            }
 
             document.getElementById('quarterSelect').value = target.quarter;
             document.getElementById('yearInput').value = target.year;
@@ -1620,12 +1791,12 @@ service cloud.firestore {
             }
 
             toggleHistoryModal(false);
-            showMsg(`📂 已成功從專屬專案調出「${target.empName}」歷史訪談表！`);
+            showMsg(`📂 已成功調出分店 [${target.store}] 員工 [${target.empName}] 紀錄！`);
         }
 
         async function deleteSelectedRecord(id) {
             if (!user) return;
-            const confirmDel = confirm(`確定要從雲端徹底刪除此張紀錄表（ID: ${id}）嗎？`);
+            const confirmDel = await showCustomConfirm("確定刪除訪談紀錄？", "刪除後，雲端與本機將無法還原該季度的訪談數據、回饋以及電子簽章。");
             if (!confirmDel) return;
 
             try {
@@ -1667,7 +1838,8 @@ service cloud.firestore {
                 scale: 2.5, 
                 useCORS: true,
                 backgroundColor: "#ffffff",
-                logging: false
+                logging: false,
+                allowTaint: true
             };
 
             setTimeout(() => {
