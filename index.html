@@ -156,9 +156,17 @@
         <table class="print-table text-sm">
             <thead>
                 <tr>
-                    <th class="w-[12%] text-center bg-gray-50 font-bold">姓 名</th>
+                    <th class="w-[12%] text-center bg-gray-50 font-bold">
+                        <div>姓 名</div>
+                        <!-- 【新功能】櫃台員工快速選擇下拉選單 (截圖時自動隱藏) -->
+                        <div class="no-capture mt-1 px-1">
+                            <select id="empSelectInline" onchange="handleEmpSelect(this.value)" class="w-full text-[10px] border border-gray-300 rounded px-1 py-0.5 bg-white font-normal text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                                <option value="">快速選擇...</option>
+                            </select>
+                        </div>
+                    </th>
                     <td class="w-[20%]">
-                        <input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="自動帶出">
+                        <input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="姓名或選取">
                     </td>
                     <th class="w-[15%] text-center bg-gray-50 font-bold">編號 (師傅)</th>
                     <td class="w-[18%]">
@@ -476,6 +484,51 @@
         </div>
     </div>
 
+    <!-- 【新增功能】Firestore 雲端安全規則設定指引 Modal -->
+    <div id="rulesGuideModal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                <h3 class="font-bold text-red-600 flex items-center gap-2">
+                    ⚠️ 偵測到資料庫寫入阻擋 (Permission Denied)
+                </h3>
+                <button onclick="toggleRulesGuideModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+            </div>
+            
+            <div class="overflow-y-auto py-4 flex-1 space-y-3 text-sm text-gray-700">
+                <p>這通常是由於您的 <strong>Firestore Database 安全規則</strong> 仍處於未授權防禦狀態。請跟著以下步驟完成解鎖：</p>
+                
+                <ol class="list-decimal pl-5 space-y-2 text-xs">
+                    <li>開啟並登入您的 <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline">Firebase Console</a></li>
+                    <li>進入您的專案 <strong>monthly-interview</strong></li>
+                    <li>點擊左側選單的 <strong>Firestore Database</strong>，並切換到頂部的 <strong>Rules (規則)</strong> 標籤頁</li>
+                    <li>將裡面的程式碼修改為以下「解鎖安全通道」配置：</li>
+                </ol>
+
+                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-lg font-mono text-[11px]">
+                    <pre id="rulesCode" class="overflow-x-auto">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /artifacts/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                    <button onclick="copyRulesCode()" class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-[10px] font-bold">一鍵複製</button>
+                </div>
+
+                <p class="text-xs text-amber-600 bg-amber-50 p-2 rounded">
+                    💡 貼上後點擊右上角的 <strong>Publish (發佈)</strong>。發佈後需等待約 30 秒使規則生效，即可正常儲存所有訪談與簽名檔案！
+                </p>
+            </div>
+
+            <div class="pt-3 border-t border-gray-100 flex justify-end">
+                <button onclick="toggleRulesGuideModal(false)" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-900 text-xs">
+                    我知道了，去設定
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 輕量化訊息盒 -->
     <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium">
         提示訊息
@@ -502,7 +555,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // 【修正 2】使用 initializeFirestore 代替 getFirestore，並強制啟用長輪詢 (Force Long Polling)，確保穿透 Iframe / 沙盒網域限制
+        // 使用 initializeFirestore 代替 getFirestore，並強制啟用長輪詢 (Force Long Polling)，確保穿透 Iframe / 沙盒網域限制
         const db = initializeFirestore(app, {
             experimentalForceLongPolling: true
         });
@@ -535,6 +588,11 @@
         window.uploadNewSignature = uploadNewSignature;
         window.deleteSignature = deleteSignature;
         window.applySavedSignatureToCanvas = applySavedSignatureToCanvas;
+
+        // 【新增全域函數】雲端規則設定引導控制
+        window.toggleRulesGuideModal = toggleRulesGuideModal;
+        window.copyRulesCode = copyRulesCode;
+        window.handleEmpSelect = handleEmpSelect;
 
         // 啟動身份驗證與實時監聽
         window.addEventListener('DOMContentLoaded', async () => {
@@ -580,8 +638,10 @@
                 });
                 renderEmployeeBrief();
                 renderEmployeeTable();
+                updateEmpSelectInlineDropdown(); // 同步刷新表單內的姓名快速下拉選擇器
             }, (error) => {
                 console.error("Employee Firestore connection failed:", error);
+                handleFirestoreError(error);
             });
 
             // 2. 實時同步季度訪談紀錄
@@ -594,6 +654,7 @@
                 renderHistoryTable(loadedRecords);
             }, (error) => {
                 console.error("Records Firestore connection failed:", error);
+                handleFirestoreError(error);
             });
 
             // 3. 實時同步主管電子簽名檔
@@ -608,7 +669,41 @@
                 updateMonthlySigSelectors();
             }, (error) => {
                 console.error("Signatures Firestore connection failed:", error);
+                handleFirestoreError(error);
             });
+        }
+
+        // Firestore 錯誤集中診斷模組
+        function handleFirestoreError(err) {
+            if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
+                toggleRulesGuideModal(true);
+            }
+        }
+
+        function toggleRulesGuideModal(show) {
+            const modal = document.getElementById('rulesGuideModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function copyRulesCode() {
+            const text = document.getElementById('rulesCode').innerText;
+            // 由於 iframe 限制，使用相容性較好的 execCommand 複製
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showMsg("📋 規則代碼已複製到剪貼簿！");
+            } catch (err) {
+                showMsg("❌ 複製失敗，請手動選取複製");
+            }
+            document.body.removeChild(textarea);
         }
 
         // 修改連線狀態 UI 標籤
@@ -687,7 +782,7 @@
             document.getElementById('monthTitle3').innerText = `${qText} ${months[2]}月`;
         }
 
-        // 動態資料檢索與姓名帶入
+        // 【修正功能 1】師傅端：輸入代號自動帶出對應資料
         function handleIdInput() {
             const typedId = document.getElementById('empId').value.trim();
             const nameField = document.getElementById('empName');
@@ -703,11 +798,54 @@
             if (match) {
                 nameField.value = match.name;
                 titleField.value = match.title || "";
-                showMsg(`✅ 已從雲端帶出：${match.name} (${match.title})`);
+                showMsg(`✅ 已從雲端帶出師傅：${match.name}`);
+                // 同步將姓名下拉選單對準此員工
+                document.getElementById('empSelectInline').value = match.id;
             } else {
                 nameField.value = "";
                 titleField.value = "";
+                document.getElementById('empSelectInline').value = "";
             }
+        }
+
+        // 【修正功能 2】櫃台員工端：下拉選單選擇員工，自動帶出所有資料
+        function handleEmpSelect(selectedId) {
+            const nameField = document.getElementById('empName');
+            const idField = document.getElementById('empId');
+            const titleField = document.getElementById('empTitle');
+
+            if (selectedId === "") {
+                nameField.value = "";
+                idField.value = "";
+                titleField.value = "";
+                return;
+            }
+
+            const match = employees.find(emp => emp.id === selectedId);
+            if (match) {
+                nameField.value = match.name;
+                idField.value = match.id;
+                titleField.value = match.title || "";
+                showMsg(`👥 已帶入員工資訊：${match.name} (${match.title || '櫃台'})`);
+            }
+        }
+
+        // 【輔助功能】更新表單內部的姓名快速下拉選單
+        function updateEmpSelectInlineDropdown() {
+            const select = document.getElementById('empSelectInline');
+            if (!select) return;
+
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">快速選擇...</option>';
+            
+            employees.forEach(emp => {
+                const opt = document.createElement('option');
+                opt.value = emp.id;
+                opt.innerText = `${emp.name} (${emp.title || '員工'})`;
+                select.appendChild(opt);
+            });
+
+            select.value = currentVal;
         }
 
         // --- 雲端員工對照資料管理 ---
@@ -723,8 +861,9 @@
                 span.className = "bg-white border rounded px-2 py-1 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition text-slate-800 font-medium";
                 span.innerText = `${emp.id}: ${emp.name}`;
                 span.onclick = function() {
-                    document.getElementById('empId').value = emp.id;
-                    handleIdInput();
+                    // 點選快捷列直接帶入整組員工資料
+                    handleEmpSelect(emp.id);
+                    document.getElementById('empSelectInline').value = emp.id;
                 };
                 briefDiv.appendChild(span);
             });
@@ -774,7 +913,7 @@
                 showMsg("🎉 成功寫入雲端員工名冊！");
             } catch (err) {
                 console.error(err);
-                showMsg("❌ 雲端寫入異常");
+                handleFirestoreError(err);
             }
         }
 
@@ -786,7 +925,7 @@
                 showMsg("🗑️ 已從雲端刪除員工資料");
             } catch (err) {
                 console.error(err);
-                showMsg("❌ 雲端刪除異常");
+                handleFirestoreError(err);
             }
         }
 
@@ -913,7 +1052,7 @@
                 showMsg(`🎉 簽名檔「${name}」已成功錄入雲端！`);
             } catch (err) {
                 console.error("Signature save error:", err);
-                showMsg("❌ 雲端簽名錄入失敗");
+                handleFirestoreError(err);
             }
         }
 
@@ -928,7 +1067,7 @@
                 showMsg(`🗑️ 已從雲端抹除「${name}」的簽名圖樣`);
             } catch (err) {
                 console.error(err);
-                showMsg("❌ 簽名檔移除失敗");
+                handleFirestoreError(err);
             }
         }
 
@@ -1194,7 +1333,7 @@
                 showMsg(`🎉 成功存入專屬 Firestore！識別代碼: ${recordId}`);
             } catch (err) {
                 console.error("Save record error: ", err);
-                showMsg("❌ 雲端傳輸失敗，請確認 Firebase 規則安全性");
+                handleFirestoreError(err);
             }
         }
 
@@ -1257,6 +1396,9 @@
             document.getElementById('empTitle').value = target.empTitle || "";
             document.getElementById('extraCol').value = target.extraCol || "";
 
+            // 同步表單內部的姓名快速下拉選單
+            document.getElementById('empSelectInline').value = target.empId || "";
+
             if (target.selectedSigIds && target.selectedSigIds.length === 3) {
                 for (let i = 1; i <= 3; i++) {
                     document.getElementById(`sigSelect${i}`).value = target.selectedSigIds[i - 1] || "";
@@ -1294,7 +1436,7 @@
                 showMsg(`🗑️ 已徹底從雲端資料庫抹除該份紀錄`);
             } catch (err) {
                 console.error(err);
-                showMsg("❌ 雲端刪除失敗");
+                handleFirestoreError(err);
             }
         }
 
