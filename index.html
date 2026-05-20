@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - V3.2 專屬 Firebase 穩定版</title>
+    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 專屬 Firebase 穩定版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for mobile screenshots -->
@@ -20,20 +20,24 @@
             border-collapse: collapse;
             width: 100%;
             background-color: #ffffff;
+            table-layout: fixed; /* 鎖定欄寬避免移位 */
         }
         .print-table th, .print-table td {
             border: 1.5px solid #000000;
             color: #000000;
-            padding: 8px;
             vertical-align: middle;
+            box-sizing: border-box;
         }
+        /* 移除雙重 Padding 影響，高度與寬度 100% 填滿格子 */
         .input-flat {
             width: 100%;
+            height: 100%;
             border: none;
             outline: none;
             background: transparent;
             color: #000000;
-            padding: 2px;
+            padding: 8px;
+            box-sizing: border-box;
         }
         .input-flat:focus {
             background-color: #f0f7ff;
@@ -52,7 +56,7 @@
     <!-- 主操作控制面板 -->
     <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md">
         <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex items-center justify-between">
-            <span class="flex items-center gap-2">⚙️ 訪談系統控制面板 <span class="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">V3.2 Firebase穩定版</span></span>
+            <span class="flex items-center gap-2">⚙️ 訪談系統控制面板</span>
             <div class="flex items-center gap-1.5 text-xs text-slate-500">
                 <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
                 <span id="syncStatusText">正在連接雲端...</span>
@@ -134,7 +138,7 @@
     <!-- 要被截圖的實體表格容器 -->
     <div id="captureContainer" class="max-w-4xl mx-auto bg-white p-4 md:p-8 rounded shadow-sm border border-gray-200">
         <!-- 表格頂部標題區 -->
-        <div class="flex justify-between items-end mb-4">
+        <div class="flex justify-between items-end mb-4 w-full">
             <div class="w-1/4"></div>
             <div class="text-center w-2/4">
                 <h1 class="text-xl md:text-2xl font-bold tracking-wider">
@@ -156,27 +160,27 @@
         <table class="print-table text-sm">
             <thead>
                 <tr>
-                    <th class="w-[12%] text-center bg-gray-50 font-bold">
+                    <th class="w-[12%] text-center bg-gray-50 font-bold p-2">
                         <div>姓 名</div>
-                        <!-- 【新功能】櫃台員工快速選擇下拉選單 (截圖時自動隱藏) -->
+                        <!-- 快速選擇下拉選單 (截圖時自動隱藏) -->
                         <div class="no-capture mt-1 px-1">
                             <select id="empSelectInline" onchange="handleEmpSelect(this.value)" class="w-full text-[10px] border border-gray-300 rounded px-1 py-0.5 bg-white font-normal text-gray-700 focus:outline-none focus:ring-1 focus:ring-indigo-500">
                                 <option value="">快速選擇...</option>
                             </select>
                         </div>
                     </th>
-                    <td class="w-[20%]">
+                    <td class="w-[20%] p-0">
                         <input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="姓名或選取">
                     </td>
-                    <th class="w-[15%] text-center bg-gray-50 font-bold">編號 (師傅)</th>
-                    <td class="w-[18%]">
+                    <th class="w-[14%] text-center bg-gray-50 font-bold p-2">編號 (師傅)</th>
+                    <td class="w-[18%] p-0">
                         <input type="text" id="empId" oninput="handleIdInput()" class="input-flat text-center font-bold text-lg" placeholder="輸入編號">
                     </td>
-                    <td class="w-[15%]">
+                    <td class="w-[11%] p-0">
                         <input type="text" id="extraCol" class="input-flat text-center" placeholder="備註">
                     </td>
-                    <th class="w-[12%] text-center bg-gray-50 font-bold">職稱 (員工)</th>
-                    <td class="w-[18%]">
+                    <th class="w-[11%] text-center bg-gray-50 font-bold p-2">職稱 (員工)</th>
+                    <td class="w-[14%] p-0">
                         <input type="text" id="empTitle" class="input-flat text-center" placeholder="櫃台">
                     </td>
                 </tr>
@@ -189,19 +193,19 @@
                     <td colspan="7" class="p-0">
                         <div class="bg-gray-100 px-3 py-1.5 flex justify-between items-center border-b border-black font-bold">
                             <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-1 font-normal text-sm">
                                 <span>訪談日期 / 時間：</span>
-                                <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none" placeholder="4/23">
+                                <input type="text" id="date1" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6" placeholder="4/23">
                             </div>
                         </div>
-                        <div class="p-3 min-h-[140px] space-y-3">
+                        <div class="p-3 bg-white min-h-[140px] space-y-3">
                             <div class="flex items-start">
-                                <span class="font-bold flex-shrink-0 text-base">訪：</span>
-                                <textarea id="visit1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm" rows="3" placeholder="請輸入訪談內容..."></textarea>
+                                <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                <textarea id="visit1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3" placeholder="請輸入訪談內容..."></textarea>
                             </div>
-                            <div class="flex items-start border-t border-dashed border-gray-300 pt-2">
-                                <span class="font-bold flex-shrink-0 text-base">回：</span>
-                                <textarea id="feedback1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm" rows="2" placeholder="請輸入員工回饋..."></textarea>
+                            <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                <textarea id="feedback1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2" placeholder="請輸入員工回饋..."></textarea>
                             </div>
                         </div>
                         <div class="border-t border-black px-3 py-2 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 gap-2">
@@ -210,8 +214,8 @@
                                 <div class="flex flex-col items-end gap-1.5">
                                     <!-- 簽名選擇器 (截圖時自動隱藏) -->
                                     <div class="flex items-center gap-1 no-capture">
-                                        <span class="text-[11px] text-gray-500">套用簽名檔:</span>
-                                        <select id="sigSelect1" onchange="applySavedSignatureToCanvas(1, this.value)" class="text-xs border rounded p-1 bg-white max-w-[120px]">
+                                        <span class="text-[11px] text-gray-500 font-normal">套用簽名檔:</span>
+                                        <select id="sigSelect1" onchange="applySavedSignatureToCanvas(1, this.value)" class="text-xs border rounded p-1 bg-white max-w-[120px] font-normal">
                                             <option value="">-- 手寫或選擇 --</option>
                                         </select>
                                     </div>
@@ -233,19 +237,19 @@
                     <td colspan="7" class="p-0">
                         <div class="bg-gray-100 px-3 py-1.5 flex justify-between items-center border-b border-black font-bold">
                             <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-1 font-normal text-sm">
                                 <span>訪談日期 / 時間：</span>
-                                <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none" placeholder="填寫日期">
+                                <input type="text" id="date2" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6" placeholder="填寫日期">
                             </div>
                         </div>
-                        <div class="p-3 min-h-[140px] space-y-3">
+                        <div class="p-3 bg-white min-h-[140px] space-y-3">
                             <div class="flex items-start">
-                                <span class="font-bold flex-shrink-0 text-base">訪：</span>
-                                <textarea id="visit2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm" rows="3" placeholder="請輸入訪談內容..."></textarea>
+                                <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                <textarea id="visit2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3" placeholder="請輸入訪談內容..."></textarea>
                             </div>
-                            <div class="flex items-start border-t border-dashed border-gray-300 pt-2">
-                                <span class="font-bold flex-shrink-0 text-base">回：</span>
-                                <textarea id="feedback2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm" rows="2" placeholder="請輸入員工回饋..."></textarea>
+                            <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                <textarea id="feedback2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2" placeholder="請輸入員工回饋..."></textarea>
                             </div>
                         </div>
                         <div class="border-t border-black px-3 py-2 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 gap-2">
@@ -253,8 +257,8 @@
                             <div class="flex items-center gap-2 self-end sm:self-auto">
                                 <div class="flex flex-col items-end gap-1.5">
                                     <div class="flex items-center gap-1 no-capture">
-                                        <span class="text-[11px] text-gray-500">套用簽名檔:</span>
-                                        <select id="sigSelect2" onchange="applySavedSignatureToCanvas(2, this.value)" class="text-xs border rounded p-1 bg-white max-w-[120px]">
+                                        <span class="text-[11px] text-gray-500 font-normal">套用簽名檔:</span>
+                                        <select id="sigSelect2" onchange="applySavedSignatureToCanvas(2, this.value)" class="text-xs border rounded p-1 bg-white max-w-[120px] font-normal">
                                             <option value="">-- 手寫或選擇 --</option>
                                         </select>
                                     </div>
@@ -276,19 +280,19 @@
                     <td colspan="7" class="p-0">
                         <div class="bg-gray-100 px-3 py-1.5 flex justify-between items-center border-b border-black font-bold">
                             <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-1 font-normal text-sm">
                                 <span>訪談日期 / 時間：</span>
-                                <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none" placeholder="填寫日期">
+                                <input type="text" id="date3" class="border-b border-black bg-transparent w-24 text-center focus:outline-none p-0 h-6" placeholder="填寫日期">
                             </div>
                         </div>
-                        <div class="p-3 min-h-[140px] space-y-3">
+                        <div class="p-3 bg-white min-h-[140px] space-y-3">
                             <div class="flex items-start">
-                                <span class="font-bold flex-shrink-0 text-base">訪：</span>
-                                <textarea id="visit3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm" rows="3" placeholder="請輸入訪談內容..."></textarea>
+                                <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                <textarea id="visit3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3" placeholder="請輸入訪談內容..."></textarea>
                             </div>
-                            <div class="flex items-start border-t border-dashed border-gray-300 pt-2">
-                                <span class="font-bold flex-shrink-0 text-base">回：</span>
-                                <textarea id="feedback3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm" rows="2" placeholder="請輸入員工回饋..."></textarea>
+                            <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                <textarea id="feedback3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2" placeholder="請輸入員工回饋..."></textarea>
                             </div>
                         </div>
                         <div class="border-t border-black px-3 py-2 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-50 gap-2">
@@ -296,8 +300,8 @@
                             <div class="flex items-center gap-2 self-end sm:self-auto">
                                 <div class="flex flex-col items-end gap-1.5">
                                     <div class="flex items-center gap-1 no-capture">
-                                        <span class="text-[11px] text-gray-500">套用簽名檔:</span>
-                                        <select id="sigSelect3" onchange="applySavedSignatureToCanvas(3, this.value)" class="text-xs border rounded p-1 bg-white max-w-[120px]">
+                                        <span class="text-[11px] text-gray-500 font-normal">套用簽名檔:</span>
+                                        <select id="sigSelect3" onchange="applySavedSignatureToCanvas(3, this.value)" class="text-xs border rounded p-1 bg-white max-w-[120px] font-normal">
                                             <option value="">-- 手寫或選擇 --</option>
                                         </select>
                                     </div>
@@ -484,28 +488,50 @@
         </div>
     </div>
 
-    <!-- 【新增功能】Firestore 雲端安全規則設定指引 Modal -->
-    <div id="rulesGuideModal" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 max-h-[90vh] flex flex-col overflow-hidden">
-            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
-                <h3 class="font-bold text-red-600 flex items-center gap-2">
-                    ⚠️ 偵測到資料庫寫入阻擋 (Permission Denied)
-                </h3>
-                <button onclick="toggleRulesGuideModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-lg">✕</button>
+    <!-- 【美化版核心功能】雲端安全儲存成功 Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform scale-95 transition-transform duration-300">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-bounce">
+                <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2" id="successModalTitle">儲存成功</h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed" id="successModalMsg">您的資料已成功同步儲存至雲端資料庫！</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-98">
+                確定
+            </button>
+        </div>
+    </div>
+
+    <!-- 【美化版核心功能】寫入失敗診斷與規則指引整合 Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
+            <div class="text-center pb-3">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <svg class="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1" id="errorModalTitle">儲存失敗</h3>
+                <div class="bg-red-50 text-red-700 text-xs font-mono p-2.5 rounded-lg inline-block border border-red-100 max-w-full overflow-x-auto whitespace-pre" id="errorModalCode">
+                    FirebaseError: [code=permission-denied]
+                </div>
             </div>
             
-            <div class="overflow-y-auto py-4 flex-1 space-y-3 text-sm text-gray-700">
-                <p>這通常是由於您的 <strong>Firestore Database 安全規則</strong> 仍處於未授權防禦狀態。請跟著以下步驟完成解鎖：</p>
+            <div class="overflow-y-auto my-4 space-y-3 text-sm text-gray-700 border-t border-b border-gray-100 py-4 flex-1">
+                <p class="font-bold text-gray-800 flex items-center gap-1.5">💡 如何解決雲端讀寫權限阻擋？</p>
+                <p class="text-xs text-gray-500 leading-relaxed">此問題通常是由於您的 <strong>Firestore Database 安全規則 (Rules)</strong> 仍處於受保護的關閉狀態，阻止了寫入請求。請依照以下步驟快速排除阻擋：</p>
                 
-                <ol class="list-decimal pl-5 space-y-2 text-xs">
-                    <li>開啟並登入您的 <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline">Firebase Console</a></li>
-                    <li>進入您的專案 <strong>monthly-interview</strong></li>
-                    <li>點擊左側選單的 <strong>Firestore Database</strong>，並切換到頂部的 <strong>Rules (規則)</strong> 標籤頁</li>
-                    <li>將裡面的程式碼修改為以下「解鎖安全通道」配置：</li>
+                <ol class="list-decimal pl-5 space-y-2 text-xs text-gray-600">
+                    <li>開啟並登入您的 <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 font-bold underline hover:text-blue-800">Firebase Console</a></li>
+                    <li>進入專案 <strong>monthly-interview</strong></li>
+                    <li>點選左側選單的 <strong>Firestore Database</strong> -> 切換到頂部的 <strong>Rules (規則)</strong> 標籤頁</li>
+                    <li>將裡面的安全規則修改為以下「解鎖安全通道」代碼（覆蓋原有規則）：</li>
                 </ol>
 
-                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-lg font-mono text-[11px]">
-                    <pre id="rulesCode" class="overflow-x-auto">rules_version = '2';
+                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px]">
+                    <pre id="errorModalRulesCode" class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /artifacts/{document=**} {
@@ -513,25 +539,23 @@ service cloud.firestore {
     }
   }
 }</pre>
-                    <button onclick="copyRulesCode()" class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-[10px] font-bold">一鍵複製</button>
+                    <button onclick="copyRulesCodeFromError()" class="absolute top-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-[10px] font-bold active:scale-95 transition-all">一鍵複製</button>
                 </div>
 
-                <p class="text-xs text-amber-600 bg-amber-50 p-2 rounded">
-                    💡 貼上後點擊右上角的 <strong>Publish (發佈)</strong>。發佈後需等待約 30 秒使規則生效，即可正常儲存所有訪談與簽名檔案！
+                <p class="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-100 leading-relaxed">
+                    💡 貼上後點擊右上角的 <strong>Publish (發佈)</strong>。發佈後需要約 30 秒使安全規則生效。生效後即可順暢儲存！
                 </p>
             </div>
 
-            <div class="pt-3 border-t border-gray-100 flex justify-end">
-                <button onclick="toggleRulesGuideModal(false)" class="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold hover:bg-slate-900 text-xs">
-                    我知道了，去設定
+            <div class="flex gap-2 pt-2">
+                <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all duration-200">
+                    關閉
+                </button>
+                <button onclick="retrySaveRecord()" id="errorModalRetryBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-98">
+                    再次嘗試儲存
                 </button>
             </div>
         </div>
-    </div>
-
-    <!-- 輕量化訊息盒 -->
-    <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium">
-        提示訊息
     </div>
 
     <!-- Firebase SDK ES Modules -->
@@ -566,6 +590,7 @@ service cloud.firestore {
         let employees = [];
         let loadedRecords = []; 
         let savedSignatures = []; // 快取雲端固定電子簽名檔
+        let lastRetryAction = null; // 快取重試閉包行為
 
         // 綁定全域函數至 window 作用域
         window.toggleEmpModal = toggleEmpModal;
@@ -589,10 +614,14 @@ service cloud.firestore {
         window.deleteSignature = deleteSignature;
         window.applySavedSignatureToCanvas = applySavedSignatureToCanvas;
 
-        // 【新增全域函數】雲端規則設定引導控制
-        window.toggleRulesGuideModal = toggleRulesGuideModal;
-        window.copyRulesCode = copyRulesCode;
+        // 雲端診斷與快速套用全域函數
         window.handleEmpSelect = handleEmpSelect;
+        window.showSuccessModal = showSuccessModal;
+        window.closeSuccessModal = closeSuccessModal;
+        window.showErrorModal = showErrorModal;
+        window.closeErrorModal = closeErrorModal;
+        window.copyRulesCodeFromError = copyRulesCodeFromError;
+        window.retrySaveRecord = retrySaveRecord;
 
         // 啟動身份驗證與實時監聽
         window.addEventListener('DOMContentLoaded', async () => {
@@ -612,7 +641,7 @@ service cloud.firestore {
             onAuthStateChanged(auth, (firebaseUser) => {
                 user = firebaseUser;
                 if (user) {
-                    setSyncStatus(true, "雲端對接成功：" + firebaseConfig.projectId);
+                    setSyncStatus(true, "雲端連線成功");
                     initCloudListeners();
                 } else {
                     setSyncStatus(false, "離線模式");
@@ -673,25 +702,79 @@ service cloud.firestore {
             });
         }
 
-        // Firestore 錯誤集中診斷模組
+        // Firestore 錯誤集中診斷模組 (當發生權限問題，自動彈出精美警告診斷框)
         function handleFirestoreError(err) {
             if (err && (err.code === 'permission-denied' || String(err).includes('permission-denied'))) {
-                toggleRulesGuideModal(true);
+                showErrorModal("雲端資料庫讀寫權限不足", err, true);
             }
         }
 
-        function toggleRulesGuideModal(show) {
-            const modal = document.getElementById('rulesGuideModal');
-            if (show) {
-                modal.classList.remove('hidden');
-            } else {
+        // --- 美化版 Modal 系統控制 ---
+        function showSuccessModal(title, message) {
+            document.getElementById('successModalTitle').innerText = title;
+            document.getElementById('successModalMsg').innerText = message;
+            
+            const modal = document.getElementById('successModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+            setTimeout(() => {
                 modal.classList.add('hidden');
+            }, 150);
+        }
+
+        function showErrorModal(title, error, isRetryable = false) {
+            document.getElementById('errorModalTitle').innerText = title;
+            
+            // 提煉出乾淨的錯誤字串
+            let errStr = error ? (error.message || String(error)) : "未知錯誤 (可能為安全規則鎖定)";
+            document.getElementById('errorModalCode').innerText = errStr;
+
+            const retryBtn = document.getElementById('errorModalRetryBtn');
+            if (isRetryable) {
+                retryBtn.classList.remove('hidden');
+                lastRetryAction = () => {
+                    closeErrorModal();
+                    saveRecordToCloud();
+                };
+            } else {
+                retryBtn.classList.add('hidden');
+                lastRetryAction = null;
+            }
+
+            const modal = document.getElementById('errorModal');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeErrorModal() {
+            const modal = document.getElementById('errorModal');
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 150);
+        }
+
+        function retrySaveRecord() {
+            if (lastRetryAction) {
+                lastRetryAction();
             }
         }
 
-        function copyRulesCode() {
-            const text = document.getElementById('rulesCode').innerText;
-            // 由於 iframe 限制，使用相容性較好的 execCommand 複製
+        function copyRulesCodeFromError() {
+            const text = document.getElementById('errorModalRulesCode').innerText;
             const textarea = document.createElement('textarea');
             textarea.value = text;
             textarea.style.position = 'fixed';
@@ -699,9 +782,9 @@ service cloud.firestore {
             textarea.select();
             try {
                 document.execCommand('copy');
-                showMsg("📋 規則代碼已複製到剪貼簿！");
+                showMsg("📋 規則代碼已複製到您的剪貼簿！");
             } catch (err) {
-                showMsg("❌ 複製失敗，請手動選取複製");
+                showMsg("❌ 複製失敗，請手動複製");
             }
             document.body.removeChild(textarea);
         }
@@ -782,7 +865,7 @@ service cloud.firestore {
             document.getElementById('monthTitle3').innerText = `${qText} ${months[2]}月`;
         }
 
-        // 【修正功能 1】師傅端：輸入代號自動帶出對應資料
+        // 師傅端：輸入代號自動帶出對應資料
         function handleIdInput() {
             const typedId = document.getElementById('empId').value.trim();
             const nameField = document.getElementById('empName');
@@ -808,7 +891,7 @@ service cloud.firestore {
             }
         }
 
-        // 【修正功能 2】櫃台員工端：下拉選單選擇員工，自動帶出所有資料
+        // 櫃台員工端：下拉選單選擇員工，自動帶出所有資料
         function handleEmpSelect(selectedId) {
             const nameField = document.getElementById('empName');
             const idField = document.getElementById('empId');
@@ -830,7 +913,7 @@ service cloud.firestore {
             }
         }
 
-        // 【輔助功能】更新表單內部的姓名快速下拉選單
+        // 更新表單內部的姓名快速下拉選單
         function updateEmpSelectInlineDropdown() {
             const select = document.getElementById('empSelectInline');
             if (!select) return;
@@ -858,7 +941,7 @@ service cloud.firestore {
             }
             employees.forEach(emp => {
                 const span = document.createElement('span');
-                span.className = "bg-white border rounded px-2 py-1 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition text-slate-800 font-medium";
+                span.className = "bg-white border rounded px-2 py-1 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition text-slate-800 font-medium text-xs";
                 span.innerText = `${emp.id}: ${emp.name}`;
                 span.onclick = function() {
                     // 點選快捷列直接帶入整組員工資料
@@ -910,10 +993,10 @@ service cloud.firestore {
                 document.getElementById('newId').value = "";
                 document.getElementById('newName').value = "";
                 document.getElementById('newTitle').value = "";
-                showMsg("🎉 成功寫入雲端員工名冊！");
+                showSuccessModal("員工已成功儲存", `編號：${id}，姓名：${name} 已成功新增至雲端員工對照表！`);
             } catch (err) {
                 console.error(err);
-                handleFirestoreError(err);
+                showErrorModal("員工資料儲存失敗", err, false);
             }
         }
 
@@ -925,7 +1008,7 @@ service cloud.firestore {
                 showMsg("🗑️ 已從雲端刪除員工資料");
             } catch (err) {
                 console.error(err);
-                handleFirestoreError(err);
+                showErrorModal("刪除員工資料失敗", err, false);
             }
         }
 
@@ -1049,10 +1132,10 @@ service cloud.firestore {
 
                 document.getElementById('newSigName').value = "";
                 clearManagerSigCanvas();
-                showMsg(`🎉 簽名檔「${name}」已成功錄入雲端！`);
+                showSuccessModal("簽名檔上傳成功", `主管「${name}」的固定主管電子簽名已成功新增至雲端！`);
             } catch (err) {
                 console.error("Signature save error:", err);
-                handleFirestoreError(err);
+                showErrorModal("錄入簽名檔失敗", err, false);
             }
         }
 
@@ -1067,7 +1150,7 @@ service cloud.firestore {
                 showMsg(`🗑️ 已從雲端抹除「${name}」的簽名圖樣`);
             } catch (err) {
                 console.error(err);
-                handleFirestoreError(err);
+                showErrorModal("刪除雲端簽名檔失敗", err, false);
             }
         }
 
@@ -1080,7 +1163,7 @@ service cloud.firestore {
             }
             savedSignatures.forEach(sig => {
                 const span = document.createElement('span');
-                span.className = "bg-white border rounded px-2 py-1 flex items-center gap-1 cursor-default text-slate-800 font-medium";
+                span.className = "bg-white border rounded px-2 py-1 flex items-center gap-1 cursor-default text-slate-800 font-medium text-xs";
                 span.innerHTML = `✍️ ${sig.name}`;
                 container.appendChild(span);
             });
@@ -1330,10 +1413,12 @@ service cloud.firestore {
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId);
                 await setDoc(docRef, payload);
-                showMsg(`🎉 成功存入專屬 Firestore！識別代碼: ${recordId}`);
+                // 雲端儲存成功：調用精美成功 Modal
+                showSuccessModal("儲存成功", `員工「${empName}」的 ${year}年第${quarter}季 訪談紀錄表已成功同步儲存至專屬 Firestore 雲端資料庫！`);
             } catch (err) {
                 console.error("Save record error: ", err);
-                handleFirestoreError(err);
+                // 雲端儲存失敗：調用精美診斷 Modal
+                showErrorModal("雲端儲存失敗", err, true);
             }
         }
 
@@ -1436,7 +1521,7 @@ service cloud.firestore {
                 showMsg(`🗑️ 已徹底從雲端資料庫抹除該份紀錄`);
             } catch (err) {
                 console.error(err);
-                handleFirestoreError(err);
+                showErrorModal("刪除雲端紀錄失敗", err, false);
             }
         }
 
@@ -1452,14 +1537,16 @@ service cloud.firestore {
 
 
         // --- html2canvas 高畫質渲染與行動端「長按儲存」技術 ---
+        // 【優化】採用 visibility 佔位保留機制，徹底解決轉譯時欄高、清除按鈕、套用選單隱藏造成格線位移的問題！
         function generateScreenshot() {
             showMsg("📸 正在為您轉譯高解析實體相片(300dpi)，請稍候...");
 
             const container = document.getElementById('captureContainer');
 
-            // 轉譯時隱藏操作微調按鈕
-            const clearButtons = document.querySelectorAll('.no-capture');
-            clearButtons.forEach(btn => btn.style.display = 'none');
+            // 轉譯前，將所有無須顯示在圖檔上的選單與按鈕設定為 visibility: hidden
+            // 這能確保它們保留原本的高寬與邊距佔位（Placeholder），使格線佈局在渲染期間完全不發生任何塌陷或挪動。
+            const noCaptures = document.querySelectorAll('.no-capture');
+            noCaptures.forEach(el => el.style.visibility = 'hidden');
 
             const options = {
                 scale: 3, 
@@ -1470,7 +1557,8 @@ service cloud.firestore {
 
             setTimeout(() => {
                 html2canvas(container, options).then(canvas => {
-                    clearButtons.forEach(btn => btn.style.display = 'block');
+                    // 轉譯完成後恢復這些控制元件的顯示
+                    noCaptures.forEach(el => el.style.visibility = 'visible');
 
                     const imgData = canvas.toDataURL('image/png');
                     const previewImg = document.getElementById('screenshotPreview');
@@ -1486,7 +1574,8 @@ service cloud.firestore {
 
                     toggleScreenshotModal(true);
                 }).catch(err => {
-                    clearButtons.forEach(btn => btn.style.display = 'block');
+                    // 發生異常也需恢復顯示
+                    noCaptures.forEach(el => el.style.visibility = 'visible');
                     console.error("Capture failure:", err);
                     showMsg("❌ 轉譯影像異常");
                 });
