@@ -389,8 +389,20 @@
         </div>
     </div>
 
+    <!-- ★ 新增：高質感警告/提示 Modal (用於必填欄位檢查) ★ -->
+    <div id="warningModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform scale-95 transition-transform duration-300">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-4 animate-pulse">
+                <svg class="h-10 w-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2" id="warningModalTitle">系統提示</h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed" id="warningModalMsg">請確認相關資訊。</p>
+            <button onclick="closeWarningModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-98">我知道了</button>
+        </div>
+    </div>
+
     <!-- 動態共用成功 Modal -->
-    <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
+    <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-bounce">
                 <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -402,7 +414,7 @@
     </div>
 
     <!-- 錯誤與診斷對話盒 -->
-    <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
+    <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
             <div class="text-center pb-3 border-b">
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
@@ -421,7 +433,8 @@
         </div>
     </div>
 
-    <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium"></div>
+    <!-- 頂部浮動輕量提示 Toast -->
+    <div id="msgBox" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-10 opacity-0 transition-all duration-300 z-[200] pointer-events-none flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl font-bold text-sm bg-gray-900 text-white"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -435,16 +448,32 @@
         let successModalCallback = null;
         window.currentZoom = 1.0;
 
-        // 強制鎖定單一門市 (已更改為中二區)
         const STORE_ID = "store_zhongqing";
         const STORE_NAME = "中清行館";
         const STORE_AREA = "中二區"; 
 
-        // 綁定全域 UI 事件
-        window.showMsg = (text) => {
+        // ★ 優化：高質感的輕量 Toast 通知 ★
+        window.showMsg = (text, type="info") => {
             const box = document.getElementById('msgBox');
-            box.innerText = text; box.style.opacity = '1';
-            setTimeout(() => box.style.opacity = '0', 2500);
+            let icon = "💡";
+            let bgClass = "bg-gray-900 text-white";
+            if(type === "success") { icon = "✅"; bgClass = "bg-emerald-600 text-white"; }
+            if(type === "error") { icon = "❌"; bgClass = "bg-red-600 text-white"; }
+            if(type === "warning") { icon = "⚠️"; bgClass = "bg-amber-500 text-white"; }
+            
+            box.className = `fixed top-6 left-1/2 transform -translate-x-1/2 px-5 py-3.5 rounded-full shadow-2xl text-sm font-bold transition-all duration-300 z-[200] pointer-events-none flex items-center gap-2 ${bgClass}`;
+            box.innerHTML = `<span class="text-lg">${icon}</span> <span>${text}</span>`;
+            
+            box.style.opacity = '0';
+            box.style.transform = 'translate(-50%, -20px)';
+            requestAnimationFrame(() => {
+                box.style.opacity = '1';
+                box.style.transform = 'translate(-50%, 0)';
+            });
+            setTimeout(() => {
+                box.style.opacity = '0';
+                box.style.transform = 'translate(-50%, -20px)';
+            }, 3000);
         };
         
         // --- 縮放引擎 ---
@@ -496,12 +525,16 @@
         };
         window.toggleScreenshotModal = (show) => document.getElementById('screenshotModal').classList[show ? 'remove' : 'add']('hidden');
         
-        // --- 共用的高質感成功 Modal ---
+        // --- 共用的高質感 Modals ---
         window.showSuccessModal = (title, msg, callback = null) => {
             document.getElementById('successModalTitle').innerText = title;
             document.getElementById('successModalMsg').innerText = msg;
             successModalCallback = callback;
             document.getElementById('successModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.querySelector('#successModal > div').classList.remove('scale-95');
+                document.querySelector('#successModal > div').classList.add('scale-100');
+            }, 10);
         };
         window.closeSuccessModal = () => {
             document.getElementById('successModal').classList.add('hidden');
@@ -510,6 +543,18 @@
                 successModalCallback = null;
             }
         };
+
+        window.showWarningModal = (title, msg) => {
+            document.getElementById('warningModalTitle').innerText = title;
+            document.getElementById('warningModalMsg').innerText = msg;
+            document.getElementById('warningModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.querySelector('#warningModal > div').classList.remove('scale-95');
+                document.querySelector('#warningModal > div').classList.add('scale-100');
+            }, 10);
+        };
+        window.closeWarningModal = () => document.getElementById('warningModal').classList.add('hidden');
+
         window.closeErrorModal = () => document.getElementById('errorModal').classList.add('hidden');
 
         window.handleEmpSelect = (id) => {
@@ -555,8 +600,6 @@
                 document.getElementById('syncStatusIndicator').className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
             } catch (e) { 
                 document.getElementById('syncStatusText').innerText = "驗證失敗 (本機模式)"; 
-                document.getElementById('errorModalCode').innerText = "請至 Firebase Console 開啟 Anonymous 登入: " + e.message;
-                document.getElementById('errorModal').classList.remove('hidden');
             }
 
             onAuthStateChanged(auth, (u) => {
@@ -574,20 +617,23 @@
             onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures'), s => { savedSignatures = s.docs.map(d => d.data()); updateMonthlySigSelectors(); });
         }
 
-        // --- 取出目前選取的簽名 Base64 (因為取消了畫布，改從下拉選單獲取) ---
         function getSelectedSignatureData(monthIdx) {
             const sigId = document.getElementById(`sigSelect${monthIdx}`).value;
             const match = savedSignatures.find(s => s.id === sigId);
             return match ? match.imageData : "";
         }
 
-        // --- 核心寫入與備份 ---
+        // --- ★ 核心寫入與漂亮回饋 ★ ---
         window.saveRecordToCloud = async () => {
             const year = document.getElementById('yearInput').value.trim();
             const quarter = document.getElementById('quarterSelect').value;
             const empId = document.getElementById('empId').value.trim();
             const empName = document.getElementById('empName').value.trim();
-            if (!year || !empId || !empName) return window.showMsg("❌ 請輸入年度、編號與姓名！");
+            
+            // 漂亮警告 Modal
+            if (!year || !empId || !empName) {
+                return window.showWarningModal("資料未填妥", "請確實填寫表格上方的『年度』、『編號』與『姓名』欄位！");
+            }
 
             const recordId = `${STORE_ID}_${year}_Q${quarter}_${empId}`;
             const payload = {
@@ -599,13 +645,13 @@
                     date: document.getElementById(`date${i}`).value,
                     visitContent: document.getElementById(`visit${i}`).value,
                     empFeedback: document.getElementById(`feedback${i}`).value,
-                    signature: getSelectedSignatureData(i) // 從選單對應資料
+                    signature: getSelectedSignatureData(i) 
                 })), updatedAt: new Date().toLocaleString()
             };
 
             localStorage.setItem(`offline_record_${recordId}`, JSON.stringify(payload));
             if(!user || !db) {
-                window.showSuccessModal("本機暫存成功", "雲端未連線，資料已安全暫存於本機！\n待雲端開通後將自動同步，點擊確定將重置全新空白頁面。", () => {
+                window.showSuccessModal("本機暫存成功", "雲端未連線，資料已安全暫存於本機！\n待雲端開通後將自動同步，點擊「確定」將重置全新空白頁面。", () => {
                     window.location.reload();
                 });
                 return;
@@ -614,9 +660,9 @@
             window.showMsg("💾 傳輸至 Firebase...");
             try {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
-                // ★ 成功回饋並重載頁面 ★
-                window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至 Firebase 雲端資料庫！\n點擊下方「確定」將為您清空選取，載入全新頁面。", () => {
-                    window.location.reload(); // 清空並重載全新頁面
+                // 漂亮成功 Modal，點擊後重置頁面
+                window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至 Firebase 雲端資料庫！\n點擊下方「確定」將為您清空選取，載入全新空白表單。", () => {
+                    window.location.reload(); 
                 });
             } catch (err) {
                 document.getElementById('errorModalCode').innerText = err.message || err.toString();
@@ -624,7 +670,6 @@
             }
         };
 
-        // --- html2canvas 高解析無損截圖 ---
         window.generateScreenshot = () => {
             window.showMsg("📸 正在為您擷取高解析相片...");
             const container = document.getElementById('captureContainer');
@@ -645,7 +690,7 @@
             }).catch(e => {
                 noCaptures.forEach(el => el.style.visibility = 'visible');
                 document.getElementById('zoomArea').style.transform = `scale(${originalZoom})`;
-                window.showMsg("❌ 轉譯失敗");
+                window.showMsg("❌ 轉譯失敗", "error");
             });
         };
 
@@ -657,7 +702,7 @@
         window.addEmployee = async (e) => {
             e.preventDefault();
             const id = document.getElementById('newId').value.trim(), name = document.getElementById('newName').value.trim(), title = document.getElementById('newTitle').value.trim();
-            if(employees.some(emp => emp.id === id)) return window.showMsg("❌ 編號重複");
+            if(employees.some(emp => emp.id === id)) return window.showMsg("❌ 編號重複", "error");
             const newEmp = { id, name, title, storeId: STORE_ID };
             employees.push(newEmp); renderEmployeeTable();
             document.getElementById('newId').value = ""; document.getElementById('newName').value = ""; document.getElementById('newTitle').value = "";
@@ -669,7 +714,7 @@
         function renderEmployeeBrief() {
             const div = document.getElementById('empListBrief'); div.innerHTML = "";
             employees.forEach(e => {
-                const s = document.createElement('span'); s.className = "bg-white border rounded px-2 py-1 cursor-pointer text-xs"; s.innerText = `${e.id}: ${e.name}`;
+                const s = document.createElement('span'); s.className = "bg-white border rounded px-2 py-1 cursor-pointer text-xs hover:bg-indigo-50"; s.innerText = `${e.id}: ${e.name}`;
                 s.onclick = () => { window.handleEmpSelect(e.id); document.getElementById('empSelectInline').value = e.id; };
                 div.appendChild(s);
             });
@@ -706,34 +751,31 @@
             [1,2,3].forEach(i => {
                 document.getElementById(`date${i}`).value = target.months[i-1].date; document.getElementById(`visit${i}`).value = target.months[i-1].visitContent;
                 document.getElementById(`feedback${i}`).value = target.months[i-1].empFeedback;
-                // 自動套用選項，這會觸發圖片載入
                 document.getElementById(`sigSelect${i}`).value = target.selectedSigIds[i-1] || "";
                 window.applySavedSignatureToCanvas(i, target.selectedSigIds[i-1]);
             });
-            window.toggleHistoryModal(false); window.showMsg("📂 載入成功！");
+            window.toggleHistoryModal(false); window.showMsg("📂 載入成功！", "success");
         };
         window.deleteSelectedRecord = async (id, isOff) => {
-            if(isOff) { localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 本地已刪除"); renderHistoryTable(); }
-            else { await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端已刪除"); }
+            if(isOff) { localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 本地已刪除", "success"); renderHistoryTable(); }
+            else { await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端已刪除", "success"); }
         };
 
-        // --- ★ 修復：新增主管簽名檔 (獨立全螢幕 Canvas 座標精準不偏移) ---
         window.toggleSigManagerModal = (show) => {
             const m = document.getElementById('sigManagerModal');
             if(show) { 
                 m.classList.remove('hidden'); m.classList.add('flex'); 
-                // 延遲一點點等 Modal 完全顯示後再初始化畫布
                 setTimeout(() => initManagerSignaturePad(), 200); 
             }
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         };
 
+        // --- ★ 核心修復：新增主管簽名檔 (完全獨立的座標引擎) ★ ---
         let managerSigPad = null;
         function initManagerSignaturePad() {
             const canvas = document.getElementById('managerSigCanvas'); 
             const ctx = canvas.getContext('2d');
             
-            // 抓取真實父層空間 (全螢幕)
             const w = canvas.parentElement.clientWidth || window.innerWidth;
             const h = canvas.parentElement.clientHeight || window.innerHeight;
             
@@ -747,7 +789,6 @@
             
             let drawing=false, lastX=0, lastY=0;
             
-            // 全螢幕彈窗不受外部 Zoom 影響，使用標準 1:1 換算 (不再 cloneNode 避免事件遺失)
             const getPos = (e) => { 
                 const r = canvas.getBoundingClientRect(); 
                 const evt = e.touches ? e.touches[0] : e;
@@ -756,7 +797,6 @@
                 return { x: (evt.clientX - r.left) * scaleX, y: (evt.clientY - r.top) * scaleY }; 
             };
             
-            // 覆寫綁定避免重複觸發
             canvas.onmousedown = canvas.ontouchstart = (e) => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; };
             canvas.onmousemove = canvas.ontouchmove = (e) => { 
                 if(!drawing) return; 
@@ -770,11 +810,13 @@
         }
         
         window.uploadNewSignature = async () => {
-            const name = document.getElementById('newSigName').value; 
-            if(!name) return window.showMsg("❌ 請輸入主管姓名");
+            const name = document.getElementById('newSigName').value.trim(); 
+            // 漂亮警告
+            if(!name) return window.showWarningModal("缺少資訊", "請先輸入「主管姓名」，以便建立雲端簽名檔！");
+            
             const url = managerSigPad.canvas.toDataURL(); 
-            // 如果只有極少內容代表沒簽字
-            if(url.length < 1000) return window.showMsg("❌ 請在下方空白處簽名");
+            // 漂亮警告
+            if(url.length < 1000) return window.showWarningModal("尚未簽名", "請在下方全螢幕畫布區域親筆簽名！");
             
             const id = 'sig_'+Date.now();
             try {
@@ -782,10 +824,11 @@
                 document.getElementById('newSigName').value = ""; 
                 window.clearManagerSigCanvas(); 
                 
-                // ★ 新增簽名成功，彈出漂亮提示
+                // ★ 漂亮成功 Modal
                 window.showSuccessModal("簽名檔錄入成功", `🎉 主管「${name}」的電子簽章已安全存入資料庫，現在可以在表單中選擇套用！`);
             } catch (err) {
-                window.showMsg("❌ 簽名儲存失敗：" + err.message);
+                document.getElementById('errorModalCode').innerText = err.message || err.toString();
+                document.getElementById('errorModal').classList.remove('hidden');
             }
         };
         window.clearManagerSigCanvas = () => {
@@ -802,7 +845,6 @@
             });
         }
         
-        // --- ★ 移除畫布改為純圖片顯示機制 ---
         window.applySavedSignatureToCanvas = (i, id) => {
             const img = document.getElementById(`sigImg${i}`); 
             const placeholder = document.getElementById(`sigPlaceholder${i}`);
