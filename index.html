@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>休閒部門店師傅/員工 訪談紀錄表 - 中清行館專用版</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- html2canvas for mobile screenshots -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
@@ -32,7 +30,6 @@
 </head>
 <body class="p-2 md:p-6 pb-24">
 
-    <!-- 主操作控制面板 -->
     <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md w-full no-capture">
         <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex flex-wrap items-center justify-between gap-2">
             <span class="flex items-center gap-2">
@@ -109,7 +106,6 @@
         </div>
     </div>
 
-    <!-- 浮動縮放控制器 -->
     <div class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 shadow-2xl bg-white p-2 rounded-full border border-gray-200 no-capture">
         <button onclick="changeZoom(-0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">−</button>
         <div class="flex items-center w-14 justify-center">
@@ -119,10 +115,8 @@
         <button onclick="changeZoom(0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">+</button>
     </div>
 
-    <!-- 縮放與滾動容器 -->
     <div class="w-full overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl shadow-inner min-h-[60vh] p-2" id="scrollContainer">
         <div id="zoomArea" class="mx-auto" style="width: 850px;">
-            <!-- 實體表格容器 -->
             <div id="captureContainer" class="w-[850px] bg-white p-8 shadow-sm border border-gray-200 relative">
                 <div class="flex justify-between items-end mb-4 w-full">
                     <div class="w-1/4"></div>
@@ -159,7 +153,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- 月份區塊 1 -->
                         <tr>
                             <td colspan="7" class="p-0">
                                 <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
@@ -192,7 +185,6 @@
                             </td>
                         </tr>
 
-                        <!-- 月份區塊 2 -->
                         <tr>
                             <td colspan="7" class="p-0">
                                 <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
@@ -225,7 +217,6 @@
                             </td>
                         </tr>
 
-                        <!-- 月份區塊 3 -->
                         <tr>
                             <td colspan="7" class="p-0">
                                 <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
@@ -263,7 +254,6 @@
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="rosterModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-indigo-800 mb-3 flex justify-between items-center border-b pb-2">
@@ -312,7 +302,6 @@
         </div>
     </div>
 
-    <!-- 簽名檔管理艙 Modal -->
     <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
         <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
             <span>🔄 若畫面太小，建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
@@ -342,7 +331,6 @@
         </div>
     </div>
 
-    <!-- 歷史紀錄 Modal -->
     <div id="historyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
@@ -364,7 +352,6 @@
         </div>
     </div>
 
-    <!-- 截圖預覽 Modal -->
     <div id="screenshotModal" class="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-2xl p-4 max-w-full md:max-w-2xl w-full flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-2">
@@ -384,7 +371,6 @@
         </div>
     </div>
 
-    <!-- 成功 Modal -->
     <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-bounce">
@@ -396,7 +382,6 @@
         </div>
     </div>
 
-    <!-- 錯誤與診斷對話盒 -->
     <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
             <div class="text-center pb-3 border-b">
@@ -408,17 +393,7 @@
             </div>
             <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 flex-1">
                 <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷：Firebase 驗證或規則受阻</p>
-                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題 100% 是因為尚未正確設定 Firestore Rules，或權限遭到阻擋。我們已為您在系統本機建立保護備份。<br><br>請至 Firebase Console 的 Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
-                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
-                    <pre class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-                </div>
+                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題是因為您的 Firebase SDK 設定或 Firestore Rules 阻擋了連線。已自動為您在本機建立保護備份。<br><br>請確認 Firebase Console 的 Rules 已改為 `allow read, write: if true;`</p>
             </div>
             <div class="flex gap-2 pt-2 border-t">
                 <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all text-xs">關閉</button>
@@ -426,7 +401,6 @@ service cloud.firestore {
         </div>
     </div>
 
-    <!-- 自訂 Confirm -->
     <div id="customConfirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 text-center">
             <h3 class="text-lg font-bold text-gray-900 mb-1" id="confirmTitleField">確定要執行？</h3>
@@ -438,14 +412,13 @@ service cloud.firestore {
         </div>
     </div>
 
-    <!-- 訊息提示盒 -->
     <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium"></div>
 
-    <!-- ==================== 核心 JavaScript 邏輯 (單一門市簡化版) ==================== -->
     <script type="module">
+        // 1. 確保 Firebase Firestore 模組正確載入
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { initializeFirestore, getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let user = null;
         let employees = [];
@@ -543,21 +516,19 @@ service cloud.firestore {
         };
 
         // Firebase 初始化與強力驗證阻擋
-        let db, auth, appId;
-        try {
-            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-                apiKey: "AIzaSyBC6xpSN5ITJL0Jfhj6qAHWxaosTXKB5QA", authDomain: "monthly-interview.firebaseapp.com",
-                projectId: "monthly-interview", storageBucket: "monthly-interview.firebasestorage.app",
-                messagingSenderId: "759947551878", appId: "1:759947551878:web:b83f8fe2af83036b465d07"
-            };
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            try { db = initializeFirestore(app, { experimentalForceLongPolling: true, useFetchStreams: false }); } 
-            catch (e) { db = getFirestore(app); }
-        } catch (error) {
-            console.error("Firebase 初始化失敗", error);
-        }
+        // 這裡套用了您提供的 SDK 參數
+        const firebaseConfig = {
+            apiKey: "AIzaSyBC6xpSN5ITJL0Jfhj6qAHWxaosTXKB5QA", 
+            authDomain: "monthly-interview.firebaseapp.com",
+            projectId: "monthly-interview", 
+            storageBucket: "monthly-interview.firebasestorage.app",
+            messagingSenderId: "759947551878", 
+            appId: "1:759947551878:web:b83f8fe2af83036b465d07",
+            measurementId: "G-7SPE25WQM6"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app); // 確保 Firestore 實體正確建立
 
         window.addEventListener('load', async () => {
             const screenWidth = window.innerWidth;
@@ -568,35 +539,30 @@ service cloud.firestore {
 
             setTimeout(() => { initSignaturePads(); }, 100);
 
-            if(auth) {
-                try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    document.getElementById('syncStatusText').innerText = "雲端連線成功";
-                    document.getElementById('syncStatusIndicator').className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
-                } catch (e) { 
-                    document.getElementById('syncStatusText').innerText = "驗證失敗 (本機模式)"; 
-                    document.getElementById('errorModalCode').innerText = "請至 Firebase Console 開啟 Anonymous 登入";
-                    document.getElementById('errorModal').classList.remove('hidden');
-                }
-
-                onAuthStateChanged(auth, (u) => {
-                    user = u;
-                    if(u) initCloudListeners();
-                });
+            // 啟動身分驗證，為寫入做準備
+            try {
+                await signInAnonymously(auth);
+                document.getElementById('syncStatusText').innerText = "雲端連線成功";
+                document.getElementById('syncStatusIndicator').className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
+            } catch (e) { 
+                document.getElementById('syncStatusText').innerText = "驗證失敗 (本機模式)"; 
+                document.getElementById('errorModalCode').innerText = "請至 Firebase Console 開啟 Anonymous 登入: " + e.message;
+                document.getElementById('errorModal').classList.remove('hidden');
             }
+
+            onAuthStateChanged(auth, (u) => {
+                user = u;
+                if(u) initCloudListeners();
+            });
         });
 
         function initCloudListeners() {
             if(!db || !user) return;
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'employees'), s => {
+            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'employees'), s => {
                 employees = s.docs.map(d => d.data()); renderEmployeeBrief(); updateEmpSelectInlineDropdown(); renderRosterTable();
             });
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'records'), s => { loadedRecords = s.docs.map(d => d.data()); });
-            onSnapshot(collection(db, 'artifacts', appId, 'public', 'data', 'signatures'), s => { savedSignatures = s.docs.map(d => d.data()); });
+            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records'), s => { loadedRecords = s.docs.map(d => d.data()); });
+            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures'), s => { savedSignatures = s.docs.map(d => d.data()); });
         }
 
         // --- 核心寫入與備份 ---
@@ -631,7 +597,8 @@ service cloud.firestore {
 
             window.showMsg("💾 傳輸至 Firebase...");
             try {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId), payload);
+                // 執行真正的 Firestore 寫入動作
+                await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
                 document.getElementById('successModalTitle').innerText = "雲端儲存成功";
                 document.getElementById('successModalMsg').innerText = "訪談紀錄已同步至 Firebase！";
                 document.getElementById('successModal').classList.remove('hidden');
@@ -670,7 +637,7 @@ service cloud.firestore {
         // --- 其餘輔助 UI 函數 ---
         window.saveAllEmployeesToCloud = async () => {
             if(!user || !db) return;
-            for(const emp of employees) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'employees', `${STORE_ID}_${emp.id}`), emp);
+            for(const emp of employees) await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'employees', `${STORE_ID}_${emp.id}`), emp);
         };
         window.addEmployee = async (e) => {
             e.preventDefault();
@@ -737,10 +704,11 @@ service cloud.firestore {
             const ok = await window.showCustomConfirm("確定刪除?", "刪除後將無法還原紀錄");
             if(!ok) return;
             if(isOff) { localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 本地已刪除"); renderHistoryTable(); }
-            else { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端已刪除"); }
+            else { await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端已刪除"); }
         };
 
-        // --- 動態精準座標矩陣 (完美解決縮放偏移) ---
+        // --- ★ 終極修復：表格內動態精準座標矩陣 (不受縮放偏移影響) ---
+        let sigPads = [];
         function initSignaturePads() {
             [1,2,3].forEach(i => {
                 const canvas = document.getElementById(`sigCanvas${i}`);
@@ -759,7 +727,7 @@ service cloud.firestore {
 
                 let drawing = false, lastX = 0, lastY = 0;
                 
-                // ★ 關鍵：自適應縮放的座標系換算 (不受限於 currentZoom)
+                // 動態取得縮放後的實際物理寬度，與設定的 CSS 寬度進行比例反推
                 const getPos = (e) => { 
                     const r = newC.getBoundingClientRect(); 
                     const evt = e.touches ? e.touches[0] : e;
@@ -775,6 +743,7 @@ service cloud.firestore {
                     lastX=p.x; lastY=p.y; 
                 };
                 newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
+                sigPads.push({canvas: newC, ctx: ctx, width: width, height: height});
             });
         }
         window.clearSig = (i) => { 
@@ -789,20 +758,29 @@ service cloud.firestore {
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         };
 
-        // --- 全螢幕主管簽名管理 (獨立座標不受縮放影響) ---
+        // --- ★ 終極修復：全螢幕 Modal 簽名板 (絕對座標，無須縮放反推) ---
         let managerSigPad = null;
         function initManagerSignaturePad() {
-            const canvas = document.getElementById('managerSigCanvas'); const ctx = canvas.getContext('2d');
-            const w = canvas.parentElement.clientWidth || 800, h = canvas.parentElement.clientHeight || 400;
-            canvas.style.width=w+"px"; canvas.style.height=h+"px"; canvas.width=w*2; canvas.height=h*2; ctx.scale(2,2);
-            ctx.strokeStyle="#000"; ctx.lineWidth=3.5; ctx.lineCap="round"; ctx.lineJoin="round";
-            let drawing=false, lastX=0, lastY=0;
-            const newC = canvas.cloneNode(true); canvas.parentNode.replaceChild(newC, canvas);
+            const canvas = document.getElementById('managerSigCanvas'); 
+            const container = canvas.parentElement;
             
-            // ★ Modal 無 CSS 縮放，套用標準 1:1 換算
+            const w = container.clientWidth || 800;
+            const h = container.clientHeight || 400;
+            
+            canvas.style.width = w + "px"; canvas.style.height = h + "px"; 
+            canvas.width = w * 2; canvas.height = h * 2; 
+            
+            const newC = canvas.cloneNode(true); canvas.parentNode.replaceChild(newC, canvas);
+            const ctx = newC.getContext('2d');
+            
+            ctx.scale(2,2); ctx.strokeStyle="#000"; ctx.lineWidth=3.5; ctx.lineCap="round"; ctx.lineJoin="round";
+            
+            let drawing=false, lastX=0, lastY=0;
+            
             const getPos = (e) => { 
                 const r = newC.getBoundingClientRect(); 
                 const evt = e.touches ? e.touches[0] : e;
+                // 全螢幕彈窗不受外部 Zoom 影響，使用最真實的 1:1 實體像素映射
                 const scaleX = newC.offsetWidth / (r.width || 1);
                 const scaleY = newC.offsetHeight / (r.height || 1);
                 return { x: (evt.clientX - r.left) * scaleX, y: (evt.clientY - r.top) * scaleY }; 
@@ -813,15 +791,16 @@ service cloud.firestore {
             newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
             managerSigPad = { canvas: newC, ctx: newC.getContext('2d') };
         }
+        
         window.uploadNewSignature = async () => {
             const name = document.getElementById('newSigName').value; if(!name) return;
             const url = managerSigPad.canvas.toDataURL(); if(url.length<1000) return window.showMsg("❌ 請在下方空白處簽名");
             const id = 'sig_'+Date.now();
-            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id), { id, name, imageData: url });
+            await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures', id), { id, name, imageData: url });
             document.getElementById('newSigName').value = ""; window.clearManagerSigCanvas(); window.showMsg("🎉 主管簽名已錄入");
         };
         window.clearManagerSigCanvas = () => managerSigPad.ctx.clearRect(0,0,managerSigPad.canvas.width, managerSigPad.canvas.height);
-        window.deleteSignature = async (id) => { const ok = await window.showCustomConfirm("刪除?", "將移除該主管簽名"); if(ok) await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'signatures', id)); };
+        window.deleteSignature = async (id) => { const ok = await window.showCustomConfirm("刪除?", "將移除該主管簽名"); if(ok) await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures', id)); };
         
         function updateMonthlySigSelectors() {
             [1,2,3].forEach(i => { const sel=document.getElementById(`sigSelect${i}`); const v=sel.value; sel.innerHTML='<option value="">-- 選擇 --</option>'; savedSignatures.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.name}</option>`); sel.value=v; });
