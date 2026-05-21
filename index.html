@@ -3,20 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 驗證重構版</title>
+    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 互動優化版</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas for mobile screenshots -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0f4f8; overflow-x: hidden; }
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f4f8;
+            overflow-x: hidden;
+        }
         .print-table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         .print-table thead th, .print-table thead td { border: 1.5px solid #000000; color: #000000; vertical-align: middle; box-sizing: border-box; height: 48px; }
         .print-table tbody td { border: 1.5px solid #000000; color: #000000; vertical-align: middle; box-sizing: border-box; height: auto; }
         .input-flat { width: 100%; height: 48px; border: none; outline: none; background: transparent; color: #000000; padding: 4px 8px; text-align: center; box-sizing: border-box; display: block; }
         .input-flat:focus { background-color: #f0f7ff; }
+        
         #zoomArea { transform-origin: top left; transition: transform 0.25s ease-out; }
         .sig-canvas { background-color: #ffffff; cursor: crosshair; touch-action: none; }
+        
+        /* 隱藏數字輸入框的上下箭頭 */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
     </style>
 </head>
 <body class="p-2 md:p-6 pb-24">
@@ -33,7 +45,7 @@
                 </button>
                 <div class="flex items-center gap-1.5 text-xs text-slate-500">
                     <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="syncStatusText">驗證連線中...</span>
+                    <span id="syncStatusText">正在連接雲端...</span>
                 </div>
             </div>
         </h2>
@@ -48,14 +60,16 @@
                     <option value="4">第四季 (10 - 12 月)</option>
                 </select>
             </div>
+            
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">年度 (民國)</label>
                 <input type="number" id="yearInput" value="115" class="w-full border rounded p-2 bg-gray-50 text-gray-800 focus:ring-2 focus:ring-blue-500" oninput="document.getElementById('titleYear').innerText = this.value || '   '">
             </div>
+
             <div class="grid grid-cols-2 gap-2 relative">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">區域</label>
-                    <input type="text" id="areaInput" value="台中區" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
+                    <input type="text" id="areaInput" value="中二區" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">店別</label>
@@ -106,10 +120,13 @@
         </div>
     </div>
 
-    <!-- 浮動縮放控制器 -->
+    <!-- 浮動縮放控制器 (新增手動輸入 % 數功能) -->
     <div class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 shadow-2xl bg-white p-2 rounded-full border border-gray-200 no-capture">
         <button onclick="changeZoom(-0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">−</button>
-        <span id="zoomLabel" class="w-12 text-center text-xs font-bold text-slate-600">100%</span>
+        <div class="flex items-center w-14 justify-center">
+            <input type="number" id="zoomInput" onchange="setZoomFromInput()" onblur="setZoomFromInput()" class="w-8 text-center text-xs font-bold text-slate-600 bg-transparent outline-none p-0 border-none focus:ring-0" value="100">
+            <span class="text-xs font-bold text-slate-600">%</span>
+        </div>
         <button onclick="changeZoom(0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">+</button>
     </div>
 
@@ -185,6 +202,7 @@
                                 </div>
                             </td>
                         </tr>
+
                         <!-- 月份區塊 2 -->
                         <tr>
                             <td colspan="7" class="p-0">
@@ -217,6 +235,7 @@
                                 </div>
                             </td>
                         </tr>
+
                         <!-- 月份區塊 3 -->
                         <tr>
                             <td colspan="7" class="p-0">
@@ -307,7 +326,7 @@
     <!-- 簽名檔管理艙 Modal -->
     <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
         <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
-            <span>🔄 橫向或直向手機皆可完美手寫簽名！</span>
+            <span>🔄 若畫面太小，建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
         </div>
         <div class="bg-slate-100 px-4 py-3 border-b flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
@@ -388,7 +407,7 @@
         </div>
     </div>
 
-    <!-- 診斷錯誤提示 -->
+    <!-- 錯誤與診斷對話盒 -->
     <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
             <div class="text-center pb-3 border-b">
@@ -400,7 +419,7 @@
             </div>
             <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 flex-1">
                 <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷：Firebase 驗證或規則受阻</p>
-                <p class="text-xs text-gray-500 leading-relaxed mt-1">請確保已在 Firebase Console 中啟用 **Anonymous 登入**，並在 **Firestore Rules** 中貼上以下解鎖代碼：</p>
+                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題 100% 是因為尚未設定 Firestore Rules。請至 Firebase Console 的 Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
                 <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
                     <pre class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
 service cloud.firestore {
@@ -444,7 +463,7 @@ service cloud.firestore {
     <!-- 訊息提示盒 -->
     <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium"></div>
 
-    <!-- ==================== 核心 JavaScript 邏輯 ==================== -->
+    <!-- ==================== 核心 JavaScript 邏輯 (完全防死機架構) ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -481,10 +500,22 @@ service cloud.firestore {
             setTimeout(() => box.style.opacity = '0', 2500);
         };
         
+        // --- 核心：自訂輸入縮放 ---
+        window.applyZoom = () => {
+            document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
+            document.getElementById('zoomInput').value = Math.round(window.currentZoom * 100);
+        };
         window.changeZoom = (delta) => {
             window.currentZoom = Math.max(0.4, Math.min(2.0, window.currentZoom + delta));
-            document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
-            document.getElementById('zoomLabel').innerText = Math.round(window.currentZoom * 100) + '%';
+            window.applyZoom();
+        };
+        window.setZoomFromInput = () => {
+            let val = parseInt(document.getElementById('zoomInput').value);
+            if(isNaN(val)) val = 100;
+            if(val < 40) val = 40;
+            if(val > 200) val = 200;
+            window.currentZoom = val / 100;
+            window.applyZoom();
         };
 
         window.updateQuarterLayout = () => {
@@ -559,13 +590,17 @@ service cloud.firestore {
             document.getElementById('customConfirmModal').classList.add('hidden');
             if(currentConfirmResolve) { currentConfirmResolve(res); currentConfirmResolve = null; }
         };
+        
         window.closeSuccessModal = () => document.getElementById('successModal').classList.add('hidden');
         window.closeErrorModal = () => document.getElementById('errorModal').classList.add('hidden');
+
         window.handleEmpSelect = (id) => {
             const match = employees.find(e => e.id === id && e.storeId === currentStoreId);
             if(match) {
                 document.getElementById('empName').value = match.name; document.getElementById('empId').value = match.id; document.getElementById('empTitle').value = match.title || "";
-            } else { document.getElementById('empName').value = ""; document.getElementById('empId').value = ""; document.getElementById('empTitle').value = ""; }
+            } else {
+                document.getElementById('empName').value = ""; document.getElementById('empId').value = ""; document.getElementById('empTitle').value = "";
+            }
         };
         window.handleIdInput = () => {
             const id = document.getElementById('empId').value.trim();
@@ -596,8 +631,7 @@ service cloud.firestore {
             const screenWidth = window.innerWidth;
             if(screenWidth < 900) { 
                 window.currentZoom = (screenWidth - 16) / 850;
-                document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
-                document.getElementById('zoomLabel').innerText = Math.round(window.currentZoom * 100) + '%';
+                window.applyZoom();
             }
 
             const sel = document.getElementById('managerStoreSelect');
@@ -606,7 +640,6 @@ service cloud.firestore {
             
             setTimeout(() => { initSignaturePads(); }, 100);
 
-            // ★ 強制等待驗證完成
             if(auth) {
                 try {
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -671,16 +704,18 @@ service cloud.firestore {
             window.showMsg("💾 傳輸至 Firebase...");
             try {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId), payload);
+                // ★ 確保 100% 呼叫成功 UI ★
                 document.getElementById('successModalTitle').innerText = "雲端儲存成功";
                 document.getElementById('successModalMsg').innerText = "訪談紀錄已同步至 Firebase！";
                 document.getElementById('successModal').classList.remove('hidden');
+                window.showMsg("✅ 儲存成功！");
             } catch (err) {
                 document.getElementById('errorModalCode').innerText = err.message;
                 document.getElementById('errorModal').classList.remove('hidden');
             }
         };
 
-        // --- html2canvas 高解析無損截圖 (修復日期遮擋) ---
+        // --- html2canvas 高解析無損截圖 ---
         window.generateScreenshot = () => {
             window.showMsg("📸 正在為您擷取高解析相片...");
             const container = document.getElementById('captureContainer');
@@ -825,20 +860,53 @@ service cloud.firestore {
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         };
 
+        // --- 【核心修復】新增簽名檔 Modal：移除 Zoom 公式，確保座標絕對貼合 ---
         let managerSigPad = null;
         function initManagerSignaturePad() {
-            const canvas = document.getElementById('managerSigCanvas'); const ctx = canvas.getContext('2d');
-            const w = canvas.parentElement.getBoundingClientRect().width || 800, h = canvas.parentElement.getBoundingClientRect().height || 400;
-            canvas.style.width=w+"px"; canvas.style.height=h+"px"; canvas.width=w*2; canvas.height=h*2; ctx.scale(2,2);
+            const canvas = document.getElementById('managerSigCanvas'); 
+            const container = canvas.parentElement;
+            
+            // 精準抓取 Modal 內部畫布的實際物理長寬
+            const w = container.clientWidth || 800;
+            const h = container.clientHeight || 400;
+            
+            canvas.style.width = w + "px"; 
+            canvas.style.height = h + "px"; 
+            canvas.width = w * 2; 
+            canvas.height = h * 2; 
+            
+            const newC = canvas.cloneNode(true); 
+            canvas.parentNode.replaceChild(newC, canvas);
+            const ctx = newC.getContext('2d');
+            
+            ctx.scale(2,2);
             ctx.strokeStyle="#000"; ctx.lineWidth=3.5; ctx.lineCap="round"; ctx.lineJoin="round";
+            
             let drawing=false, lastX=0, lastY=0;
-            const newC = canvas.cloneNode(true); canvas.parentNode.replaceChild(newC, canvas);
-            const getPos = (e) => { const r = newC.getBoundingClientRect(); const evt = e.touches ? e.touches[0] : e; return { x: evt.clientX - r.left, y: evt.clientY - r.top }; };
+            
+            // ★ 修復：Modal 簽名板不在 zoomArea 內，不能除以 currentZoom ★
+            const getPos = (e) => { 
+                const r = newC.getBoundingClientRect(); 
+                const evt = e.touches ? e.touches[0] : e; 
+                return { 
+                    x: evt.clientX - r.left, 
+                    y: evt.clientY - r.top 
+                }; 
+            };
+            
             newC.onmousedown = newC.ontouchstart = (e) => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; };
-            newC.onmousemove = newC.ontouchmove = (e) => { if(!drawing) return; e.preventDefault(); const p=getPos(e); newC.getContext('2d').beginPath(); newC.getContext('2d').moveTo(lastX, lastY); newC.getContext('2d').lineTo(p.x, p.y); newC.getContext('2d').stroke(); lastX=p.x; lastY=p.y; };
+            newC.onmousemove = newC.ontouchmove = (e) => { 
+                if(!drawing) return; 
+                e.preventDefault(); 
+                const p=getPos(e); 
+                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); 
+                lastX=p.x; lastY=p.y; 
+            };
             newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
-            managerSigPad = { canvas: newC, ctx: newC.getContext('2d') };
+            
+            managerSigPad = { canvas: newC, ctx: ctx };
         }
+
         window.uploadNewSignature = async () => {
             const name = document.getElementById('newSigName').value; if(!name) return;
             const url = managerSigPad.canvas.toDataURL(); if(url.length<1000) return window.showMsg("❌ 請在下方空白處簽名");
