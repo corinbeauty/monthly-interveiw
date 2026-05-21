@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>休閒部門店師傅/員工 訪談紀錄表 (表 2) - 互動優化版</title>
+    <title>休閒部門店師傅/員工 訪談紀錄表 - 中清行館專用版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas for mobile screenshots -->
@@ -25,7 +25,6 @@
         #zoomArea { transform-origin: top left; transition: transform 0.25s ease-out; }
         .sig-canvas { background-color: #ffffff; cursor: crosshair; touch-action: none; }
         
-        /* 隱藏數字輸入框的上下箭頭 */
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
@@ -37,16 +36,11 @@
     <div id="controlPanel" class="max-w-4xl mx-auto mb-6 bg-white rounded-xl p-4 shadow-md w-full no-capture">
         <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2 flex flex-wrap items-center justify-between gap-2">
             <span class="flex items-center gap-2">
-                ⚙️ 訪談系統-<span id="headerStoreName" class="text-blue-600 font-bold">中清行館</span>
+                ⚙️ 訪談系統-<span class="text-blue-600 font-bold">中清行館 (專用版)</span>
             </span>
-            <div class="flex items-center gap-3">
-                <button onclick="handleManagerModeToggle()" id="managerModeBtn" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full transition flex items-center gap-1">
-                    🔒 解鎖管理者模式
-                </button>
-                <div class="flex items-center gap-1.5 text-xs text-slate-500">
-                    <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="syncStatusText">正在連接雲端...</span>
-                </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                <span id="syncStatusIndicator" class="inline-block w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                <span id="syncStatusText">正在連接雲端...</span>
             </div>
         </h2>
         
@@ -69,18 +63,13 @@
             <div class="grid grid-cols-2 gap-2 relative">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">區域</label>
-                    <input type="text" id="areaInput" value="中二區" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
+                    <input type="text" id="areaInput" value="台中區" class="w-full border rounded p-2 bg-gray-100 text-gray-800 font-bold" readonly>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">店別</label>
-                    <input type="text" id="storeInput" value="中清行館" class="w-full border rounded p-2 bg-gray-100 text-gray-800" readonly>
+                    <input type="text" id="storeInput" value="中清行館" class="w-full border rounded p-2 bg-gray-100 text-gray-800 font-bold text-blue-600" readonly>
                 </div>
             </div>
-        </div>
-
-        <div id="managerStoreSwitcherContainer" class="hidden mb-4 bg-indigo-50/50 p-3 rounded-lg border border-indigo-100 animate-fadeIn">
-            <label class="block text-xs font-bold text-indigo-800 mb-1.5">🏢 管理者分店切換（數據隔離同步）</label>
-            <select id="managerStoreSelect" onchange="changeActiveStore(this.value)" class="w-full border border-indigo-200 rounded p-2 bg-white text-indigo-900 font-bold focus:ring-2 focus:ring-indigo-500 text-sm"></select>
         </div>
 
         <div class="mb-4 bg-gray-50 p-3 rounded-lg border grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -120,7 +109,7 @@
         </div>
     </div>
 
-    <!-- 浮動縮放控制器 (新增手動輸入 % 數功能) -->
+    <!-- 浮動縮放控制器 -->
     <div class="fixed bottom-6 right-6 z-50 flex items-center gap-1.5 shadow-2xl bg-white p-2 rounded-full border border-gray-200 no-capture">
         <button onclick="changeZoom(-0.1)" class="w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-full font-bold text-slate-700 flex items-center justify-center text-xl">−</button>
         <div class="flex items-center w-14 justify-center">
@@ -146,8 +135,8 @@
                 </div>
 
                 <div class="flex justify-between mb-2 text-base font-semibold px-2">
-                    <div>區域：<span id="labelArea" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">台中區</span></div>
-                    <div>店別：<span id="labelStore" class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中清行館</span></div>
+                    <div>區域：<span class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">台中區</span></div>
+                    <div>店別：<span class="border-b border-gray-400 px-2 min-w-[80px] inline-block text-center">中清行館</span></div>
                 </div>
 
                 <table class="print-table text-sm">
@@ -278,7 +267,7 @@
     <div id="rosterModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-indigo-800 mb-3 flex justify-between items-center border-b pb-2">
-                <span>📋 當前行館名單比對表</span>
+                <span>📋 中清行館名單比對表</span>
                 <button onclick="toggleRosterModal(false)" class="text-gray-400 hover:text-gray-600 text-xl font-bold">✕</button>
             </h3>
             <div class="overflow-y-auto flex-1 border rounded-lg">
@@ -419,7 +408,7 @@
             </div>
             <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 flex-1">
                 <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷：Firebase 驗證或規則受阻</p>
-                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題 100% 是因為尚未設定 Firestore Rules。請至 Firebase Console 的 Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
+                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題 100% 是因為尚未正確設定 Firestore Rules，或權限遭到阻擋。我們已為您在系統本機建立保護備份。<br><br>請至 Firebase Console 的 Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
                 <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
                     <pre class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
 service cloud.firestore {
@@ -437,18 +426,7 @@ service cloud.firestore {
         </div>
     </div>
 
-    <!-- 密碼解鎖與自訂 Confirm -->
-    <div id="managerPasswordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[120] flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 text-center">
-            <h3 class="text-lg font-bold text-gray-900 mb-1">解鎖管理者權限</h3>
-            <input type="password" id="managerPasscodeField" maxlength="8" placeholder="輸入密碼 (預設: 8888)" class="w-full text-center text-lg tracking-widest border rounded-xl py-2 px-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none mb-4 font-bold mt-4">
-            <div class="flex gap-2">
-                <button onclick="closeManagerPasswordModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-xl text-xs transition">取消</button>
-                <button onclick="submitManagerPasscode()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-xs transition shadow-md">驗證</button>
-            </div>
-        </div>
-    </div>
-    
+    <!-- 自訂 Confirm -->
     <div id="customConfirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[130] flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 text-center">
             <h3 class="text-lg font-bold text-gray-900 mb-1" id="confirmTitleField">確定要執行？</h3>
@@ -463,7 +441,7 @@ service cloud.firestore {
     <!-- 訊息提示盒 -->
     <div id="msgBox" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl text-sm transition-opacity duration-300 opacity-0 z-50 pointer-events-none font-medium"></div>
 
-    <!-- ==================== 核心 JavaScript 邏輯 (完全防死機架構) ==================== -->
+    <!-- ==================== 核心 JavaScript 邏輯 (單一門市簡化版) ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -473,25 +451,13 @@ service cloud.firestore {
         let employees = [];
         let loadedRecords = []; 
         let savedSignatures = []; 
-        let currentStoreId = "store_zhongqing";
-        let isManagerMode = false;
         let currentConfirmResolve = null;
         window.currentZoom = 1.0;
 
-        const STORES_LIST = [
-            { id: "store_zhonggang", name: "中港行館", area: "台中區" }, { id: "store_yuanlin", name: "員林行館", area: "彰化區" },
-            { id: "store_zhongqing", name: "中清行館", area: "台中區" }, { id: "store_dali", name: "大里行館", area: "台中區" },
-            { id: "store_zhongke", name: "中科行館", area: "台中區" }, { id: "store_shalu", name: "沙鹿行館", area: "台中區" },
-            { id: "store_aihe", name: "愛河行館", area: "高雄區" }, { id: "store_fengshan", name: "鳳山行館", area: "高雄區" },
-            { id: "store_zuoying", name: "左營行館", area: "高雄區" }, { id: "store_sanduo", name: "三多行館", area: "高雄區" },
-            { id: "store_meishuguan", name: "美術館行館", area: "高雄區" }, { id: "store_fuqian", name: "府前行館", area: "台南區" },
-            { id: "store_anping", name: "安平行館", area: "台南區" }, { id: "store_xinsheng", name: "新生行館", area: "台北區" },
-            { id: "store_xinyi", name: "信義行館", area: "台北區" }, { id: "store_zhongli", name: "中壢行館", area: "桃園區" },
-            { id: "store_zhubei", name: "竹北行館", area: "新竹區" }, { id: "store_taiping", name: "太平店", area: "台中區" },
-            { id: "store_fengyuan", name: "豐原行館", area: "台中區" }, { id: "store_dongxing", name: "東興店", area: "台中區" },
-            { id: "store_wuquan", name: "五權店", area: "台中區" }, { id: "store_pasha", name: "帕夏健髮-公益店", area: "台中區" },
-            { id: "store_jing", name: "婧仕女微旅", area: "旅宿區" }, { id: "store_headquarters", name: "集團總管理", area: "總部" }
-        ];
+        // 強制鎖定單一門市
+        const STORE_ID = "store_zhongqing";
+        const STORE_NAME = "中清行館";
+        const STORE_AREA = "台中區";
 
         // 綁定全域 UI 事件
         window.showMsg = (text) => {
@@ -500,7 +466,6 @@ service cloud.firestore {
             setTimeout(() => box.style.opacity = '0', 2500);
         };
         
-        // --- 核心：自訂輸入縮放 ---
         window.applyZoom = () => {
             document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
             document.getElementById('zoomInput').value = Math.round(window.currentZoom * 100);
@@ -524,38 +489,6 @@ service cloud.firestore {
             const m = [[1,2,3], [4,5,6], [7,8,9], [10,11,12]][q-1];
             for(let i=1; i<=3; i++) document.getElementById(`monthTitle${i}`).innerText = `${text} ${m[i-1]}月`;
         };
-        window.handleManagerModeToggle = () => {
-            if (isManagerMode) {
-                isManagerMode = false; window.changeActiveStore("store_zhongqing");
-                document.getElementById('managerModeBtn').innerText = "🔒 解鎖管理者模式";
-                document.getElementById('managerModeBtn').className = "text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full transition flex items-center gap-1";
-                document.getElementById('managerStoreSwitcherContainer').classList.add('hidden');
-                window.showMsg("🔒 已重置鎖定中清行館。");
-            } else {
-                document.getElementById('managerPasscodeField').value = "";
-                document.getElementById('managerPasswordModal').classList.remove('hidden');
-            }
-        };
-        window.closeManagerPasswordModal = () => document.getElementById('managerPasswordModal').classList.add('hidden');
-        window.submitManagerPasscode = () => {
-            if (document.getElementById('managerPasscodeField').value === "8888") {
-                isManagerMode = true; window.closeManagerPasswordModal();
-                document.getElementById('managerModeBtn').innerText = "🔓 已啟用管理者模式";
-                document.getElementById('managerModeBtn').className = "text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-bold";
-                document.getElementById('managerStoreSwitcherContainer').classList.remove('hidden');
-                document.getElementById('managerStoreSelect').value = currentStoreId;
-                window.showMsg("🔓 授權成功！");
-            } else { window.showMsg("❌ 密碼錯誤"); }
-        };
-        window.changeActiveStore = (storeId) => {
-            currentStoreId = storeId; const store = STORES_LIST.find(s => s.id === storeId);
-            document.getElementById('headerStoreName').innerText = store.name;
-            document.getElementById('areaInput').value = store.area;
-            document.getElementById('storeInput').value = store.name;
-            document.getElementById('labelArea').innerText = store.area;
-            document.getElementById('labelStore').innerText = store.name;
-            renderEmployeeBrief(); renderHistoryTable(); updateEmpSelectInlineDropdown(); renderRosterTable();
-        };
 
         window.toggleRosterModal = (show) => {
             document.getElementById('rosterModal').classList[show ? 'remove' : 'add']('hidden');
@@ -563,11 +496,10 @@ service cloud.firestore {
         };
         function renderRosterTable() {
             const tbody = document.getElementById('rosterTableBody'); tbody.innerHTML = "";
-            const currentEmps = employees.filter(e => e.storeId === currentStoreId);
-            if(currentEmps.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">當前行館無任何名單紀錄</td></tr>`; return;
+            if(employees.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">當前無任何名單紀錄</td></tr>`; return;
             }
-            currentEmps.forEach(e => {
+            employees.forEach(e => {
                 tbody.innerHTML += `<tr class="border-b hover:bg-indigo-50/30 transition"><td class="p-3 font-bold text-gray-700">${e.id}</td><td class="p-3 font-semibold text-indigo-700">${e.name}</td><td class="p-3 text-gray-500">${e.title||'無'}</td></tr>`;
             });
         }
@@ -595,7 +527,7 @@ service cloud.firestore {
         window.closeErrorModal = () => document.getElementById('errorModal').classList.add('hidden');
 
         window.handleEmpSelect = (id) => {
-            const match = employees.find(e => e.id === id && e.storeId === currentStoreId);
+            const match = employees.find(e => e.id === id);
             if(match) {
                 document.getElementById('empName').value = match.name; document.getElementById('empId').value = match.id; document.getElementById('empTitle').value = match.title || "";
             } else {
@@ -604,13 +536,13 @@ service cloud.firestore {
         };
         window.handleIdInput = () => {
             const id = document.getElementById('empId').value.trim();
-            const match = employees.find(e => e.id === id && e.storeId === currentStoreId);
+            const match = employees.find(e => e.id === id);
             if(match) {
                 document.getElementById('empName').value = match.name; document.getElementById('empTitle').value = match.title || ""; document.getElementById('empSelectInline').value = match.id;
             } else { document.getElementById('empName').value = ""; document.getElementById('empTitle').value = ""; document.getElementById('empSelectInline').value = ""; }
         };
 
-        // Firebase 初始化與強力驗證阻擋 (Auth Blocking)
+        // Firebase 初始化與強力驗證阻擋
         let db, auth, appId;
         try {
             const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -634,10 +566,6 @@ service cloud.firestore {
                 window.applyZoom();
             }
 
-            const sel = document.getElementById('managerStoreSelect');
-            STORES_LIST.forEach(s => sel.innerHTML += `<option value="${s.id}">🏢 ${s.area} - ${s.name}</option>`);
-            window.changeActiveStore("store_zhongqing");
-            
             setTimeout(() => { initSignaturePads(); }, 100);
 
             if(auth) {
@@ -679,10 +607,10 @@ service cloud.firestore {
             const empName = document.getElementById('empName').value.trim();
             if (!year || !empId || !empName) return window.showMsg("❌ 請輸入年度、編號與姓名！");
 
-            const recordId = `${currentStoreId}_${year}_Q${quarter}_${empId}`;
+            const recordId = `${STORE_ID}_${year}_Q${quarter}_${empId}`;
             const payload = {
-                id: recordId, storeId: currentStoreId, year, quarter, 
-                area: document.getElementById('areaInput').value, store: document.getElementById('storeInput').value,
+                id: recordId, storeId: STORE_ID, year, quarter, 
+                area: STORE_AREA, store: STORE_NAME,
                 empId, empName, empTitle: document.getElementById('empTitle').value, extraCol: document.getElementById('extraCol').value,
                 selectedSigIds: [1,2,3].map(i => document.getElementById(`sigSelect${i}`).value),
                 months: [1,2,3].map(i => ({
@@ -704,13 +632,13 @@ service cloud.firestore {
             window.showMsg("💾 傳輸至 Firebase...");
             try {
                 await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'records', recordId), payload);
-                // ★ 確保 100% 呼叫成功 UI ★
                 document.getElementById('successModalTitle').innerText = "雲端儲存成功";
                 document.getElementById('successModalMsg').innerText = "訪談紀錄已同步至 Firebase！";
                 document.getElementById('successModal').classList.remove('hidden');
                 window.showMsg("✅ 儲存成功！");
             } catch (err) {
-                document.getElementById('errorModalCode').innerText = err.message;
+                // 強效印出絕對錯誤代碼
+                document.getElementById('errorModalCode').innerText = err.message || err.toString();
                 document.getElementById('errorModal').classList.remove('hidden');
             }
         };
@@ -743,25 +671,23 @@ service cloud.firestore {
         // --- 其餘輔助 UI 函數 ---
         window.saveAllEmployeesToCloud = async () => {
             if(!user || !db) return;
-            const emps = employees.filter(e => e.storeId === currentStoreId);
-            for(const emp of emps) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'employees', `${currentStoreId}_${emp.id}`), emp);
+            for(const emp of employees) await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'employees', `${STORE_ID}_${emp.id}`), emp);
         };
         window.addEmployee = async (e) => {
             e.preventDefault();
             const id = document.getElementById('newId').value.trim(), name = document.getElementById('newName').value.trim(), title = document.getElementById('newTitle').value.trim();
-            const emps = employees.filter(e => e.storeId === currentStoreId);
-            if(emps.some(e => e.id === id)) return window.showMsg("❌ 編號重複");
-            const newEmp = { id, name, title, storeId: currentStoreId };
+            if(employees.some(emp => emp.id === id)) return window.showMsg("❌ 編號重複");
+            const newEmp = { id, name, title, storeId: STORE_ID };
             employees.push(newEmp); renderEmployeeTable();
             document.getElementById('newId').value = ""; document.getElementById('newName').value = ""; document.getElementById('newTitle').value = "";
         };
         window.deleteEmployee = async (id) => {
             const ok = await window.showCustomConfirm("確定刪除?", "將移除名冊對照");
-            if(ok) { employees = employees.filter(e => !(e.id === id && e.storeId === currentStoreId)); renderEmployeeTable(); }
+            if(ok) { employees = employees.filter(emp => emp.id !== id); renderEmployeeTable(); }
         };
         function renderEmployeeBrief() {
             const div = document.getElementById('empListBrief'); div.innerHTML = "";
-            employees.filter(e => e.storeId === currentStoreId).forEach(e => {
+            employees.forEach(e => {
                 const s = document.createElement('span'); s.className = "bg-white border rounded px-2 py-1 cursor-pointer text-xs"; s.innerText = `${e.id}: ${e.name}`;
                 s.onclick = () => { window.handleEmpSelect(e.id); document.getElementById('empSelectInline').value = e.id; };
                 div.appendChild(s);
@@ -769,21 +695,21 @@ service cloud.firestore {
         }
         function renderEmployeeTable() {
             const tbody = document.getElementById('empTableBody'); tbody.innerHTML = "";
-            employees.filter(e => e.storeId === currentStoreId).forEach(e => {
+            employees.forEach(e => {
                 tbody.innerHTML += `<tr class="border-b"><td class="p-2">${e.id}</td><td class="p-2">${e.name}</td><td class="p-2">${e.title||''}</td><td class="p-2 text-center"><button onclick="deleteEmployee('${e.id}')" class="text-red-500">刪除</button></td></tr>`;
             });
         }
         function updateEmpSelectInlineDropdown() {
             const sel = document.getElementById('empSelectInline'); const val = sel.value; sel.innerHTML = '<option value="">快速選擇...</option>';
-            employees.filter(e => e.storeId === currentStoreId).forEach(e => sel.innerHTML += `<option value="${e.id}">${e.name}</option>`);
+            employees.forEach(e => sel.innerHTML += `<option value="${e.id}">${e.name}</option>`);
             sel.value = val;
         }
         function renderHistoryTable() {
             const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = "";
-            const cloudRecs = loadedRecords.filter(r => r.storeId === currentStoreId);
+            const cloudRecs = loadedRecords;
             const offRecs = [];
             for(let i=0; i<localStorage.length; i++) {
-                const k = localStorage.key(i); if(k && k.startsWith(`offline_record_${currentStoreId}`)) offRecs.push(JSON.parse(localStorage.getItem(k)));
+                const k = localStorage.key(i); if(k && k.startsWith(`offline_record_${STORE_ID}`)) offRecs.push(JSON.parse(localStorage.getItem(k)));
             }
             const map = new Map(); offRecs.forEach(r => map.set(r.id, {...r, off: true})); cloudRecs.forEach(r => map.set(r.id, {...r, off: false}));
             Array.from(map.values()).forEach(r => {
@@ -815,9 +741,8 @@ service cloud.firestore {
             else { await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端已刪除"); }
         };
 
-        // --- 動態精準座標矩陣 - 右下角簽名板 & 縮放換算 ---
+        // --- 動態精準座標矩陣 ---
         function initSignaturePads() {
-            sigPads = [];
             [1,2,3].forEach(i => {
                 const canvas = document.getElementById(`sigCanvas${i}`);
                 if (!canvas) return;
@@ -848,11 +773,13 @@ service cloud.firestore {
                     lastX=p.x; lastY=p.y; 
                 };
                 newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
-                
-                sigPads.push({canvas: newC, ctx, width, height});
             });
         }
-        window.clearSig = (i) => { const pad = sigPads[i-1]; pad.ctx.clearRect(0,0, pad.width*2, pad.height*2); document.getElementById(`sigSelect${i}`).value=""; };
+        window.clearSig = (i) => { 
+            const canvas = document.getElementById(`sigCanvas${i}`);
+            canvas.getContext('2d').clearRect(0,0, canvas.width, canvas.height); 
+            document.getElementById(`sigSelect${i}`).value=""; 
+        };
         
         window.toggleSigManagerModal = (show) => {
             const m = document.getElementById('sigManagerModal');
@@ -860,53 +787,20 @@ service cloud.firestore {
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         };
 
-        // --- 【核心修復】新增簽名檔 Modal：移除 Zoom 公式，確保座標絕對貼合 ---
         let managerSigPad = null;
         function initManagerSignaturePad() {
-            const canvas = document.getElementById('managerSigCanvas'); 
-            const container = canvas.parentElement;
-            
-            // 精準抓取 Modal 內部畫布的實際物理長寬
-            const w = container.clientWidth || 800;
-            const h = container.clientHeight || 400;
-            
-            canvas.style.width = w + "px"; 
-            canvas.style.height = h + "px"; 
-            canvas.width = w * 2; 
-            canvas.height = h * 2; 
-            
-            const newC = canvas.cloneNode(true); 
-            canvas.parentNode.replaceChild(newC, canvas);
-            const ctx = newC.getContext('2d');
-            
-            ctx.scale(2,2);
+            const canvas = document.getElementById('managerSigCanvas'); const ctx = canvas.getContext('2d');
+            const w = canvas.parentElement.clientWidth || 800, h = canvas.parentElement.clientHeight || 400;
+            canvas.style.width=w+"px"; canvas.style.height=h+"px"; canvas.width=w*2; canvas.height=h*2; ctx.scale(2,2);
             ctx.strokeStyle="#000"; ctx.lineWidth=3.5; ctx.lineCap="round"; ctx.lineJoin="round";
-            
             let drawing=false, lastX=0, lastY=0;
-            
-            // ★ 修復：Modal 簽名板不在 zoomArea 內，不能除以 currentZoom ★
-            const getPos = (e) => { 
-                const r = newC.getBoundingClientRect(); 
-                const evt = e.touches ? e.touches[0] : e; 
-                return { 
-                    x: evt.clientX - r.left, 
-                    y: evt.clientY - r.top 
-                }; 
-            };
-            
+            const newC = canvas.cloneNode(true); canvas.parentNode.replaceChild(newC, canvas);
+            const getPos = (e) => { const r = newC.getBoundingClientRect(); const evt = e.touches ? e.touches[0] : e; return { x: evt.clientX - r.left, y: evt.clientY - r.top }; };
             newC.onmousedown = newC.ontouchstart = (e) => { drawing=true; const p=getPos(e); lastX=p.x; lastY=p.y; };
-            newC.onmousemove = newC.ontouchmove = (e) => { 
-                if(!drawing) return; 
-                e.preventDefault(); 
-                const p=getPos(e); 
-                ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); 
-                lastX=p.x; lastY=p.y; 
-            };
+            newC.onmousemove = newC.ontouchmove = (e) => { if(!drawing) return; e.preventDefault(); const p=getPos(e); newC.getContext('2d').beginPath(); newC.getContext('2d').moveTo(lastX, lastY); newC.getContext('2d').lineTo(p.x, p.y); newC.getContext('2d').stroke(); lastX=p.x; lastY=p.y; };
             newC.onmouseup = newC.onmouseleave = newC.ontouchend = () => drawing=false;
-            
-            managerSigPad = { canvas: newC, ctx: ctx };
+            managerSigPad = { canvas: newC, ctx: newC.getContext('2d') };
         }
-
         window.uploadNewSignature = async () => {
             const name = document.getElementById('newSigName').value; if(!name) return;
             const url = managerSigPad.canvas.toDataURL(); if(url.length<1000) return window.showMsg("❌ 請在下方空白處簽名");
