@@ -166,7 +166,7 @@
                                     <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <!-- 移除底線 (border-b 移除) -->
+                                        <!-- 無底線且上移以防截圖被遮擋 -->
                                         <input type="text" id="date1" class="bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="4/23" style="transform: translateY(-3px);">
                                     </div>
                                 </div>
@@ -183,7 +183,7 @@
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-xs">訪談主管簽名：</span>
-                                            <!-- 純圖片展示區，移除 Canvas -->
+                                            <!-- 純圖片展示區 -->
                                             <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm flex items-center justify-center">
                                                 <span id="sigPlaceholder1" class="text-gray-300 text-xs font-medium">未選擇</span>
                                                 <img id="sigImg1" class="max-w-full max-h-full hidden" alt="簽名">
@@ -333,7 +333,6 @@
             </div>
         </div>
         <div class="flex-1 bg-slate-50 relative w-full overflow-hidden">
-            <!-- 用來畫新簽名的畫布 -->
             <canvas id="managerSigCanvas" class="w-full h-full cursor-crosshair touch-none absolute inset-0"></canvas>
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-10">
                 <div class="text-center"><span class="text-4xl md:text-6xl font-bold tracking-widest block mb-2">請在此區域親筆簽名</span></div>
@@ -389,7 +388,7 @@
         </div>
     </div>
 
-    <!-- ★ 新增：高質感警告/提示 Modal (用於必填欄位檢查) ★ -->
+    <!-- ★ 高質感警告/提示 Modal (用於必填欄位檢查) ★ -->
     <div id="warningModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-4 animate-pulse">
@@ -425,7 +424,17 @@
             </div>
             <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 flex-1">
                 <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷：Firebase 驗證或規則受阻</p>
-                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題是因為您的 Firebase SDK 設定或 Firestore Rules 阻擋了連線。已自動為您在本機建立保護備份。<br><br>請確認 Firebase Console 的 Rules 已改為 `allow read, write: if true;`</p>
+                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題是因為新專案 `monthly-interview2` 尚未設定 Rules 或未啟用匿名登入。<br><br>請至新專案的 Firebase Console > Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
+                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
+                    <pre class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+                </div>
             </div>
             <div class="flex gap-2 pt-2 border-t">
                 <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all text-xs">關閉</button>
@@ -436,6 +445,7 @@
     <!-- 頂部浮動輕量提示 Toast -->
     <div id="msgBox" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-10 opacity-0 transition-all duration-300 z-[200] pointer-events-none flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl font-bold text-sm bg-gray-900 text-white"></div>
 
+    <!-- ==================== 核心 JavaScript (切換至 monthly-interview2) ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -452,7 +462,7 @@
         const STORE_NAME = "中清行館";
         const STORE_AREA = "中二區"; 
 
-        // ★ 優化：高質感的輕量 Toast 通知 ★
+        // 輕量 Toast 通知
         window.showMsg = (text, type="info") => {
             const box = document.getElementById('msgBox');
             let icon = "💡";
@@ -573,15 +583,15 @@
             } else { document.getElementById('empName').value = ""; document.getElementById('empTitle').value = ""; document.getElementById('empSelectInline').value = ""; }
         };
 
-        // Firebase 初始化
+        // ★★★ 更新為新的資料庫 monthly-interview2 ★★★
         const firebaseConfig = {
-            apiKey: "AIzaSyBC6xpSN5ITJL0Jfhj6qAHWxaosTXKB5QA", 
-            authDomain: "monthly-interview.firebaseapp.com",
-            projectId: "monthly-interview", 
-            storageBucket: "monthly-interview.firebasestorage.app",
-            messagingSenderId: "759947551878", 
-            appId: "1:759947551878:web:b83f8fe2af83036b465d07",
-            measurementId: "G-7SPE25WQM6"
+            apiKey: "AIzaSyBdkQiNgK6SfL2N6XQZJUa_P_vi0ZoUby0",
+            authDomain: "monthly-interview2.firebaseapp.com",
+            projectId: "monthly-interview2",
+            storageBucket: "monthly-interview2.firebasestorage.app",
+            messagingSenderId: "131621180409",
+            appId: "1:131621180409:web:75216e05fd2fb58db62328",
+            measurementId: "G-5C434E2TTM"
         };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -596,7 +606,7 @@
 
             try {
                 await signInAnonymously(auth);
-                document.getElementById('syncStatusText').innerText = "雲端連線成功";
+                document.getElementById('syncStatusText').innerText = "新資料庫連線成功";
                 document.getElementById('syncStatusIndicator').className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
             } catch (e) { 
                 document.getElementById('syncStatusText').innerText = "驗證失敗 (本機模式)"; 
@@ -630,7 +640,6 @@
             const empId = document.getElementById('empId').value.trim();
             const empName = document.getElementById('empName').value.trim();
             
-            // 漂亮警告 Modal
             if (!year || !empId || !empName) {
                 return window.showWarningModal("資料未填妥", "請確實填寫表格上方的『年度』、『編號』與『姓名』欄位！");
             }
@@ -651,17 +660,16 @@
 
             localStorage.setItem(`offline_record_${recordId}`, JSON.stringify(payload));
             if(!user || !db) {
-                window.showSuccessModal("本機暫存成功", "雲端未連線，資料已安全暫存於本機！\n待雲端開通後將自動同步，點擊「確定」將重置全新空白頁面。", () => {
+                window.showSuccessModal("本機暫存成功", "雲端未連線，資料已安全暫存於本機！\n待新資料庫開通後將自動同步，點擊確定將重置全新空白頁面。", () => {
                     window.location.reload();
                 });
                 return;
             }
 
-            window.showMsg("💾 傳輸至 Firebase...");
+            window.showMsg("💾 傳輸至 Firebase...", "info");
             try {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
-                // 漂亮成功 Modal，點擊後重置頁面
-                window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至 Firebase 雲端資料庫！\n點擊下方「確定」將為您清空選取，載入全新空白表單。", () => {
+                window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至 monthly-interview2！\n點擊下方「確定」將為您清空選取，載入全新空白表單。", () => {
                     window.location.reload(); 
                 });
             } catch (err) {
@@ -671,7 +679,7 @@
         };
 
         window.generateScreenshot = () => {
-            window.showMsg("📸 正在為您擷取高解析相片...");
+            window.showMsg("📸 正在為您擷取高解析相片...", "info");
             const container = document.getElementById('captureContainer');
             const noCaptures = document.querySelectorAll('.no-capture');
             noCaptures.forEach(el => el.style.visibility = 'hidden'); 
@@ -708,7 +716,6 @@
             document.getElementById('newId').value = ""; document.getElementById('newName').value = ""; document.getElementById('newTitle').value = "";
         };
         window.deleteEmployee = async (id) => {
-            // ... omitting simple delete for brevity
             employees = employees.filter(emp => emp.id !== id); renderEmployeeTable();
         };
         function renderEmployeeBrief() {
@@ -811,11 +818,9 @@
         
         window.uploadNewSignature = async () => {
             const name = document.getElementById('newSigName').value.trim(); 
-            // 漂亮警告
             if(!name) return window.showWarningModal("缺少資訊", "請先輸入「主管姓名」，以便建立雲端簽名檔！");
             
             const url = managerSigPad.canvas.toDataURL(); 
-            // 漂亮警告
             if(url.length < 1000) return window.showWarningModal("尚未簽名", "請在下方全螢幕畫布區域親筆簽名！");
             
             const id = 'sig_'+Date.now();
@@ -824,8 +829,7 @@
                 document.getElementById('newSigName').value = ""; 
                 window.clearManagerSigCanvas(); 
                 
-                // ★ 漂亮成功 Modal
-                window.showSuccessModal("簽名檔錄入成功", `🎉 主管「${name}」的電子簽章已安全存入資料庫，現在可以在表單中選擇套用！`);
+                window.showSuccessModal("簽名檔錄入成功", `🎉 主管「${name}」的電子簽章已安全存入 monthly-interview2！`);
             } catch (err) {
                 document.getElementById('errorModalCode').innerText = err.message || err.toString();
                 document.getElementById('errorModal').classList.remove('hidden');
