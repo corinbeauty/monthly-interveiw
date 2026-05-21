@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #f0f4f8;
@@ -28,6 +28,9 @@
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
+        
+        /* 過濾按鈕點擊效果 */
+        .q-btn.active { background-color: #4f46e5 !important; color: white !important; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4); }
     </style>
 </head>
 <body class="p-2 md:p-6 pb-24">
@@ -82,16 +85,16 @@
                     </div>
                 </h3>
                 <div id="empListBrief" class="text-xs text-gray-500 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                    <span class="text-gray-400">正在加載員工...</span>
+                    <!-- 智慧排序之動態名單 -->
                 </div>
             </div>
             <div class="border-t md:border-t-0 md:border-l md:pl-4 pt-2 md:pt-0">
                 <h3 class="text-sm font-bold text-gray-700 mb-2 flex items-center justify-between">
                     <span>✍️ 雲端固定電子簽名檔</span>
-                    <button onclick="toggleSigManagerModal(true)" class="text-xs text-blue-600 hover:underline font-bold">+ 新增簽名檔</button>
+                    <button onclick="toggleSigManagerModal(true)" class="text-xs text-blue-600 hover:underline font-bold">+ 新增/管理簽名檔</button>
                 </h3>
                 <div id="sigListBrief" class="text-xs text-gray-500 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
-                    <span class="text-gray-400">正在加載簽名檔...</span>
+                    <!-- 簽名檔標籤動態載入區 -->
                 </div>
             </div>
         </div>
@@ -141,6 +144,7 @@
 
                 <table class="print-table text-sm">
                     <thead>
+                        <!-- 姓名、編號、備註、職稱 統一字體與粗細 -->
                         <tr>
                             <th class="w-[12%] text-center bg-gray-50 font-bold p-2">
                                 <div>姓名</div>
@@ -153,9 +157,9 @@
                             <td class="w-[20%] p-0"><input type="text" id="empName" class="input-flat text-center font-bold text-lg" placeholder="姓名或選取"></td>
                             <th class="w-[14%] text-center bg-gray-50 font-bold p-2">編號</th>
                             <td class="w-[18%] p-0"><input type="text" id="empId" oninput="handleIdInput()" class="input-flat text-center font-bold text-lg" placeholder="輸入編號"></td>
-                            <td class="w-[11%] p-0"><input type="text" id="extraCol" class="input-flat text-center" placeholder="備註"></td>
+                            <td class="w-[11%] p-0"><input type="text" id="extraCol" class="input-flat text-center font-bold text-lg" placeholder="備註"></td>
                             <th class="w-[11%] text-center bg-gray-50 font-bold p-2">職稱</th>
-                            <td class="w-[14%] p-0"><input type="text" id="empTitle" class="input-flat text-center" placeholder="櫃台"></td>
+                            <td class="w-[14%] p-0"><input type="text" id="empTitle" class="input-flat text-center font-bold text-lg" placeholder="櫃台"></td>
                         </tr>
                     </thead>
                     <tbody>
@@ -166,13 +170,20 @@
                                     <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <!-- 無底線且上移以防截圖被遮擋 -->
-                                        <input type="text" id="date1" class="bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="4/23" style="transform: translateY(-3px);">
+                                        <!-- 無偏移日期欄 -->
+                                        <input type="text" id="date1" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="填寫日期">
                                     </div>
                                 </div>
-                                <div class="p-3 bg-white min-h-[120px] space-y-3">
-                                    <div class="flex items-start"><span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span><textarea id="visit1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea></div>
-                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3"><span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span><textarea id="feedback1" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea></div>
+                                <!-- 自動展開引擎：設定 textarea overflow-hidden 並觸發 js -->
+                                <div class="p-3 bg-white space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                        <textarea id="visit1" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                        <textarea id="feedback1" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
+                                    </div>
                                 </div>
                                 <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
                                     <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
@@ -183,7 +194,6 @@
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-xs">訪談主管簽名：</span>
-                                            <!-- 純圖片展示區 -->
                                             <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm flex items-center justify-center">
                                                 <span id="sigPlaceholder1" class="text-gray-300 text-xs font-medium">未選擇</span>
                                                 <img id="sigImg1" class="max-w-full max-h-full hidden" alt="簽名">
@@ -201,12 +211,18 @@
                                     <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date2" class="bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="填寫日期" style="transform: translateY(-3px);">
+                                        <input type="text" id="date2" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="填寫日期">
                                     </div>
                                 </div>
-                                <div class="p-3 bg-white min-h-[120px] space-y-3">
-                                    <div class="flex items-start"><span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span><textarea id="visit2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea></div>
-                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3"><span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span><textarea id="feedback2" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea></div>
+                                <div class="p-3 bg-white space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                        <textarea id="visit2" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                        <textarea id="feedback2" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
+                                    </div>
                                 </div>
                                 <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
                                     <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
@@ -217,7 +233,6 @@
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-xs">訪談主管簽名：</span>
-                                            <!-- 純圖片展示區 -->
                                             <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm flex items-center justify-center">
                                                 <span id="sigPlaceholder2" class="text-gray-300 text-xs font-medium">未選擇</span>
                                                 <img id="sigImg2" class="max-w-full max-h-full hidden" alt="簽名">
@@ -235,12 +250,18 @@
                                     <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
                                         <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date3" class="bg-transparent w-24 text-center focus:outline-none p-0 h-6 text-sm" placeholder="填寫日期" style="transform: translateY(-3px);">
+                                        <input type="text" id="date3" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="填寫日期">
                                     </div>
                                 </div>
-                                <div class="p-3 bg-white min-h-[120px] space-y-3">
-                                    <div class="flex items-start"><span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span><textarea id="visit3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea></div>
-                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3"><span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span><textarea id="feedback3" class="w-full border-none resize-none focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea></div>
+                                <div class="p-3 bg-white space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">訪：</span>
+                                        <textarea id="visit3" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="3"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-gray-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2">回：</span>
+                                        <textarea id="feedback3" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-blue-50 leading-relaxed text-sm p-0 m-0" rows="2"></textarea>
+                                    </div>
                                 </div>
                                 <div class="border-t border-black px-3 py-2 flex justify-between items-end bg-gray-50 gap-2 min-h-[80px]">
                                     <div class="text-[11px] text-gray-500 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
@@ -251,7 +272,6 @@
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="font-bold text-xs">訪談主管簽名：</span>
-                                            <!-- 純圖片展示區 -->
                                             <div class="relative w-40 h-16 border border-dashed border-gray-400 bg-white rounded overflow-hidden shadow-sm flex items-center justify-center">
                                                 <span id="sigPlaceholder3" class="text-gray-300 text-xs font-medium">未選擇</span>
                                                 <img id="sigImg3" class="max-w-full max-h-full hidden" alt="簽名">
@@ -268,6 +288,7 @@
     </div>
 
     <!-- Modals -->
+    <!-- 名單比對表 Modal -->
     <div id="rosterModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-indigo-800 mb-3 flex justify-between items-center border-b pb-2">
@@ -288,6 +309,7 @@
         </div>
     </div>
 
+    <!-- 編輯員工 Modal -->
     <div id="empModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
@@ -316,18 +338,18 @@
         </div>
     </div>
 
-    <!-- 簽名檔管理艙 Modal (全螢幕不縮放，絕對貼合) -->
+    <!-- 雲端電子簽名管理 Modal -->
     <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
         <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
             <span>🔄 若畫面太小，建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
         </div>
         <div class="bg-slate-100 px-4 py-3 border-b flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-sm font-bold text-gray-800 flex items-center gap-1.5">
-                <span>✍️ 雲端電子簽名管理艙</span>
+                <span>✍️ 雲端電子簽名管理</span>
             </h3>
             <div class="flex items-center gap-2">
                 <input type="text" id="newSigName" placeholder="主管姓名" class="border rounded px-2.5 py-1 text-xs focus:ring-1 focus:ring-blue-500 w-28 md:w-40 font-semibold text-gray-800">
-                <button onclick="uploadNewSignature()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-bold transition">儲存簽名</button>
+                <button onclick="uploadNewSignature()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded font-bold transition shadow">新增簽名</button>
                 <button onclick="clearManagerSigCanvas()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 text-xs px-3 py-1.5 rounded font-semibold transition">重畫</button>
                 <button onclick="toggleSigManagerModal(false)" class="bg-slate-800 hover:bg-slate-950 text-white text-xs px-3 py-1.5 rounded font-semibold transition">關閉</button>
             </div>
@@ -340,36 +362,53 @@
         </div>
         <div class="border-t bg-white h-24 md:h-32 flex flex-col">
             <div class="bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-gray-500 border-b flex justify-between items-center">
-                <span>📁 已錄入固定簽名檔清單</span>
+                <span>📁 現有雲端簽名檔清單 (點擊紅✕可刪除)</span>
             </div>
             <div class="flex-1 overflow-x-auto overflow-y-hidden p-2 flex items-center gap-3" id="sigManagerListHorizontal"></div>
         </div>
     </div>
 
-    <!-- 歷史紀錄 Modal -->
+    <!-- 歷史紀錄 Modal (新增快速過濾統計功能) -->
     <div id="historyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full p-5 max-h-[80vh] flex flex-col">
+        <div class="bg-white rounded-xl shadow-xl max-w-3xl w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
                 <span>📂 雲端歷史紀錄管理列表</span>
                 <button onclick="toggleHistoryModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-xl">✕</button>
             </h3>
-            <div class="mb-3 flex gap-2"><input type="text" id="historySearch" oninput="filterHistoryList()" placeholder="輸入姓名或編號快速過濾..." class="w-full border rounded p-2 text-sm focus:ring-1 focus:ring-indigo-500"></div>
-            <div class="overflow-y-auto flex-1 border rounded-lg">
+            
+            <!-- 快選面板與統計 -->
+            <div class="mb-3 flex flex-col gap-2">
+                <div class="flex flex-wrap justify-between items-center gap-2">
+                    <div class="flex flex-wrap gap-1" id="quarterFilterBtns">
+                        <button onclick="setHistoryQuarterFilter('ALL', this)" class="q-btn active px-3 py-1.5 text-xs rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition font-bold">全部年度</button>
+                        <button onclick="setHistoryQuarterFilter('1', this)" class="q-btn px-3 py-1.5 text-xs rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition font-bold">Q1</button>
+                        <button onclick="setHistoryQuarterFilter('2', this)" class="q-btn px-3 py-1.5 text-xs rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition font-bold">Q2</button>
+                        <button onclick="setHistoryQuarterFilter('3', this)" class="q-btn px-3 py-1.5 text-xs rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition font-bold">Q3</button>
+                        <button onclick="setHistoryQuarterFilter('4', this)" class="q-btn px-3 py-1.5 text-xs rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition font-bold">Q4</button>
+                    </div>
+                    <div class="text-xs font-bold text-indigo-700 bg-indigo-100 px-3 py-1.5 rounded-lg shadow-sm border border-indigo-200">
+                        總數: <span id="historyTotalCount" class="text-sm">0</span> 筆
+                    </div>
+                </div>
+                <input type="text" id="historySearch" oninput="filterHistoryList()" placeholder="輸入姓名或編號快速過濾..." class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            </div>
+
+            <div class="overflow-y-auto flex-1 border rounded-lg bg-white">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 uppercase text-xs text-slate-700 font-bold border-b sticky top-0">
-                        <tr><th class="p-3">季度/年度</th><th class="p-3">姓名(編號)</th><th class="p-3">區域/店別</th><th class="p-3 text-center">操作</th></tr>
+                    <thead class="bg-slate-50 uppercase text-xs text-slate-700 font-bold border-b sticky top-0 z-10 shadow-sm">
+                        <tr><th class="p-3">季度/年度</th><th class="p-3">姓名(編號)</th><th class="p-3">店別</th><th class="p-3 text-center">操作</th></tr>
                     </thead>
                     <tbody id="historyTableBody"></tbody>
                 </table>
             </div>
             <div class="mt-4 flex justify-end">
-                <button onclick="toggleHistoryModal(false)" class="bg-slate-800 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-slate-900 text-sm">關閉</button>
+                <button onclick="toggleHistoryModal(false)" class="bg-slate-800 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-slate-900 text-sm shadow-md">關閉視窗</button>
             </div>
         </div>
     </div>
 
     <!-- 截圖預覽 Modal -->
-    <div id="screenshotModal" class="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-center hidden p-4">
+    <div id="screenshotModal" class="fixed inset-0 bg-black/80 z-[150] flex flex-col items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-2xl p-4 max-w-full md:max-w-2xl w-full flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-2">
                 <h3 class="font-bold text-gray-800 text-base">🎉 訪談紀錄截圖已完成！</h3>
@@ -388,7 +427,23 @@
         </div>
     </div>
 
-    <!-- ★ 高質感警告/提示 Modal (用於必填欄位檢查) ★ -->
+    <!-- ★ 新增：機密刪除驗證密碼 Modal (1016) ★ -->
+    <div id="deletePasswordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[160] flex items-center justify-center hidden p-4 transition-all duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform scale-95 opacity-0 transition-all duration-300">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4 shadow-inner">
+                <svg class="h-8 w-8 text-red-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </div>
+            <h3 class="text-xl font-black text-gray-900 mb-2 tracking-wide">機密資料刪除驗證</h3>
+            <p class="text-xs text-gray-500 mb-5 leading-relaxed font-medium">刪除雲端資料為不可逆之操作。<br>請輸入安全授權密碼以核實身分。</p>
+            <input type="password" id="deletePasscodeField" maxlength="4" placeholder="請輸入密碼" class="w-full text-center text-2xl tracking-[0.5em] border-2 border-gray-200 rounded-xl py-3 px-3 focus:ring-4 focus:ring-red-500/20 focus:border-red-500 focus:outline-none mb-6 font-bold bg-gray-50 text-gray-800 transition-all">
+            <div class="flex gap-3">
+                <button onclick="closeDeletePasswordModal()" class="flex-1 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition-all active:scale-95">取消</button>
+                <button onclick="submitDeletePasscode()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-lg shadow-red-600/30 active:scale-95">確認刪除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 高質感警告/提示 Modal -->
     <div id="warningModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-4 animate-pulse">
@@ -424,7 +479,7 @@
             </div>
             <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 flex-1">
                 <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷：Firebase 驗證或規則受阻</p>
-                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題是因為新專案 `monthly-interview2` 尚未設定 Rules 或未啟用匿名登入。<br><br>請至新專案的 Firebase Console > Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
+                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題是因為新專案的 Rules 尚未設定或未啟用匿名登入。<br><br>請至新專案的 Firebase Console > Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
                 <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
                     <pre class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
 service cloud.firestore {
@@ -445,7 +500,7 @@ service cloud.firestore {
     <!-- 頂部浮動輕量提示 Toast -->
     <div id="msgBox" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-10 opacity-0 transition-all duration-300 z-[200] pointer-events-none flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl font-bold text-sm bg-gray-900 text-white"></div>
 
-    <!-- ==================== 核心 JavaScript (切換至 monthly-interview2) ==================== -->
+    <!-- ==================== 核心 JavaScript ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -455,8 +510,12 @@ service cloud.firestore {
         let employees = [];
         let loadedRecords = []; 
         let savedSignatures = []; 
+        
         let successModalCallback = null;
+        let pendingDeleteAction = null; 
+
         window.currentZoom = 1.0;
+        window.currentHistoryQuarterFilter = 'ALL';
 
         const STORE_ID = "store_zhongqing";
         const STORE_NAME = "中清行館";
@@ -465,8 +524,7 @@ service cloud.firestore {
         // 輕量 Toast 通知
         window.showMsg = (text, type="info") => {
             const box = document.getElementById('msgBox');
-            let icon = "💡";
-            let bgClass = "bg-gray-900 text-white";
+            let icon = "💡"; let bgClass = "bg-gray-900 text-white";
             if(type === "success") { icon = "✅"; bgClass = "bg-emerald-600 text-white"; }
             if(type === "error") { icon = "❌"; bgClass = "bg-red-600 text-white"; }
             if(type === "warning") { icon = "⚠️"; bgClass = "bg-amber-500 text-white"; }
@@ -504,6 +562,12 @@ service cloud.firestore {
             window.applyZoom();
         };
 
+        // --- 自動展開 Textarea 高度 ---
+        window.autoResizeTextarea = (el) => {
+            el.style.height = 'auto'; 
+            el.style.height = (el.scrollHeight) + 'px';
+        };
+
         window.updateQuarterLayout = () => {
             const q = parseInt(document.getElementById('quarterSelect').value);
             const text = ["第一季", "第二季", "第三季", "第四季"][q-1];
@@ -511,16 +575,54 @@ service cloud.firestore {
             for(let i=1; i<=3; i++) document.getElementById(`monthTitle${i}`).innerText = `${text} ${m[i-1]}月`;
         };
 
+        // --- 1016 機密刪除驗證系統 ---
+        window.promptDelete = (actionCallback) => {
+            pendingDeleteAction = actionCallback;
+            document.getElementById('deletePasscodeField').value = '';
+            document.getElementById('deletePasswordModal').classList.remove('hidden');
+            setTimeout(() => {
+                document.querySelector('#deletePasswordModal > div').classList.remove('scale-95', 'opacity-0');
+                document.querySelector('#deletePasswordModal > div').classList.add('scale-100', 'opacity-100');
+                document.getElementById('deletePasscodeField').focus();
+            }, 10);
+        };
+        window.closeDeletePasswordModal = () => {
+            document.querySelector('#deletePasswordModal > div').classList.remove('scale-100', 'opacity-100');
+            document.querySelector('#deletePasswordModal > div').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => document.getElementById('deletePasswordModal').classList.add('hidden'), 300);
+            pendingDeleteAction = null;
+        };
+        window.submitDeletePasscode = async () => {
+            const code = document.getElementById('deletePasscodeField').value;
+            if (code === '1016') {
+                window.closeDeletePasswordModal();
+                if(pendingDeleteAction) await pendingDeleteAction();
+            } else {
+                window.showMsg("❌ 安全密碼錯誤，拒絕存取！", "error");
+            }
+        };
+
+        // --- 名單排序與處理 ---
+        function getSortedEmployees() {
+            return employees.slice().sort((a, b) => {
+                const numA = parseInt(a.id, 10);
+                const numB = parseInt(b.id, 10);
+                if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                return String(a.id).localeCompare(String(b.id));
+            });
+        }
+
         window.toggleRosterModal = (show) => {
             document.getElementById('rosterModal').classList[show ? 'remove' : 'add']('hidden');
             if(show) renderRosterTable();
         };
         function renderRosterTable() {
             const tbody = document.getElementById('rosterTableBody'); tbody.innerHTML = "";
-            if(employees.length === 0) {
+            const sortedEmps = getSortedEmployees();
+            if(sortedEmps.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">當前無任何名單紀錄</td></tr>`; return;
             }
-            employees.forEach(e => {
+            sortedEmps.forEach(e => {
                 tbody.innerHTML += `<tr class="border-b hover:bg-indigo-50/30 transition"><td class="p-3 font-bold text-gray-700">${e.id}</td><td class="p-3 font-semibold text-indigo-700">${e.name}</td><td class="p-3 text-gray-500">${e.title||'無'}</td></tr>`;
             });
         }
@@ -529,9 +631,20 @@ service cloud.firestore {
             document.getElementById('empModal').classList[show ? 'remove' : 'add']('hidden');
             if(show) renderEmployeeTable(); else window.saveAllEmployeesToCloud();
         };
+
+        // --- 歷史紀錄與快選過濾 ---
+        window.setHistoryQuarterFilter = (q, btnElement) => {
+            window.currentHistoryQuarterFilter = q;
+            document.querySelectorAll('.q-btn').forEach(btn => {
+                btn.className = "q-btn px-3 py-1.5 text-xs rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 transition font-bold";
+            });
+            btnElement.className = "q-btn active px-3 py-1.5 text-xs rounded-full transition font-bold";
+            window.filterHistoryList();
+        };
+
         window.toggleHistoryModal = (show) => {
             document.getElementById('historyModal').classList[show ? 'remove' : 'add']('hidden');
-            if(show) renderHistoryTable();
+            if(show) window.filterHistoryList();
         };
         window.toggleScreenshotModal = (show) => document.getElementById('screenshotModal').classList[show ? 'remove' : 'add']('hidden');
         
@@ -548,10 +661,7 @@ service cloud.firestore {
         };
         window.closeSuccessModal = () => {
             document.getElementById('successModal').classList.add('hidden');
-            if(successModalCallback) {
-                successModalCallback();
-                successModalCallback = null;
-            }
+            if(successModalCallback) { successModalCallback(); successModalCallback = null; }
         };
 
         window.showWarningModal = (title, msg) => {
@@ -583,7 +693,7 @@ service cloud.firestore {
             } else { document.getElementById('empName').value = ""; document.getElementById('empTitle').value = ""; document.getElementById('empSelectInline').value = ""; }
         };
 
-        // ★★★ 更新為新的資料庫 monthly-interview2 ★★★
+        // Firebase 初始化
         const firebaseConfig = {
             apiKey: "AIzaSyBdkQiNgK6SfL2N6XQZJUa_P_vi0ZoUby0",
             authDomain: "monthly-interview2.firebaseapp.com",
@@ -606,7 +716,7 @@ service cloud.firestore {
 
             try {
                 await signInAnonymously(auth);
-                document.getElementById('syncStatusText').innerText = "新資料庫連線成功";
+                document.getElementById('syncStatusText').innerText = "雲端連線成功";
                 document.getElementById('syncStatusIndicator').className = "inline-block w-2.5 h-2.5 rounded-full bg-green-500";
             } catch (e) { 
                 document.getElementById('syncStatusText').innerText = "驗證失敗 (本機模式)"; 
@@ -623,8 +733,13 @@ service cloud.firestore {
             onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'employees'), s => {
                 employees = s.docs.map(d => d.data()); renderEmployeeBrief(); updateEmpSelectInlineDropdown(); renderRosterTable();
             });
-            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records'), s => { loadedRecords = s.docs.map(d => d.data()); });
-            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures'), s => { savedSignatures = s.docs.map(d => d.data()); updateMonthlySigSelectors(); });
+            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records'), s => { 
+                loadedRecords = s.docs.map(d => d.data()); 
+                if(!document.getElementById('historyModal').classList.contains('hidden')) window.filterHistoryList();
+            });
+            onSnapshot(collection(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures'), s => { 
+                savedSignatures = s.docs.map(d => d.data()); updateMonthlySigSelectors(); renderSigManagerList();
+            });
         }
 
         function getSelectedSignatureData(monthIdx) {
@@ -669,7 +784,7 @@ service cloud.firestore {
             window.showMsg("💾 傳輸至 Firebase...", "info");
             try {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
-                window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至 monthly-interview2！\n點擊下方「確定」將為您清空選取，載入全新空白表單。", () => {
+                window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至雲端資料庫！\n點擊下方「確定」將為您清空選取，載入全新空白表單。", () => {
                     window.location.reload(); 
                 });
             } catch (err) {
@@ -702,7 +817,6 @@ service cloud.firestore {
             });
         };
 
-        // --- 其餘輔助 UI 函數 ---
         window.saveAllEmployeesToCloud = async () => {
             if(!user || !db) return;
             for(const emp of employees) await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'employees', `${STORE_ID}_${emp.id}`), emp);
@@ -720,52 +834,91 @@ service cloud.firestore {
         };
         function renderEmployeeBrief() {
             const div = document.getElementById('empListBrief'); div.innerHTML = "";
-            employees.forEach(e => {
-                const s = document.createElement('span'); s.className = "bg-white border rounded px-2 py-1 cursor-pointer text-xs hover:bg-indigo-50"; s.innerText = `${e.id}: ${e.name}`;
+            getSortedEmployees().forEach(e => {
+                const s = document.createElement('span'); s.className = "bg-white border rounded px-2 py-1 cursor-pointer text-xs hover:bg-indigo-50 font-medium shadow-sm transition"; s.innerText = `${e.id}: ${e.name}`;
                 s.onclick = () => { window.handleEmpSelect(e.id); document.getElementById('empSelectInline').value = e.id; };
                 div.appendChild(s);
             });
         }
         function renderEmployeeTable() {
             const tbody = document.getElementById('empTableBody'); tbody.innerHTML = "";
-            employees.forEach(e => {
-                tbody.innerHTML += `<tr class="border-b"><td class="p-2">${e.id}</td><td class="p-2">${e.name}</td><td class="p-2">${e.title||''}</td><td class="p-2 text-center"><button onclick="deleteEmployee('${e.id}')" class="text-red-500">刪除</button></td></tr>`;
+            getSortedEmployees().forEach(e => {
+                tbody.innerHTML += `<tr class="border-b"><td class="p-2">${e.id}</td><td class="p-2">${e.name}</td><td class="p-2">${e.title||''}</td><td class="p-2 text-center"><button onclick="promptDelete(() => deleteEmployee('${e.id}'))" class="text-red-500 font-bold hover:text-red-700">刪除</button></td></tr>`;
             });
         }
         function updateEmpSelectInlineDropdown() {
             const sel = document.getElementById('empSelectInline'); const val = sel.value; sel.innerHTML = '<option value="">快速選擇...</option>';
-            employees.forEach(e => sel.innerHTML += `<option value="${e.id}">${e.name}</option>`);
+            getSortedEmployees().forEach(e => sel.innerHTML += `<option value="${e.id}">${e.id} - ${e.name}</option>`);
             sel.value = val;
         }
-        function renderHistoryTable() {
-            const tbody = document.getElementById('historyTableBody'); tbody.innerHTML = "";
+        
+        // --- 歷史紀錄智慧過濾 ---
+        window.filterHistoryList = () => {
+            const queryVal = document.getElementById('historySearch').value.toLowerCase().trim();
+            const tbody = document.getElementById('historyTableBody'); 
+            tbody.innerHTML = "";
+            
+            let allRecs = [];
             const cloudRecs = loadedRecords;
             const offRecs = [];
             for(let i=0; i<localStorage.length; i++) {
                 const k = localStorage.key(i); if(k && k.startsWith(`offline_record_${STORE_ID}`)) offRecs.push(JSON.parse(localStorage.getItem(k)));
             }
             const map = new Map(); offRecs.forEach(r => map.set(r.id, {...r, off: true})); cloudRecs.forEach(r => map.set(r.id, {...r, off: false}));
-            Array.from(map.values()).forEach(r => {
-                tbody.innerHTML += `<tr class="border-b"><td class="p-2">${r.year}年 Q${r.quarter}</td><td class="p-2 text-indigo-600">${r.empName} ${r.off?'(本地)':'(雲端)'}</td><td class="p-2">${r.store}</td>
-                <td class="p-2"><button onclick="loadSelectedRecord('${r.id}', ${r.off})" class="text-blue-500 mr-2">載入</button><button onclick="deleteSelectedRecord('${r.id}', ${r.off})" class="text-red-500">刪除</button></td></tr>`;
+            allRecs = Array.from(map.values());
+
+            if(window.currentHistoryQuarterFilter !== 'ALL') {
+                allRecs = allRecs.filter(r => String(r.quarter) === window.currentHistoryQuarterFilter);
+            }
+            if(queryVal !== "") {
+                allRecs = allRecs.filter(r => 
+                    (r.empName && r.empName.toLowerCase().includes(queryVal)) || 
+                    (r.empId && r.empId.toLowerCase().includes(queryVal)) ||
+                    (r.year && String(r.year).includes(queryVal))
+                );
+            }
+
+            document.getElementById('historyTotalCount').innerText = allRecs.length;
+
+            if(allRecs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">查無對應紀錄</td></tr>`; return;
+            }
+            
+            allRecs.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+            allRecs.forEach(r => {
+                const badge = r.off ? `<span class="ml-1 text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full">本機</span>` : `<span class="ml-1 text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full">雲端</span>`;
+                tbody.innerHTML += `<tr class="border-b hover:bg-slate-50 transition"><td class="p-3">${r.year}年 Q${r.quarter}</td><td class="p-3 font-bold text-indigo-700">${r.empName} (${r.empId}) ${badge}</td><td class="p-3 text-gray-500">${r.store}</td>
+                <td class="p-3 text-center flex justify-center"><button onclick="loadSelectedRecord('${r.id}', ${r.off})" class="bg-indigo-50 text-indigo-600 font-bold hover:bg-indigo-100 py-1 px-3 rounded-lg mr-2 transition">載入</button>
+                <button onclick="promptDelete(() => deleteSelectedRecord('${r.id}', ${r.off}))" class="bg-red-50 text-red-600 font-bold hover:bg-red-100 py-1 px-3 rounded-lg transition">刪除</button></td></tr>`;
             });
-        }
+        };
+
         window.loadSelectedRecord = (id, isOff) => {
             const target = isOff ? JSON.parse(localStorage.getItem(`offline_record_${id}`)) : loadedRecords.find(r => r.id === id);
             if(!target) return;
             document.getElementById('quarterSelect').value = target.quarter; document.getElementById('yearInput').value = target.year;
             document.getElementById('empId').value = target.empId; document.getElementById('empName').value = target.empName; document.getElementById('empTitle').value = target.empTitle;
             [1,2,3].forEach(i => {
-                document.getElementById(`date${i}`).value = target.months[i-1].date; document.getElementById(`visit${i}`).value = target.months[i-1].visitContent;
-                document.getElementById(`feedback${i}`).value = target.months[i-1].empFeedback;
+                document.getElementById(`date${i}`).value = target.months[i-1].date; 
+                
+                const visitEl = document.getElementById(`visit${i}`);
+                const fbEl = document.getElementById(`feedback${i}`);
+                visitEl.value = target.months[i-1].visitContent;
+                fbEl.value = target.months[i-1].empFeedback;
+                
+                // 自動觸發延展高度
+                window.autoResizeTextarea(visitEl);
+                window.autoResizeTextarea(fbEl);
+
                 document.getElementById(`sigSelect${i}`).value = target.selectedSigIds[i-1] || "";
                 window.applySavedSignatureToCanvas(i, target.selectedSigIds[i-1]);
             });
             window.toggleHistoryModal(false); window.showMsg("📂 載入成功！", "success");
         };
         window.deleteSelectedRecord = async (id, isOff) => {
-            if(isOff) { localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 本地已刪除", "success"); renderHistoryTable(); }
-            else { await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端已刪除", "success"); }
+            if(isOff) { localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 本地紀錄已刪除", "success"); window.filterHistoryList(); }
+            else { await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', id)); localStorage.removeItem(`offline_record_${id}`); window.showMsg("🗑️ 雲端紀錄已刪除", "success"); }
         };
 
         window.toggleSigManagerModal = (show) => {
@@ -777,7 +930,7 @@ service cloud.firestore {
             else { m.classList.add('hidden'); m.classList.remove('flex'); }
         };
 
-        // --- ★ 核心修復：新增主管簽名檔 (完全獨立的座標引擎) ★ ---
+        // --- 全螢幕 Modal 簽名板 ---
         let managerSigPad = null;
         function initManagerSignaturePad() {
             const canvas = document.getElementById('managerSigCanvas'); 
@@ -792,7 +945,7 @@ service cloud.firestore {
             canvas.height = h * 2; 
             
             ctx.scale(2,2); 
-            ctx.strokeStyle="#000"; ctx.lineWidth=3.5; ctx.lineCap="round"; ctx.lineJoin="round";
+            ctx.strokeStyle="#000"; ctx.lineWidth=4; ctx.lineCap="round"; ctx.lineJoin="round";
             
             let drawing=false, lastX=0, lastY=0;
             
@@ -828,8 +981,7 @@ service cloud.firestore {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures', id), { id, name, imageData: url });
                 document.getElementById('newSigName').value = ""; 
                 window.clearManagerSigCanvas(); 
-                
-                window.showSuccessModal("簽名檔錄入成功", `🎉 主管「${name}」的電子簽章已安全存入 monthly-interview2！`);
+                window.showSuccessModal("簽名檔錄入成功", `🎉 主管「${name}」的電子簽章已安全存入雲端！`);
             } catch (err) {
                 document.getElementById('errorModalCode').innerText = err.message || err.toString();
                 document.getElementById('errorModal').classList.remove('hidden');
@@ -838,6 +990,32 @@ service cloud.firestore {
         window.clearManagerSigCanvas = () => {
             if(managerSigPad) managerSigPad.ctx.clearRect(0,0,managerSigPad.canvas.width, managerSigPad.canvas.height);
         };
+        
+        window.deleteSignature = async (id) => {
+            try {
+                await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures', id));
+                window.showMsg("🗑️ 簽名檔已刪除", "success");
+            } catch(e) {
+                window.showMsg("❌ 刪除失敗", "error");
+            }
+        };
+
+        function renderSigManagerList() {
+            const list = document.getElementById('sigManagerListHorizontal');
+            list.innerHTML = "";
+            if(savedSignatures.length === 0) {
+                list.innerHTML = '<span class="text-xs text-gray-400">目前無固定簽名檔</span>';
+                return;
+            }
+            savedSignatures.forEach(sig => {
+                list.innerHTML += `
+                <div class="flex-shrink-0 bg-white border border-slate-200 rounded-lg p-2 flex items-center gap-2 h-14 md:h-16 shadow-sm">
+                    <div class="text-xs font-bold text-slate-700">${sig.name}</div>
+                    <img src="${sig.imageData}" class="h-8 md:h-10 border bg-slate-50 rounded" alt="簽名">
+                    <button onclick="promptDelete(() => deleteSignature('${sig.id}'))" class="text-red-500 hover:text-red-700 font-bold text-xs bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition active:scale-95">✕</button>
+                </div>`;
+            });
+        }
         
         function updateMonthlySigSelectors() {
             [1,2,3].forEach(i => { 
