@@ -120,7 +120,6 @@
     <!-- 縮放與滾動容器 -->
     <div class="w-full overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl shadow-inner min-h-[60vh] p-2" id="scrollContainer">
         <div id="zoomArea" class="mx-auto" style="width: 850px;">
-            <!-- 實體表格容器 -->
             <div id="captureContainer" class="w-[850px] bg-white p-8 shadow-sm border border-gray-200 relative">
                 <div class="flex justify-between items-end mb-4 w-full">
                     <div class="w-1/4"></div>
@@ -163,8 +162,8 @@
                                 <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                                     <div><span id="monthTitle1" class="month-title-1">第二季 4月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
-                                        <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date1" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="填寫日期">
+                                        <span>填寫日期：</span>
+                                        <input type="text" id="date1" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="">
                                     </div>
                                 </div>
                                 <div class="p-3 bg-white space-y-3">
@@ -202,8 +201,8 @@
                                 <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                                     <div><span id="monthTitle2" class="month-title-2">第二季 5月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
-                                        <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date2" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="填寫日期">
+                                        <span>填寫日期：</span>
+                                        <input type="text" id="date2" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="">
                                     </div>
                                 </div>
                                 <div class="p-3 bg-white space-y-3">
@@ -241,8 +240,8 @@
                                 <div class="bg-gray-100 px-3 py-2 flex justify-between items-center border-b border-black font-bold h-10">
                                     <div><span id="monthTitle3" class="month-title-3">第二季 6月</span>訪談紀錄</div>
                                     <div class="flex items-center gap-1 font-normal text-sm self-center">
-                                        <span>訪談日期 / 時間：</span>
-                                        <input type="text" id="date3" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="填寫日期">
+                                        <span>填寫日期：</span>
+                                        <input type="text" id="date3" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold" placeholder="">
                                     </div>
                                 </div>
                                 <div class="p-3 bg-white space-y-3">
@@ -280,7 +279,7 @@
     </div>
 
     <!-- Modals -->
-    <!-- 名單比對表 Modal -->
+    <!-- 名單比對表 -->
     <div id="rosterModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-indigo-800 mb-3 flex justify-between items-center border-b pb-2">
@@ -301,7 +300,7 @@
         </div>
     </div>
 
-    <!-- 編輯員工 Modal -->
+    <!-- 編輯員工 -->
     <div id="empModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
@@ -330,7 +329,7 @@
         </div>
     </div>
 
-    <!-- 雲端電子簽名管理 Modal -->
+    <!-- 雲端電子簽名管理 -->
     <div id="sigManagerModal" class="fixed inset-0 bg-white z-[110] flex-col hidden overflow-hidden">
         <div id="rotationBanner" class="bg-amber-500 text-white text-xs py-2 px-4 text-center font-bold flex items-center justify-center gap-2 animate-pulse">
             <span>🔄 若畫面太小，建議旋轉手機至「橫向」以獲得最流暢的手寫簽名空間！</span>
@@ -354,13 +353,13 @@
         </div>
         <div class="border-t bg-white h-24 md:h-32 flex flex-col z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
             <div class="bg-slate-50 px-3 py-1.5 text-[11px] font-bold text-gray-500 border-b flex justify-between items-center">
-                <span>📁 現有雲端簽名檔清單 (點擊紅✕輸入 1016 可刪除)</span>
+                <span>📁 現有雲端簽名檔清單</span>
             </div>
             <div class="flex-1 overflow-x-auto overflow-y-hidden p-2 flex items-center gap-3" id="sigManagerListHorizontal"></div>
         </div>
     </div>
 
-    <!-- 歷史紀錄 Modal (智慧過濾與統計) -->
+    <!-- 歷史紀錄 -->
     <div id="historyModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-3xl w-full p-5 max-h-[80vh] flex flex-col">
             <h3 class="text-lg font-bold text-gray-800 mb-3 flex justify-between items-center">
@@ -398,7 +397,7 @@
         </div>
     </div>
 
-    <!-- 截圖預覽 Modal -->
+    <!-- 截圖預覽 -->
     <div id="screenshotModal" class="fixed inset-0 bg-black/80 z-[150] flex flex-col items-center justify-center hidden p-4">
         <div class="bg-white rounded-xl shadow-2xl p-4 max-w-full md:max-w-2xl w-full flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-2">
@@ -425,7 +424,7 @@
                 <svg class="h-8 w-8 text-red-600 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
             </div>
             <h3 class="text-xl font-black text-gray-900 mb-2 tracking-wide">機密資料刪除驗證</h3>
-            <p class="text-xs text-gray-500 mb-5 leading-relaxed font-medium">刪除雲端資料為不可逆之操作。<br>請輸入安全密碼以核實身分。</p>
+            <p class="text-xs text-gray-500 mb-5 leading-relaxed font-medium">刪除資料為不可逆之操作。<br>請輸入安全密碼以核實身分。</p>
             <input type="password" id="deletePasscodeField" maxlength="4" placeholder="請輸入密碼" class="w-full text-center text-2xl tracking-[0.5em] border-2 border-gray-200 rounded-xl py-3 px-3 focus:ring-4 focus:ring-red-500/20 focus:border-red-500 focus:outline-none mb-6 font-bold bg-gray-50 text-gray-800 transition-all">
             <div class="flex gap-3">
                 <button onclick="closeDeletePasswordModal()" class="flex-1 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition-all active:scale-95">取消</button>
@@ -434,7 +433,7 @@
         </div>
     </div>
 
-    <!-- 警告/提示 Modal -->
+    <!-- 動態專業提示與成功 Modal -->
     <div id="warningModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-amber-100 mb-4 animate-pulse">
@@ -446,52 +445,39 @@
         </div>
     </div>
 
-    <!-- 成功 Modal -->
     <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center transform scale-95 transition-transform duration-300">
             <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4 animate-bounce">
                 <svg class="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2" id="successModalTitle">儲存成功</h3>
-            <p class="text-sm text-gray-500 mb-6 leading-relaxed" id="successModalMsg">您的資料已成功同步！</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-2" id="successModalTitle">處理成功</h3>
+            <p class="text-sm text-gray-500 mb-6 leading-relaxed" id="successModalMsg">您的要求已成功執行！</p>
             <button onclick="closeSuccessModal()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-200 active:scale-98">確定</button>
         </div>
     </div>
 
-    <!-- 錯誤與診斷 Modal -->
     <div id="errorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center hidden p-4 transition-all duration-300">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 transform scale-95 transition-transform duration-300 flex flex-col max-h-[90vh]">
             <div class="text-center pb-3 border-b">
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
                     <svg class="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                 </div>
-                <h3 class="text-xl font-bold text-gray-900 mb-1" id="errorModalTitle">儲存失敗</h3>
-                <div class="bg-red-50 text-red-700 text-xs font-mono p-2.5 rounded-lg inline-block border border-red-100 max-w-full overflow-x-auto whitespace-pre" id="errorModalCode">FirebaseError: [code=permission-denied]</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1" id="errorModalTitle">處理失敗</h3>
+                <div class="bg-red-50 text-red-700 text-xs font-mono p-2.5 rounded-lg inline-block border border-red-100 max-w-full overflow-x-auto whitespace-pre" id="errorModalCode">FirebaseError: 未知錯誤</div>
             </div>
             <div class="overflow-y-auto my-4 space-y-4 text-sm text-gray-700 flex-1">
-                <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷：Firebase 驗證或規則受阻</p>
-                <p class="text-xs text-gray-500 leading-relaxed mt-1">您遇到此問題是因為新專案 `monthly-interview2` 尚未設定 Rules 或未啟用匿名登入。<br><br>請至新專案的 Firebase Console > Firestore Database > Rules，貼上以下代碼並「發佈」：</p>
-                <div class="relative bg-slate-900 text-slate-200 p-3 rounded-xl font-mono text-[11px] mt-2">
-                    <pre class="overflow-x-auto whitespace-pre-wrap">rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-                </div>
+                <p class="font-bold text-gray-800 flex items-center gap-1.5 text-red-600">🔒 診斷回報：</p>
+                <p class="text-xs text-gray-500 leading-relaxed mt-1" id="errorModalMsg">系統遇到存取阻擋或網路異常。</p>
             </div>
             <div class="flex gap-2 pt-2 border-t">
-                <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl transition-all text-xs">關閉</button>
+                <button onclick="closeErrorModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-all text-xs">關閉</button>
             </div>
         </div>
     </div>
 
-    <!-- 頂部浮動 Toast -->
+    <!-- 頂部 Toast -->
     <div id="msgBox" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-10 opacity-0 transition-all duration-300 z-[200] pointer-events-none flex items-center gap-2 px-5 py-3.5 rounded-full shadow-2xl font-bold text-sm bg-gray-900 text-white"></div>
 
-    <!-- ==================== 核心 JavaScript (全域刪除調度系統) ==================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -511,7 +497,6 @@ service cloud.firestore {
         const STORE_NAME = "中清行館";
         const STORE_AREA = "中二區"; 
 
-        // ★ Firebase monthly-interview2
         const firebaseConfig = {
             apiKey: "AIzaSyBdkQiNgK6SfL2N6XQZJUa_P_vi0ZoUby0",
             authDomain: "monthly-interview2.firebaseapp.com",
@@ -541,7 +526,7 @@ service cloud.firestore {
             setTimeout(() => { box.style.opacity = '0'; box.style.transform = 'translate(-50%, -20px)'; }, 3000);
         };
         
-        // --- 縮放引擎 ---
+        // --- 縮放與 Textarea 引擎 ---
         window.applyZoom = () => {
             document.getElementById('zoomArea').style.transform = `scale(${window.currentZoom})`;
             document.getElementById('zoomInput').value = Math.round(window.currentZoom * 100);
@@ -555,8 +540,6 @@ service cloud.firestore {
             if(isNaN(val)) val = 100; if(val < 40) val = 40; if(val > 200) val = 200;
             window.currentZoom = val / 100; window.applyZoom();
         };
-
-        // --- ★ Textarea 自動展開引擎 ★ ---
         window.autoResizeTextarea = (el) => {
             el.style.height = 'auto'; 
             el.style.height = (el.scrollHeight) + 'px';
@@ -569,7 +552,7 @@ service cloud.firestore {
             for(let i=1; i<=3; i++) document.getElementById(`monthTitle${i}`).innerText = `${text} ${m[i-1]}月`;
         };
 
-        // --- ★ 1016 全域機密刪除調度系統 ★ ---
+        // --- ★ 1016 全域機密刪除調度系統 (生命週期修復) ★ ---
         window.pendingDelete = { type: null, id: null, extra: null };
         
         window.requestDelete = (type, id, extra = null) => {
@@ -587,45 +570,45 @@ service cloud.firestore {
             document.querySelector('#deletePasswordModal > div').classList.remove('scale-100', 'opacity-100');
             document.querySelector('#deletePasswordModal > div').classList.add('scale-95', 'opacity-0');
             setTimeout(() => document.getElementById('deletePasswordModal').classList.add('hidden'), 300);
-            window.pendingDelete = { type: null, id: null, extra: null };
         };
 
         window.submitDeletePasscode = async () => {
             const pass = document.getElementById('deletePasscodeField').value;
             if (pass !== '1016') {
-                window.showMsg("❌ 安全密碼錯誤，拒絕存取！", "error");
+                window.showMsg("❌ 安全密碼錯誤，拒絕執行！", "error");
                 return;
             }
-            window.closeDeletePasswordModal();
 
+            // ★ 修復：先提取任務狀態，再關閉視窗 (避免變數提早被清空)
             const { type, id, extra } = window.pendingDelete;
+            window.closeDeletePasswordModal();
+            window.pendingDelete = { type: null, id: null, extra: null };
+
             if (!type || !id) return;
+            window.showMsg("🔄 正在執行安全銷毀...", "info");
 
             try {
                 if (type === 'record') {
                     const isOff = extra;
                     if(isOff) {
                         localStorage.removeItem(`offline_record_${id}`);
-                        window.showMsg("🗑️ 本地紀錄已刪除", "success");
                         window.filterHistoryList();
                     } else {
                         await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', id));
                         localStorage.removeItem(`offline_record_${id}`);
-                        window.showMsg("🗑️ 雲端紀錄已刪除", "success");
                     }
-                } else if (type === 'employee') {
-                    // 真實刪除雲端員工資料
+                    window.showSuccessModal("紀錄銷毀完成", "指定的訪談紀錄已成功從系統與雲端徹底刪除。");
+                } 
+                else if (type === 'employee') {
                     await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'employees', `${STORE_ID}_${id}`));
-                    window.showMsg("🗑️ 員工已從資料庫刪除", "success");
-                } else if (type === 'signature') {
-                    // 真實刪除雲端簽名檔
+                    window.showSuccessModal("員工名單銷毀完成", `員工 (ID: ${id}) 已成功從雲端資料庫抹除。`);
+                } 
+                else if (type === 'signature') {
                     await deleteDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'signatures', id));
-                    window.showMsg("🗑️ 簽名檔已從雲端移除", "success");
+                    window.showSuccessModal("簽名檔銷毀完成", "指定的主管電子簽章已永久從雲端移除。");
                 }
             } catch (err) {
-                window.showMsg("❌ 刪除失敗: " + err.message, "error");
-            } finally {
-                window.pendingDelete = { type: null, id: null, extra: null };
+                window.showErrorModal("銷毀失敗", "資料刪除過程中發生異常，請確認 Firebase Rules 設定為允許寫入。", err.message || err.toString());
             }
         };
 
@@ -639,7 +622,31 @@ service cloud.firestore {
             });
         }
 
-        // --- Modals ---
+        // --- 專業提示對話框 ---
+        window.showSuccessModal = (title, msg, callback = null) => {
+            document.getElementById('successModalTitle').innerText = title; document.getElementById('successModalMsg').innerText = msg;
+            successModalCallback = callback;
+            document.getElementById('successModal').classList.remove('hidden');
+            setTimeout(() => { document.querySelector('#successModal > div').classList.remove('scale-95'); document.querySelector('#successModal > div').classList.add('scale-100'); }, 10);
+        };
+        window.closeSuccessModal = () => { document.getElementById('successModal').classList.add('hidden'); if(successModalCallback) { successModalCallback(); successModalCallback = null; } };
+        
+        window.showWarningModal = (title, msg) => {
+            document.getElementById('warningModalTitle').innerText = title; document.getElementById('warningModalMsg').innerText = msg;
+            document.getElementById('warningModal').classList.remove('hidden');
+            setTimeout(() => { document.querySelector('#warningModal > div').classList.remove('scale-95'); document.querySelector('#warningModal > div').classList.add('scale-100'); }, 10);
+        };
+        window.closeWarningModal = () => document.getElementById('warningModal').classList.add('hidden');
+        
+        window.showErrorModal = (title, msg, code) => {
+            document.getElementById('errorModalTitle').innerText = title; 
+            document.getElementById('errorModalMsg').innerText = msg;
+            document.getElementById('errorModalCode').innerText = code;
+            document.getElementById('errorModal').classList.remove('hidden');
+        };
+        window.closeErrorModal = () => document.getElementById('errorModal').classList.add('hidden');
+
+        // --- Modals 控制 ---
         window.toggleRosterModal = (show) => { document.getElementById('rosterModal').classList[show ? 'remove' : 'add']('hidden'); if(show) renderRosterTable(); };
         function renderRosterTable() {
             const tbody = document.getElementById('rosterTableBody'); tbody.innerHTML = "";
@@ -650,7 +657,6 @@ service cloud.firestore {
 
         window.toggleEmpModal = (show) => { document.getElementById('empModal').classList[show ? 'remove' : 'add']('hidden'); if(show) renderEmployeeTable(); };
 
-        // 歷史紀錄快選
         window.setHistoryQuarterFilter = (q, btnElement) => {
             window.currentHistoryQuarterFilter = q;
             document.querySelectorAll('.q-btn').forEach(btn => btn.className = "q-btn px-3 py-1.5 text-xs rounded-full bg-white border text-slate-600 hover:bg-slate-100 transition font-bold shadow-sm");
@@ -661,21 +667,6 @@ service cloud.firestore {
         window.toggleHistoryModal = (show) => { document.getElementById('historyModal').classList[show ? 'remove' : 'add']('hidden'); if(show) window.filterHistoryList(); };
         window.toggleScreenshotModal = (show) => document.getElementById('screenshotModal').classList[show ? 'remove' : 'add']('hidden');
         
-        window.showSuccessModal = (title, msg, callback = null) => {
-            document.getElementById('successModalTitle').innerText = title; document.getElementById('successModalMsg').innerText = msg;
-            successModalCallback = callback;
-            document.getElementById('successModal').classList.remove('hidden');
-            setTimeout(() => { document.querySelector('#successModal > div').classList.remove('scale-95'); document.querySelector('#successModal > div').classList.add('scale-100'); }, 10);
-        };
-        window.closeSuccessModal = () => { document.getElementById('successModal').classList.add('hidden'); if(successModalCallback) { successModalCallback(); successModalCallback = null; } };
-        window.showWarningModal = (title, msg) => {
-            document.getElementById('warningModalTitle').innerText = title; document.getElementById('warningModalMsg').innerText = msg;
-            document.getElementById('warningModal').classList.remove('hidden');
-            setTimeout(() => { document.querySelector('#warningModal > div').classList.remove('scale-95'); document.querySelector('#warningModal > div').classList.add('scale-100'); }, 10);
-        };
-        window.closeWarningModal = () => document.getElementById('warningModal').classList.add('hidden');
-        window.closeErrorModal = () => document.getElementById('errorModal').classList.add('hidden');
-
         window.handleEmpSelect = (id) => {
             const match = employees.find(e => e.id === id);
             if(match) { document.getElementById('empName').value = match.name; document.getElementById('empId').value = match.id; document.getElementById('empTitle').value = match.title || ""; } 
@@ -723,7 +714,7 @@ service cloud.firestore {
             return match ? match.imageData : "";
         }
 
-        // --- 核心寫入 ---
+        // --- 核心寫入與截圖 ---
         window.saveRecordToCloud = async () => {
             const year = document.getElementById('yearInput').value.trim();
             const quarter = document.getElementById('quarterSelect').value;
@@ -756,12 +747,10 @@ service cloud.firestore {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
                 window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至雲端！\n點擊下方「確定」將為您清空選取，載入全新空白表單。", () => window.location.reload());
             } catch (err) {
-                document.getElementById('errorModalCode').innerText = err.message || err.toString();
-                document.getElementById('errorModal').classList.remove('hidden');
+                window.showErrorModal("雲端儲存失敗", "寫入過程遭到 Firebase 阻擋，請確認設定。", err.message || err.toString());
             }
         };
 
-        // --- 截圖 ---
         window.generateScreenshot = () => {
             window.showMsg("📸 正在為您擷取高解析相片...", "info");
             const container = document.getElementById('captureContainer');
@@ -786,7 +775,7 @@ service cloud.firestore {
             });
         };
 
-        // --- 其他員工與歷史操作 ---
+        // --- 其他員工操作 ---
         window.addEmployee = async (e) => {
             e.preventDefault();
             const id = document.getElementById('newId').value.trim(), name = document.getElementById('newName').value.trim(), title = document.getElementById('newTitle').value.trim();
@@ -796,7 +785,7 @@ service cloud.firestore {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'employees', `${STORE_ID}_${id}`), newEmp);
                 window.showMsg("🎉 員工新增成功", "success");
                 document.getElementById('newId').value = ""; document.getElementById('newName').value = ""; document.getElementById('newTitle').value = "";
-            } catch(err) { window.showMsg("❌ 新增失敗", "error"); }
+            } catch(err) { window.showErrorModal("新增失敗", "無法寫入員工資料。", err.message); }
         };
 
         function renderEmployeeBrief() {
@@ -862,7 +851,6 @@ service cloud.firestore {
                 vEl.value = target.months[i-1].visitContent;
                 fEl.value = target.months[i-1].empFeedback;
                 
-                // ★ 強制觸發 Auto-Resize 展開高度 ★
                 setTimeout(() => { window.autoResizeTextarea(vEl); window.autoResizeTextarea(fEl); }, 10);
 
                 document.getElementById(`sigSelect${i}`).value = target.selectedSigIds[i-1] || "";
@@ -908,7 +896,7 @@ service cloud.firestore {
                 document.getElementById('newSigName').value = ""; window.clearManagerSigCanvas(); 
                 window.showSuccessModal("簽名檔錄入成功", `🎉 主管「${name}」的電子簽章已安全存入雲端！`);
             } catch (err) {
-                document.getElementById('errorModalCode').innerText = err.message || err.toString(); document.getElementById('errorModal').classList.remove('hidden');
+                window.showErrorModal("雲端儲存失敗", "簽名檔寫入過程遭到 Firebase 阻擋。", err.message || err.toString());
             }
         };
         window.clearManagerSigCanvas = () => { if(managerSigPad) managerSigPad.ctx.clearRect(0,0,managerSigPad.canvas.width, managerSigPad.canvas.height); };
