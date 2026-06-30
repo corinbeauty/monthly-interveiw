@@ -1094,6 +1094,7 @@
                 })), updatedAt: new Date().toLocaleString()
             };
 
+            // 先暫存於 localStorage，作為離線備用機制
             localStorage.setItem(`offline_record_${recordId}`, JSON.stringify(payload));
             if(!user || !db) {
                 window.showSuccessModal("本機暫存成功", "雲端未連線，資料已安全暫存於本機！\n待新資料庫開通後將自動同步，點擊確定將重置全新空白頁面。", () => window.location.reload());
@@ -1104,6 +1105,10 @@
             try {
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
                 window.currentLoadedRecordId = recordId; 
+                
+                // ★ 核心修改：雲端上傳成功後，清除本機的 localStorage 暫存，避免容量限制爆滿
+                localStorage.removeItem(`offline_record_${recordId}`);
+                
                 window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至雲端！\n點擊下方「確定」將為您重置全新空白表單。", () => window.location.reload());
             } catch (err) {
                 window.showErrorModal("雲端儲存失敗", "寫入過程遭到 Firebase 阻擋，請確認設定。", err.message || err.toString());
