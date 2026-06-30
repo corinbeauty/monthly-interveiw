@@ -106,6 +106,7 @@
             <h3 class="text-sm font-bold text-gray-700 mb-3 flex flex-wrap items-center justify-between border-b pb-2 gap-2">
                 <span id="empDatabaseTitle">👥 雲端資料庫進度</span>
                 <div class="flex gap-2">
+                    <button onclick="toggleSpecialSearchModal(true)" class="text-xs text-purple-600 font-bold hover:underline border border-purple-200 bg-purple-50 px-2 py-1 rounded transition hover:bg-purple-100">🔍 特別訪談查詢</button>
                     <button onclick="toggleSigManagerModal(true)" class="text-xs text-blue-600 font-bold hover:underline border border-blue-200 bg-blue-50 px-2 py-1 rounded transition hover:bg-blue-100">✍️ 管理簽名檔</button>
                     <button onclick="toggleRosterModal(true)" class="text-xs text-indigo-600 font-bold hover:underline border border-indigo-200 bg-indigo-50 px-2 py-1 rounded transition hover:bg-indigo-100">📋 名單比對表</button>
                     <button onclick="toggleEmpModal(true)" class="text-xs text-green-600 font-bold hover:underline border border-green-200 bg-green-50 px-2 py-1 rounded transition hover:bg-green-100">+ 編輯員工</button>
@@ -170,14 +171,17 @@
     <div class="w-full overflow-x-auto bg-slate-50 border border-slate-200 rounded-xl shadow-inner min-h-[60vh] p-2" id="scrollContainer">
         <div id="zoomArea" class="mx-auto" style="width: 850px;">
             <div id="captureContainer" class="w-[850px] bg-white p-8 shadow-sm border border-gray-200 relative">
-                <div class="flex justify-between items-end mb-4 w-full">
+                <div class="flex justify-between items-start mb-4 w-full">
                     <div class="w-1/4"></div>
-                    <div class="text-center w-2/4">
+                    <div class="text-center w-2/4 pt-4">
                         <h1 class="text-xl md:text-2xl font-bold tracking-wider leading-relaxed">
                             休閒部門店師傅/員工 <span id="titleYear" class="border-b border-black px-4">115</span> 年度<br>訪談紀錄
                         </h1>
                     </div>
-                    <div class="text-right w-1/4 text-lg font-bold">(表 2)</div>
+                    <div class="text-right w-1/4 text-lg font-bold flex flex-col items-end justify-between">
+                        <div>(表 2)</div>
+                        <button id="addSpecialBtn" onclick="toggleSpecialInterviewBlock()" class="hidden text-xs bg-purple-600 text-white px-2 py-1 mt-2 rounded shadow-sm hover:bg-purple-700 transition w-max">➕ 追加特別訪談</button>
+                    </div>
                 </div>
 
                 <div class="flex justify-between mb-2 text-base font-semibold px-2">
@@ -316,6 +320,45 @@
                                 </div>
                             </td>
                         </tr>
+
+                        <!-- ★ 特別訪談區塊 -->
+                        <tr id="specialInterviewRow" class="hidden">
+                            <td colspan="7" class="p-0 border-t-2 border-purple-500">
+                                <div class="bg-purple-100 px-3 py-2 flex justify-between items-center border-b border-purple-500 font-bold h-10 text-purple-900">
+                                    <div>★ 特別訪談紀錄</div>
+                                    <div class="flex items-center gap-1 font-normal text-sm self-center">
+                                        <span>填寫日期：</span>
+                                        <input type="text" id="date4" class="bg-transparent w-28 text-center focus:outline-none py-1 h-8 text-base font-bold text-purple-900 placeholder-purple-400" placeholder="">
+                                    </div>
+                                </div>
+                                <div class="p-3 bg-purple-50/50 space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2 text-purple-800">訪：</span>
+                                        <textarea id="visit4" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-purple-100 leading-relaxed text-sm p-0 m-0 min-h-[40px] bg-transparent" rows="2"></textarea>
+                                    </div>
+                                    <div class="flex items-start border-t border-dashed border-purple-300 pt-3">
+                                        <span class="font-bold flex-shrink-0 text-base select-none mr-2 text-purple-800">回：</span>
+                                        <textarea id="feedback4" oninput="autoResizeTextarea(this)" class="w-full border-none resize-none overflow-hidden focus:outline-none focus:bg-purple-100 leading-relaxed text-sm p-0 m-0 min-h-[40px] bg-transparent" rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="border-t border-purple-500 px-3 py-2 flex justify-between items-end bg-purple-100/80 gap-2 min-h-[80px]">
+                                    <div class="text-[11px] text-purple-600 font-bold self-start mt-1">訪談原因 / 回饋重點 / 建議與改善</div>
+                                    <div class="flex flex-col items-end gap-1.5">
+                                        <div class="flex items-center gap-1 no-capture" data-html2canvas-ignore="true">
+                                            <span class="text-[10px] text-purple-600 font-normal">套用簽名檔:</span>
+                                            <select id="sigSelect4" onchange="applySavedSignatureToCanvas(4, this.value)" class="text-[10px] border border-purple-300 rounded p-1 bg-white w-[100px] focus:outline-none text-purple-800"><option value="">-- 選擇 --</option></select>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-bold text-xs text-purple-900">特別訪談主管：</span>
+                                            <div class="relative w-40 h-16 border border-dashed border-purple-400 bg-white rounded overflow-hidden shadow-sm flex items-center justify-center p-0.5">
+                                                <span id="sigPlaceholder4" class="text-purple-300 text-xs font-medium">未選擇</span>
+                                                <img id="sigImg4" class="w-full h-full object-contain hidden" alt="簽名">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -323,6 +366,30 @@
     </div>
 
     <!-- Modals -->
+
+    <!-- 特別訪談查詢 Modal -->
+    <div id="specialSearchModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-xl shadow-xl max-w-3xl w-full p-5 max-h-[80vh] flex flex-col">
+            <h3 class="text-lg font-bold text-purple-800 mb-3 flex justify-between items-center border-b pb-2">
+                <span>🔍 特別訪談查詢列表</span>
+                <button onclick="toggleSpecialSearchModal(false)" class="text-gray-400 hover:text-gray-600 font-bold text-xl">✕</button>
+            </h3>
+            <div class="mb-3">
+                <input type="text" id="specialSearchInput" oninput="renderSpecialSearchList()" placeholder="輸入姓名或編號快速過濾..." class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-purple-500 outline-none shadow-sm">
+            </div>
+            <div class="overflow-y-auto flex-1 border rounded-lg bg-white">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-purple-50 uppercase text-xs text-purple-800 font-bold border-b sticky top-0 z-10 shadow-sm">
+                        <tr><th class="p-3">季度/年度</th><th class="p-3">姓名(編號)</th><th class="p-3">訪談日期</th><th class="p-3 text-center">操作</th></tr>
+                    </thead>
+                    <tbody id="specialSearchTableBody"></tbody>
+                </table>
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button onclick="toggleSpecialSearchModal(false)" class="bg-purple-800 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-purple-900 text-sm shadow-md">關閉視窗</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 主管專屬名單 Modal -->
     <div id="supervisorListModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden p-4">
@@ -778,6 +845,52 @@
             window.closeConfirmModal();
         };
 
+        // --- 特別訪談邏輯 ---
+        window.toggleSpecialInterviewBlock = () => {
+            const row = document.getElementById('specialInterviewRow');
+            if (row.classList.contains('hidden')) {
+                row.classList.remove('hidden');
+                setTimeout(() => {
+                    const dateInput = document.getElementById('date4');
+                    if(dateInput) { dateInput.focus(); dateInput.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+                }, 100);
+            }
+        };
+
+        window.toggleSpecialSearchModal = (show) => {
+            document.getElementById('specialSearchModal').classList[show ? 'remove' : 'add']('hidden');
+            if(show) window.renderSpecialSearchList();
+        };
+
+        window.renderSpecialSearchList = () => {
+            const queryVal = document.getElementById('specialSearchInput').value.toLowerCase().trim();
+            const tbody = document.getElementById('specialSearchTableBody');
+            tbody.innerHTML = "";
+
+            // 過濾出有填寫特別訪談的紀錄
+            let spRecs = loadedRecords.filter(r => r.special && (r.special.date || r.special.visitContent || r.special.empFeedback));
+
+            if(queryVal !== "") {
+                spRecs = spRecs.filter(r => (r.empName && r.empName.toLowerCase().includes(queryVal)) || (r.empId && r.empId.toLowerCase().includes(queryVal)));
+            }
+
+            if(spRecs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">查無特別訪談紀錄</td></tr>`;
+                return;
+            }
+
+            spRecs.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+            spRecs.forEach(r => {
+                tbody.innerHTML += `<tr class="border-b hover:bg-purple-50 transition">
+                <td class="p-3">${r.year}年 Q${r.quarter}</td>
+                <td class="p-3 font-bold text-purple-700">${r.empName} (${r.empId})</td>
+                <td class="p-3 text-gray-600">${r.special.date || '未填寫日期'}</td>
+                <td class="p-3 text-center flex justify-center">
+                    <button onclick="window.loadSelectedRecord('${r.id}', false); window.toggleSpecialSearchModal(false);" class="bg-purple-100 text-purple-700 font-bold hover:bg-purple-200 py-1 px-3 rounded-lg transition border border-purple-200 shadow-sm">載入表單</button>
+                </td></tr>`;
+            });
+        };
+
         // --- 主管專屬名單 Modal (三個月獨立色彩) ---
         window.toggleSupervisorListModal = (show) => {
             document.getElementById('supervisorListModal').classList[show ? 'remove' : 'add']('hidden');
@@ -808,8 +921,8 @@
                 // 照員工編號排序
                 list.sort((a,b) => parseInt(a.id) - parseInt(b.id));
                 list.forEach(item => {
-                    const monthText = m[item.monthIdx] + '月';
-                    const mColorClass = monthColors[item.monthIdx] || 'bg-slate-100 border-slate-200 text-slate-600';
+                    const monthText = item.monthIdx === 3 ? '特別' : m[item.monthIdx] + '月';
+                    const mColorClass = item.monthIdx === 3 ? 'bg-purple-100 border-purple-300 text-purple-800' : (monthColors[item.monthIdx] || 'bg-slate-100 border-slate-200 text-slate-600');
 
                     contentDiv.innerHTML += `
                     <div class="flex justify-between items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm hover:border-indigo-400 hover:bg-indigo-50/50 transition">
@@ -884,13 +997,29 @@
         
         window.handleEmpSelect = (id) => {
             const match = employees.find(e => e.id === id);
-            if(match) { document.getElementById('empName').value = match.name; document.getElementById('empId').value = match.id; document.getElementById('empTitle').value = match.title || ""; } 
-            else { document.getElementById('empName').value = ""; document.getElementById('empId').value = ""; document.getElementById('empTitle').value = ""; }
+            if(match) { 
+                document.getElementById('empName').value = match.name; 
+                document.getElementById('empId').value = match.id; 
+                document.getElementById('empTitle').value = match.title || ""; 
+                document.getElementById('addSpecialBtn').classList.remove('hidden');
+            } else { 
+                document.getElementById('empName').value = ""; 
+                document.getElementById('empId').value = ""; 
+                document.getElementById('empTitle').value = ""; 
+                document.getElementById('addSpecialBtn').classList.add('hidden');
+            }
         };
         window.handleIdInput = () => {
             const id = document.getElementById('empId').value.trim(); const match = employees.find(e => e.id === id);
-            if(match) { document.getElementById('empName').value = match.name; document.getElementById('empTitle').value = match.title || ""; } 
-            else { document.getElementById('empName').value = ""; document.getElementById('empTitle').value = ""; }
+            if(match) { 
+                document.getElementById('empName').value = match.name; 
+                document.getElementById('empTitle').value = match.title || ""; 
+                document.getElementById('addSpecialBtn').classList.remove('hidden');
+            } else { 
+                document.getElementById('empName').value = ""; 
+                document.getElementById('empTitle').value = ""; 
+                document.getElementById('addSpecialBtn').classList.add('hidden');
+            }
         };
 
         // --- Excel Export (SheetJS) ---
@@ -904,6 +1033,7 @@
             }
 
             const data = [];
+            const exportedSpecialIds = new Set(); // 避免同季特別訪談重複匯出
 
             for (let m = mStart; m <= mEnd; m++) {
                 const q = Math.ceil(m / 3);
@@ -912,17 +1042,32 @@
                 const targetRecords = loadedRecords.filter(r => r.year === y && parseInt(r.quarter) === q);
 
                 targetRecords.forEach(r => {
-                    if(!r.months || !r.months[idx]) return;
-                    const monthData = r.months[idx];
-                    const contentCount = (monthData.visitContent + monthData.empFeedback).replace(/[^\u4E00-\u9FA5]/g, '').length;
-                    
-                    data.push({
-                        "年度": y + "年", "月份": m + "月", "區域": r.area, "店別": r.store,
-                        "員工編號": r.empId, "員工姓名": r.empName, "職稱": r.empTitle || "",
-                        "訪談內容": monthData.visitContent, "回饋內容": monthData.empFeedback,
-                        "中文字數": contentCount,
-                        "狀態": contentCount >= 20 ? "達標" : "未達標"
-                    });
+                    // 一般月份
+                    if(r.months && r.months[idx]) {
+                        const monthData = r.months[idx];
+                        const contentCount = (monthData.visitContent + monthData.empFeedback).replace(/[^\u4E00-\u9FA5]/g, '').length;
+                        
+                        data.push({
+                            "年度": y + "年", "月份": m + "月", "區域": r.area, "店別": r.store,
+                            "員工編號": r.empId, "員工姓名": r.empName, "職稱": r.empTitle || "",
+                            "訪談內容": monthData.visitContent, "回饋內容": monthData.empFeedback,
+                            "中文字數": contentCount,
+                            "狀態": contentCount >= 20 ? "達標" : "未達標"
+                        });
+                    }
+
+                    // 特別訪談 (一季只匯出一次，不跟隨月份重複)
+                    if (r.special && (r.special.visitContent || r.special.empFeedback) && !exportedSpecialIds.has(r.id)) {
+                        exportedSpecialIds.add(r.id);
+                        const specialCount = (r.special.visitContent + r.special.empFeedback).replace(/[^\u4E00-\u9FA5]/g, '').length;
+                        data.push({
+                            "年度": y + "年", "月份": "特別訪談", "區域": r.area, "店別": r.store,
+                            "員工編號": r.empId, "員工姓名": r.empName, "職稱": r.empTitle || "",
+                            "訪談內容": r.special.visitContent, "回饋內容": r.special.empFeedback,
+                            "中文字數": specialCount,
+                            "狀態": specialCount >= 20 ? "達標" : "未達標"
+                        });
+                    }
                 });
             }
 
@@ -1004,6 +1149,7 @@
                     isRecordsLoaded = true;
                     checkAndRenderDataState();
                     if(!document.getElementById('historyModal').classList.contains('hidden')) window.filterHistoryList();
+                    if(!document.getElementById('specialSearchModal').classList.contains('hidden')) window.renderSpecialSearchList();
                 },
                 err => {
                     console.error("Error fetching records:", err);
@@ -1040,17 +1186,16 @@
             
             if (!year || !empId || !empName) return window.showWarningModal("資料未填妥", "請確實填寫表格上方的『年度』、『編號』與『姓名』欄位！");
 
-            // --- 新增：嚴格檢查各月份內容是否完整 ---
             let errorMsg = "";
             let hasAnyData = false;
 
+            // 檢查 1~3 月內容
             for(let i=1; i<=3; i++) {
                 const dateVal = document.getElementById(`date${i}`).value.trim();
                 const visitVal = document.getElementById(`visit${i}`).value.trim();
                 const feedbackVal = document.getElementById(`feedback${i}`).value.trim();
                 const sigVal = document.getElementById(`sigSelect${i}`).value;
 
-                // 只要該月有填寫任何一個欄位，就進行完整度檢查
                 if (dateVal || visitVal || feedbackVal || sigVal) {
                     hasAnyData = true;
                     let missing = [];
@@ -1066,14 +1211,36 @@
                 }
             }
 
+            // 檢查 特別訪談 內容
+            const specialData = {
+                date: document.getElementById('date4').value.trim(),
+                visitContent: document.getElementById('visit4').value.trim(),
+                empFeedback: document.getElementById('feedback4').value.trim(),
+                sigId: document.getElementById('sigSelect4').value,
+                signature: getSelectedSignatureData(4)
+            };
+            const hasSpecial = specialData.date || specialData.visitContent || specialData.empFeedback || specialData.sigId;
+
+            if (hasSpecial) {
+                hasAnyData = true;
+                let missing = [];
+                if (!specialData.date) missing.push("填寫日期");
+                if (!specialData.visitContent) missing.push("訪談內容 (訪)");
+                if (!specialData.empFeedback) missing.push("回饋內容 (回)");
+                if (!specialData.sigId) missing.push("套用簽名檔");
+
+                if (missing.length > 0) {
+                    errorMsg += `\n📍 ★ 特別訪談 缺少：${missing.join("、")}`;
+                }
+            }
+
             if (!hasAnyData) {
-                return window.showWarningModal("資料空白", "請至少填寫一個月的訪談紀錄！\n(包含填寫日期、訪談內容、回饋內容及套用簽名檔)");
+                return window.showWarningModal("資料空白", "請至少填寫一個月的訪談紀錄或特別訪談！\n(包含填寫日期、訪談內容、回饋內容及套用簽名檔)");
             }
 
             if (errorMsg) {
-                return window.showWarningModal("資料填寫不完整", "您有部分月份的紀錄未填寫齊全，請補齊後再儲存：\n" + errorMsg);
+                return window.showWarningModal("資料填寫不完整", "您有部分紀錄未填寫齊全，請補齊後再儲存：\n" + errorMsg);
             }
-            // --- 結束檢查 ---
 
             const recordId = `${STORE_ID}_${year}_Q${quarter}_${empId}`;
 
@@ -1091,7 +1258,9 @@
                     visitContent: document.getElementById(`visit${i}`).value,
                     empFeedback: document.getElementById(`feedback${i}`).value,
                     signature: getSelectedSignatureData(i) 
-                })), updatedAt: new Date().toLocaleString()
+                })), 
+                special: hasSpecial ? specialData : null,
+                updatedAt: new Date().toLocaleString()
             };
 
             // 先暫存於 localStorage，作為離線備用機制
@@ -1106,7 +1275,7 @@
                 await setDoc(doc(db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'records', recordId), payload);
                 window.currentLoadedRecordId = recordId; 
                 
-                // ★ 核心修改：雲端上傳成功後，清除本機的 localStorage 暫存，避免容量限制爆滿
+                // 雲端上傳成功後，清除本機的 localStorage 暫存
                 localStorage.removeItem(`offline_record_${recordId}`);
                 
                 window.showSuccessModal("雲端儲存成功", "🎉 訪談紀錄已完美同步至雲端！\n點擊下方「確定」將為您重置全新空白表單。", () => window.location.reload());
@@ -1180,29 +1349,38 @@
                 const rec = curQRecordsMap.get(e.id);
                 let isDoneThisMonth = false;
 
-                if (rec && rec.months) {
-                    // 掃描本季所有月份
-                    for (let i = 0; i < 3; i++) {
-                        if (rec.months[i]) {
-                            const charCount = (rec.months[i].visitContent + rec.months[i].empFeedback).replace(/[^\u4E00-\u9FA5]/g, '').length;
-                            if (charCount >= 20) {
-                                // 只要該月達標，就記錄給當季累積名單
-                                if (rec.selectedSigIds && rec.selectedSigIds[i]) {
-                                    const qSig = rec.selectedSigIds[i];
-                                    if (!quarterSigMap[qSig]) quarterSigMap[qSig] = [];
-                                    quarterSigMap[qSig].push({ id: e.id, name: e.name, recordId: rec.id, monthIdx: i });
-                                }
-                                
-                                // 若剛好是「現實當月」，才判定該員工在名單為「已訪談」並記錄當月統計名單
-                                if (i === mIdx) {
-                                    isDoneThisMonth = true;
+                if (rec) {
+                    // 掃描本季所有月份 1~3
+                    if (rec.months) {
+                        for (let i = 0; i < 3; i++) {
+                            if (rec.months[i]) {
+                                const charCount = (rec.months[i].visitContent + rec.months[i].empFeedback).replace(/[^\u4E00-\u9FA5]/g, '').length;
+                                if (charCount >= 20) {
                                     if (rec.selectedSigIds && rec.selectedSigIds[i]) {
-                                        const mSig = rec.selectedSigIds[i];
-                                        if (!monthSigMap[mSig]) monthSigMap[mSig] = [];
-                                        monthSigMap[mSig].push({ id: e.id, name: e.name, recordId: rec.id, monthIdx: i });
+                                        const qSig = rec.selectedSigIds[i];
+                                        if (!quarterSigMap[qSig]) quarterSigMap[qSig] = [];
+                                        quarterSigMap[qSig].push({ id: e.id, name: e.name, recordId: rec.id, monthIdx: i });
+                                    }
+                                    
+                                    if (i === mIdx) {
+                                        isDoneThisMonth = true;
+                                        if (rec.selectedSigIds && rec.selectedSigIds[i]) {
+                                            const mSig = rec.selectedSigIds[i];
+                                            if (!monthSigMap[mSig]) monthSigMap[mSig] = [];
+                                            monthSigMap[mSig].push({ id: e.id, name: e.name, recordId: rec.id, monthIdx: i });
+                                        }
                                     }
                                 }
                             }
+                        }
+                    }
+                    // 掃描特別訪談
+                    if (rec.special) {
+                        const charCount = (rec.special.visitContent + rec.special.empFeedback).replace(/[^\u4E00-\u9FA5]/g, '').length;
+                        if (charCount >= 20 && rec.special.sigId) {
+                            const spSig = rec.special.sigId;
+                            if (!quarterSigMap[spSig]) quarterSigMap[spSig] = [];
+                            quarterSigMap[spSig].push({ id: e.id, name: e.name, recordId: rec.id, monthIdx: 3 }); // 3 代表特別訪談
                         }
                     }
                 }
@@ -1232,7 +1410,7 @@
                         window.handleEmpSelect(e.id); 
                         window.currentLoadedRecordId = null; 
                         
-                        [1,2,3].forEach(idx => {
+                        [1,2,3,4].forEach(idx => {
                             document.getElementById(`date${idx}`).value = "";
                             const vEl = document.getElementById(`visit${idx}`);
                             const fEl = document.getElementById(`feedback${idx}`);
@@ -1241,6 +1419,7 @@
                             document.getElementById(`sigSelect${idx}`).value = "";
                             window.applySavedSignatureToCanvas(idx, "");
                         });
+                        document.getElementById('specialInterviewRow').classList.add('hidden');
                         document.getElementById('extraCol').value = "";
                         window.showMsg(`載入空白表單: ${e.name} (切換至 ${realM}月所在季度)`, "info");
                         window.scrollToForm(); // 空白表單也自動往下捲動
@@ -1319,7 +1498,6 @@
                 }
             });
 
-            // 只要當季有數字（代表本季至少有一筆達標），就顯示整個統計框架
             if (hasQuarterStats) {
                 supervisorStatsContainer.classList.remove('hidden');
                 supervisorStatsContainer.classList.add('flex');
@@ -1424,6 +1602,7 @@
             document.getElementById('empTitle').value = target.empTitle || "";
             if(target.extraCol !== undefined) document.getElementById('extraCol').value = target.extraCol;
             
+            // 載入 1-3 月
             [1,2,3].forEach(i => {
                 const mData = (target.months && target.months[i-1]) ? target.months[i-1] : { date: "", visitContent: "", empFeedback: "" };
                 const sigId = (target.selectedSigIds && target.selectedSigIds[i-1]) ? target.selectedSigIds[i-1] : "";
@@ -1440,6 +1619,26 @@
                 document.getElementById(`sigSelect${i}`).value = sigId;
                 window.applySavedSignatureToCanvas(i, sigId);
             });
+
+            // 載入特別訪談
+            const sData = target.special || { date: "", visitContent: "", empFeedback: "", sigId: "" };
+            document.getElementById('date4').value = sData.date || "";
+            const vEl4 = document.getElementById('visit4');
+            const fEl4 = document.getElementById('feedback4');
+            vEl4.value = sData.visitContent || "";
+            fEl4.value = sData.empFeedback || "";
+            setTimeout(() => { window.autoResizeTextarea(vEl4); window.autoResizeTextarea(fEl4); }, 10);
+            document.getElementById('sigSelect4').value = sData.sigId || "";
+            window.applySavedSignatureToCanvas(4, sData.sigId || "");
+
+            // 若有資料則顯示特別訪談區塊
+            if(target.special && (sData.date || sData.visitContent || sData.empFeedback || sData.sigId)) {
+                document.getElementById('specialInterviewRow').classList.remove('hidden');
+            } else {
+                document.getElementById('specialInterviewRow').classList.add('hidden');
+            }
+
+            document.getElementById('addSpecialBtn').classList.remove('hidden');
             window.currentLoadedRecordId = id; 
             
             window.updateQuarterLayout();
@@ -1611,7 +1810,7 @@
         }
         
         function updateMonthlySigSelectors() {
-            [1,2,3].forEach(i => { 
+            [1,2,3,4].forEach(i => { 
                 const sel=document.getElementById(`sigSelect${i}`); const v=sel.value; sel.innerHTML='<option value="">-- 選擇 --</option>'; 
                 savedSignatures.forEach(s=>sel.innerHTML+=`<option value="${s.id}">${s.name}</option>`); sel.value=v; 
             });
