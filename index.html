@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>休閒部門店師傅/員工 訪談紀錄表 - 中清行館專用版 (V2.2)</title>
+    <title>休閒部門店師傅/員工 訪談紀錄表 - 中清行館專用版 (V2.3)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SheetJS (xlsx) for Excel Export -->
@@ -134,15 +134,15 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">當前季度 <span class="text-xs text-indigo-500">(最高權限可切換)</span></label>
-                    <select id="quarterSelect" onchange="window.updateQuarterLayout(); window.resetForm();" class="w-full border rounded p-2 bg-gray-200 text-gray-500 font-bold cursor-not-allowed appearance-none transition-all" disabled>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">當前季度</label>
+                    <select id="quarterSelect" onchange="window.updateQuarterLayout(); window.resetForm(); window.renderEmployeeBrief();" class="w-full border rounded p-2 bg-gray-200 text-gray-500 font-bold cursor-not-allowed appearance-none transition-all" disabled>
                         <option value="1">第一季 (1 - 3 月)</option><option value="2">第二季 (4 - 6 月)</option>
                         <option value="3">第三季 (7 - 9 月)</option><option value="4">第四季 (10 - 12 月)</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">年度 (民國) <span class="text-xs text-indigo-500">(最高權限可切換)</span></label>
-                    <input type="number" id="yearInput" onchange="document.getElementById('titleYear').innerText=this.value; window.resetForm();" class="w-full border rounded p-2 bg-gray-200 text-gray-500 font-bold cursor-not-allowed transition-all" readonly>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">年度 (民國)</label>
+                    <input type="number" id="yearInput" onchange="document.getElementById('titleYear').innerText=this.value; window.resetForm(); window.renderEmployeeBrief();" class="w-full border rounded p-2 bg-gray-200 text-gray-500 font-bold cursor-not-allowed transition-all" readonly>
                 </div>
                 <div class="grid grid-cols-2 gap-2 relative">
                     <div>
@@ -455,7 +455,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: 系統登入帳號管理 (支援店名群組拖曳) -->
+                <!-- Tab 2: 系統登入帳號管理 (支援店名群組拖曳與編輯) -->
                 <div id="adminTabAccounts" class="h-full hidden flex-col">
                     <div class="mb-3 bg-amber-50 p-3 rounded border border-amber-200 flex flex-col gap-1">
                         <span class="text-xs font-bold text-amber-800">⚠️ 此處管理「可以登入此系統的人員」(例如各店主管)。新增帳號預設密碼皆為 8888，首次登入將強制修改。</span>
@@ -1021,7 +1021,7 @@
                     if(log.action.includes("登入") || log.action.includes("登出")) actionBadge = "bg-emerald-100 text-emerald-700 border border-emerald-200";
                     if(log.action.includes("刪除") || log.action.includes("停用") || log.action.includes("離職")) actionBadge = "bg-red-100 text-red-700 border border-red-200";
                     if(log.action.includes("新增") || log.action.includes("儲存") || log.action.includes("派發")) actionBadge = "bg-blue-100 text-blue-700 border border-blue-200";
-                    if(log.action.includes("調閱") || log.action.includes("重設") || log.action.includes("移至")) actionBadge = "bg-amber-100 text-amber-700 border border-amber-200";
+                    if(log.action.includes("調閱") || log.action.includes("重設") || log.action.includes("移至") || log.action.includes("變更")) actionBadge = "bg-amber-100 text-amber-700 border border-amber-200";
 
                     tbody.innerHTML += `<tr class="border-b hover:bg-slate-50 transition">
                         <td class="p-3 text-slate-500 font-mono">${timeStr}</td>
@@ -1033,7 +1033,7 @@
             }, err => console.error("Audit log error:", err));
         };
 
-        // --- 管理區 2: 系統登入帳號管理 (支援拖曳群組化) ---
+        // --- 管理區 2: 系統登入帳號管理 (支援店名群組拖曳與編輯) ---
         window.customGroups = []; 
 
         window.addGroup = (e) => {
@@ -1045,6 +1045,63 @@
                 document.getElementById('newGroupName').value = '';
                 window.showMsg("群組新增成功", "success");
             }
+        };
+
+        // 編輯群組名稱
+        window.editGroupName = async (oldName) => {
+            const newName = prompt(`請輸入「${oldName}」的新群組名稱:`, oldName);
+            if(!newName || newName.trim() === "" || newName === oldName) return;
+            const finalName = newName.trim();
+            
+            if(window.customGroups.includes(finalName) || systemUsers.some(u => u.storeGroup === finalName)) {
+                return window.showWarningModal("名稱重複", "此群組名稱已存在！");
+            }
+
+            const idx = window.customGroups.indexOf(oldName);
+            if(idx !== -1) window.customGroups[idx] = finalName;
+            else window.customGroups.push(finalName);
+
+            const usersToUpdate = systemUsers.filter(u => u.storeGroup === oldName);
+            if(usersToUpdate.length > 0) {
+                window.showMsg("正在更新群組與帳號...", "info");
+                try {
+                    for(const u of usersToUpdate) {
+                        await setDoc(doc(window.db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'system_users', u.id), { ...u, storeGroup: finalName });
+                    }
+                    await window.logAction("變更群組名稱", `將群組 [${oldName}] 更名為 [${finalName}]`);
+                    window.showMsg("群組名稱已全面更新", "success");
+                } catch(e) {
+                    window.showErrorModal("更新失敗", "無法更新帳號群組", e.message);
+                }
+            } else {
+                window.renderAdminAccounts();
+                window.showMsg("群組名稱已更新", "success");
+            }
+        };
+
+        // 刪除群組
+        window.deleteGroup = async (groupName) => {
+            window.showConfirmModal("刪除群組", `確定要刪除「${groupName}」群組嗎？\n該群組內的帳號將被全數移至「未分組」。`, async () => {
+                const idx = window.customGroups.indexOf(groupName);
+                if(idx !== -1) window.customGroups.splice(idx, 1);
+                
+                const usersToUpdate = systemUsers.filter(u => u.storeGroup === groupName);
+                if(usersToUpdate.length > 0) {
+                    window.showMsg("正在整理帳號...", "info");
+                    try {
+                        for(const u of usersToUpdate) {
+                            await setDoc(doc(window.db, 'artifacts', firebaseConfig.appId, 'public', 'data', 'system_users', u.id), { ...u, storeGroup: "未分組" });
+                        }
+                        await window.logAction("刪除群組", `刪除了群組 [${groupName}]，帳號已歸入未分組`);
+                        window.showMsg("群組已刪除", "success");
+                    } catch(e) {
+                        window.showErrorModal("刪除失敗", "無法更新帳號", e.message);
+                    }
+                } else {
+                    window.renderAdminAccounts();
+                    window.showMsg("群組已刪除", "success");
+                }
+            });
         };
 
         window.addSystemUser = async (e) => {
@@ -1095,10 +1152,18 @@
                     </div>`;
                 });
 
+                const groupTitleHtml = g === '未分組' ? 
+                    `<span>${g}</span>` : 
+                    `<div class="flex items-center gap-1">
+                        <span>${g}</span>
+                        <button onclick="window.editGroupName('${g}')" class="text-slate-500 hover:text-blue-600 bg-slate-100 hover:bg-slate-300 w-5 h-5 rounded flex items-center justify-center transition" title="編輯群組">✏️</button>
+                        <button onclick="window.deleteGroup('${g}')" class="text-slate-500 hover:text-red-600 bg-slate-100 hover:bg-slate-300 w-5 h-5 rounded flex items-center justify-center transition" title="刪除群組">🗑️</button>
+                    </div>`;
+
                 container.innerHTML += `
                 <div class="w-64 min-w-[16rem] bg-slate-50 border border-slate-300 rounded-lg flex flex-col shadow-sm max-h-full">
                     <div class="bg-slate-200 px-3 py-2.5 border-b border-slate-300 font-bold text-slate-700 text-sm flex justify-between items-center shrink-0">
-                        <span>${g}</span>
+                        ${groupTitleHtml}
                         <span class="bg-slate-300 text-slate-800 text-[10px] px-2 py-0.5 rounded-full">${usersInGroup.length}</span>
                     </div>
                     <div class="flex-1 p-2 overflow-y-auto min-h-[150px] transition-colors"
